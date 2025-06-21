@@ -25,24 +25,22 @@
   </style>
 </head>
 <body class="relative">
-  <div class="relative z-10 container mx-auto p-8">
-    <header class="text-center mb-12">
-      <h1 class="text-5xl font-black tracking-tight">BEAT THE STREAK</h1>
+  <div class="relative z-10 container mx-auto p-4 sm:p-8">
+    <header class="text-center mb-8 sm:mb-12">
+      <h1 class="text-4xl sm:text-5xl font-black tracking-tight">BEAT THE STREAK</h1>
       <p class="text-gray-400 mt-2">
         All Reports • Click any card to view Picks, Infographic, or Full Analysis
       </p>
     </header>
 
-    <!-- Responsive grid: centered until large, then left-aligned -->
+    <!-- Center until lg, left-align at lg+ -->
     <div
       id="reports"
-      class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8
-             justify-items-center lg:justify-items-start"
-    >
-      <!-- Cards get injected here by JS -->
-    </div>
+      class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-8
+             justify-center lg:justify-start"
+    ></div>
 
-    <footer class="text-center text-gray-400 text-sm mt-16">
+    <footer class="text-center text-gray-400 text-xs sm:text-sm mt-8 sm:mt-16">
       <p>Powered by GitHub’s API. Confirm lineups on MLB.com.</p>
     </footer>
   </div>
@@ -53,7 +51,6 @@
     const res = await fetch('https://api.github.com/repos/PrevailNetworks/BTS2025/contents?ref=main');
     const files = await res.json();
 
-    // Group picks, infographics, and full reports by date prefix
     const reports = files
       .filter(f => /-(picks|ig|report)\.html$/.test(f.name))
       .reduce((acc, f) => {
@@ -65,10 +62,8 @@
         return acc;
       }, {});
 
-    // Sort newest-first
     const sortedDates = Object.keys(reports).sort((a,b) => b.localeCompare(a));
 
-    // Render a card per date
     for (const datePart of sortedDates) {
       const { picks, ig, report } = reports[datePart];
       const displayDate =
@@ -76,20 +71,30 @@
 
       const card = document.createElement('div');
       card.className = [
-        'bg-gray-900/60','border','border-gray-700','rounded-lg','p-6',
+        'bg-gray-900/60','border','border-gray-700','rounded-lg','p-4 sm:p-6',
         'flex','flex-col','justify-between',
-        'transition-transform','transform','hover:-translate-y-1','hover:shadow-xl'
+        'transition-transform','transform','hover:-translate-y-1','hover:shadow-xl',
+        'max-w-sm'
       ].join(' ');
 
       card.innerHTML = `
         <div>
-          <h2 class="text-xl font-bold mb-2 text-lime-400">${displayDate}</h2>
-          <p class="text-gray-300 mb-4">Daily Picks & Infographic</p>
+          <h2 class="text-lg sm:text-xl font-bold mb-1 sm:mb-2 text-lime-400">${displayDate}</h2>
+          <p class="text-gray-300 mb-3 sm:mb-4 text-sm sm:text-base">Daily Picks & Infographic</p>
         </div>
-        <div class="space-x-2">
-          ${picks  ? `<a class="inline-block bg-lime-500 text-black font-semibold px-4 py-2 rounded hover:bg-lime-600" href="${picks}">Picks</a>`        : ''}
-          ${ig     ? `<a class="inline-block bg-blue-600 text-white font-semibold px-4 py-2 rounded hover:bg-blue-700" href="${ig}">Infographic</a>`     : ''}
-          ${report ? `<a class="inline-block bg-purple-600 text-white font-semibold px-4 py-2 rounded hover:bg-purple-700" href="${report}">Full Analysis</a>` : ''}
+        <div class="flex flex-col sm:flex-row sm:space-x-2 space-y-2 sm:space-y-0">
+          ${picks  ? `<a class="inline-block bg-lime-500 text-black font-semibold
+                           px-3 py-1.5 sm:px-4 sm:py-2 rounded hover:bg-lime-600
+                           text-center"
+                           href="${picks}">Picks</a>`        : ''}
+          ${ig     ? `<a class="inline-block bg-blue-600 text-white font-semibold
+                           px-3 py-1.5 sm:px-4 sm:py-2 rounded hover:bg-blue-700
+                           text-center"
+                           href="${ig}">Infographic</a>`     : ''}
+          ${report ? `<a class="inline-block bg-purple-600 text-white font-semibold
+                           px-3 py-1.5 sm:px-4 sm:py-2 rounded hover:bg-purple-700
+                           text-center"
+                           href="${report}">Full Analysis</a>` : ''}
         </div>
       `;
 
