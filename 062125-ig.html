@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Chosen Palette: Vibrant & Dark (inspired by image_d711d2.jpg) -->
+    <!-- Application Structure Plan: A top-down, scrollable infographic narrative. It starts with the main conclusion (Top 4 Picks) presented in visually striking cards. It then flows into sections explaining the key metrics, followed by detailed, data-rich breakdowns for each recommended player. Each player section includes a radar chart for their skills, a bar chart for the pitcher's weaknesses, and key stats. The infographic concludes with a comparative bar chart and a summary of limitations. This linear, scrolling format is ideal for storytelling and easy consumption on any device. -->
+    <!-- Visualization & Content Choices: 
+        - Report Info: Top 4 Player Recommendations -> Goal: Inform -> Viz/Method: Large HTML/Tailwind cards -> Justification: Provides an immediate, high-level summary and visual hook. NO SVG/Mermaid.
+        - Report Info: Player Statcast Percentiles -> Goal: Compare/Analyze -> Viz/Method: Radar Chart (Chart.js/Canvas) -> Justification: Visualizes a player's multi-faceted strengths profile against a league-average baseline, making complex data intuitive. NO SVG/Mermaid.
+        - Report Info: Pitcher's Vulnerable Pitches (Negative Run Values) -> Goal: Inform -> Viz/Method: Horizontal Bar Chart (Chart.js/Canvas) -> Justification: Clearly highlights the specific pitches that are performing poorly, offering a tangible target for hitters. NO SVG/Mermaid.
+        - Report Info: Park Factors -> Goal: Compare -> Viz/Method: Grouped Bar Chart (Chart.js/Canvas) -> Justification: Easy side-by-side comparison of how a park influences different offensive outcomes. NO SVG/Mermaid.
+        - Report Info: Direct Player Stat Comparison -> Goal: Compare -> Viz/Method: Grouped Bar Chart (Chart.js/Canvas) -> Justification: A final, direct quantitative comparison of the top picks on key metrics to aid final decision-making. NO SVG/Mermaid.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <title>Beat the Streak Infographic - June 21, 2025</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #000000; color: #FFFFFF; }
+        .chart-container { position: relative; width: 100%; max-width: 600px; margin-left: auto; margin-right: auto; height: 350px; max-height: 45vh; }
+        .h-bar-chart-container { position: relative; width: 100%; max-width: 600px; margin-left: auto; margin-right: auto; height: 250px; max-height: 35vh; }
+        .comparison-chart-container { position: relative; width: 100%; height: 400px; max-height: 50vh; }
+        .text-glow { text-shadow: 0 0 8px #a3e635, 0 0 10px #a3e635; }
+        .card-border-glow { border: 2px solid #a3e635; box-shadow: 0 0 15px #a3e63560; }
+        .section-title { font-weight: 900; font-size: 2.25rem; line-height: 2.5rem; text-transform: uppercase; }
+        .stat-value { font-weight: 900; font-size: 3rem; line-height: 1; color: #a3e635; }
+        .stat-label { font-size: 0.875rem; line-height: 1.25rem; color: #9ca3af; text-transform: uppercase; }
+    </style>
+</head>
+<body class="bg-black">
+
+    <div class="container mx-auto p-4 md:p-8">
+
+        <header class="text-center my-12">
+            <h1 class="section-title text-white">BEAT THE STREAK</h1>
+            <p class="text-xl text-gray-400 mt-2">Top Hit Probability Picks: June 21, 2025</p>
+        </header>
+
+        <section id="top-picks" class="mb-16">
+             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div class="bg-gray-900 p-6 rounded-lg border-2 border-gray-700 text-center flex flex-col justify-between">
+                    <div>
+                        <p class="text-2xl font-bold">Shohei Ohtani</p>
+                        <p class="text-gray-400">Los Angeles Dodgers</p>
+                        <p class="stat-value mt-4">81.2<span class="text-2xl">%</span></p>
+                        <p class="stat-label">Hit Probability</p>
+                    </div>
+                    <p class="text-sm mt-4 text-lime-400">#1 RANK</p>
+                </div>
+                <div class="bg-gray-900 p-6 rounded-lg border-2 border-gray-700 text-center flex flex-col justify-between">
+                    <div>
+                        <p class="text-2xl font-bold">Vladimir Guerrero Jr.</p>
+                        <p class="text-gray-400">Toronto Blue Jays</p>
+                        <p class="stat-value mt-4">78.5<span class="text-2xl">%</span></p>
+                        <p class="stat-label">Hit Probability</p>
+                    </div>
+                    <p class="text-sm mt-4 text-lime-400">#2 RANK</p>
+                </div>
+                <div class="bg-gray-900 p-6 rounded-lg border-2 border-gray-700 text-center flex flex-col justify-between">
+                    <div>
+                        <p class="text-2xl font-bold">Juan Soto</p>
+                        <p class="text-gray-400">New York Mets</p>
+                        <p class="stat-value mt-4">76.8<span class="text-2xl">%</span></p>
+                        <p class="stat-label">Hit Probability</p>
+                    </div>
+                    <p class="text-sm mt-4 text-lime-400">#3 RANK</p>
+                </div>
+                <div class="bg-gray-900 p-6 rounded-lg border-2 border-gray-700 text-center flex flex-col justify-between">
+                    <div>
+                        <p class="text-2xl font-bold">Aaron Judge</p>
+                        <p class="text-gray-400">New York Yankees</p>
+                        <p class="stat-value mt-4">75.9<span class="text-2xl">%</span></p>
+                        <p class="stat-label">Hit Probability</p>
+                    </div>
+                    <p class="text-sm mt-4 text-lime-400">#4 RANK</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Player 1: Ohtani -->
+        <section class="mb-20 py-10 border-t border-b border-gray-800">
+            <div class="text-center mb-8">
+                <h2 class="section-title text-lime-400">#1 Pick: Shohei Ohtani</h2>
+                <p class="text-gray-400">Elite contact meets a favorable matchup in a hitter's park.</p>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                <div>
+                    <h3 class="text-xl font-bold mb-2 text-center">Hitter Profile: Statcast Power</h3>
+                    <p class="text-sm text-gray-500 text-center mb-4">Ohtani's percentile rankings show all-around elite hitting skills.</p>
+                    <div class="chart-container">
+                        <canvas id="ohtani-radar"></canvas>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold mb-2 text-center">Matchup: vs. Jake Irvin</h3>
+                    <div class="bg-gray-900 p-4 rounded-lg mb-4">
+                        <p class="text-center">Ohtani is <strong class="text-lime-400">4-for-8 (.500 BA)</strong> with a 1.181 OPS against Irvin.</p>
+                    </div>
+                    <p class="text-sm text-gray-500 text-center mb-4">Irvin's xERA (5.24) is much higher than his ERA (4.23), suggesting he's due for regression. His most-used pitches are also his most vulnerable based on Run Value.</p>
+                    <div class="h-bar-chart-container">
+                        <canvas id="irvin-pitch-vuln"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Player 2: Guerrero -->
+        <section class="mb-20 py-10 border-b border-gray-800">
+            <div class="text-center mb-8">
+                <h2 class="section-title text-lime-400">#2 Pick: Vladimir Guerrero Jr.</h2>
+                <p class="text-gray-400">High xBA and a history of success against a hittable pitcher.</p>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                <div>
+                    <h3 class="text-xl font-bold mb-2 text-center">Hitter Profile: Contact Machine</h3>
+                    <p class="text-sm text-gray-500 text-center mb-4">Guerrero Jr.'s high xBA and Squared-Up% signal excellent, consistent contact.</p>
+                    <div class="chart-container">
+                        <canvas id="guerrero-radar"></canvas>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold mb-2 text-center">Matchup: vs. Aaron Civale</h3>
+                    <div class="bg-gray-900 p-4 rounded-lg mb-4">
+                        <p class="text-center">Guerrero Jr. is <strong class="text-lime-400">4-for-10 (.400 BA)</strong> with a 1.238 OPS against Civale.</p>
+                    </div>
+                    <p class="text-sm text-gray-500 text-center mb-4">Civale's three most-used pitches all have negative run values, indicating they are frequently hit hard by opponents.</p>
+                     <div class="h-bar-chart-container">
+                        <canvas id="civale-pitch-vuln"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Player 3: Soto -->
+        <section class="mb-20 py-10 border-b border-gray-800">
+            <div class="text-center mb-8">
+                <h2 class="section-title text-lime-400">#3 Pick: Juan Soto</h2>
+                <p class="text-gray-400">A prime candidate for positive regression due to elite plate discipline and contact quality.</p>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                <div>
+                    <h3 class="text-xl font-bold mb-2 text-center">Hitter Profile: The Disciplinarian</h3>
+                    <p class="text-sm text-gray-500 text-center mb-4">Soto's sky-high xBA and elite Chase Rate suggest more hits are coming.</p>
+                    <div class="chart-container">
+                        <canvas id="soto-radar"></canvas>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold mb-2 text-center">Matchup: vs. Mick Abel</h3>
+                    <div class="bg-gray-900 p-4 rounded-lg mb-4">
+                        <p class="text-center">Soto's elite discipline is a key advantage against a young pitcher with limited MLB experience and declining strikeout numbers.</p>
+                    </div>
+                     <p class="text-sm text-gray-500 text-center mb-4">The game is at Citizens Bank Park, a top-tier hitter's park (105 Hits Factor), further increasing Soto's chances.</p>
+                     <div class="chart-container">
+                        <canvas id="philly-park-factors"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Player 4: Judge -->
+        <section class="mb-20 py-10 border-b border-gray-800">
+            <div class="text-center mb-8">
+                <h2 class="section-title text-lime-400">#4 Pick: Aaron Judge</h2>
+                <p class="text-gray-400">An MVP-level season with elite power metrics that can overcome a tough history.</p>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                <div>
+                    <h3 class="text-xl font-bold mb-2 text-center">Hitter Profile: Unmatched Power</h3>
+                    <p class="text-sm text-gray-500 text-center mb-4">Judge's Barrel% and Bat Speed are off the charts, driving his incredible season.</p>
+                    <div class="chart-container">
+                        <canvas id="judge-radar"></canvas>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold mb-2 text-center">Matchup: vs. Zach Eflin</h3>
+                    <div class="bg-gray-900 p-4 rounded-lg mb-4">
+                         <p class="text-center">Despite a poor history (4-for-19), Judge's current form and Eflin's recent struggles (7 ER in last start) suggest an opportunity.</p>
+                    </div>
+                     <p class="text-sm text-gray-500 text-center mb-4">Eflin's Curveball has a very poor -5.8 Run Value, creating a clear target for a power hitter like Judge.</p>
+                     <div class="h-bar-chart-container">
+                        <canvas id="eflin-pitch-vuln"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section class="mb-16">
+            <div class="text-center mb-8">
+                <h2 class="section-title text-white">Picks at a Glance</h2>
+                <p class="text-gray-400">Comparing the top selections on key predictive metrics.</p>
+            </div>
+            <div class="comparison-chart-container">
+                <canvas id="comparison-chart"></canvas>
+            </div>
+        </section>
+
+        <footer class="text-center text-gray-500 text-xs py-8 border-t border-gray-800">
+            <p>Analysis based on data up to June 20, 2025. Always confirm starting lineups on MLB.com before making final selections. Baseball outcomes are probabilistic; this analysis identifies high-probability selections, not guarantees.</p>
+        </footer>
+
+    </div>
+
+    <script>
+        const chartOptions = {
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        title: function(tooltipItems) {
+                            const item = tooltipItems[0];
+                            let label = item.chart.data.labels[item.dataIndex];
+                            if (Array.isArray(label)) { return label.join(' '); }
+                            return label;
+                        }
+                    }
+                }
+            }
+        };
+
+        const radarOptions = {
+            ...chartOptions,
+            scales: {
+                r: {
+                    angleLines: { color: 'rgba(255, 255, 255, 0.1)' },
+                    grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                    pointLabels: { font: { size: 12 }, color: '#a3e635' },
+                    min: 0, max: 100,
+                    ticks: {
+                        backdropColor: 'rgba(0, 0, 0, 0.75)',
+                        color: 'white',
+                        stepSize: 20
+                    }
+                }
+            },
+            plugins: { ...chartOptions.plugins, legend: { display: false } }
+        };
+
+        const limeGreenBg = 'rgba(163, 230, 53, 0.4)';
+        const limeGreenBorder = 'rgba(163, 230, 53, 1)';
+        
+        new Chart(document.getElementById('ohtani-radar'), {
+            type: 'radar',
+            data: {
+                labels: ['xBA', 'HardHit%', 'Barrel%', 'Bat Speed', 'Squared-Up%'],
+                datasets: [{
+                    label: 'Ohtani',
+                    data: [86, 99, 98, 96, 55],
+                    backgroundColor: limeGreenBg,
+                    borderColor: limeGreenBorder,
+                    pointBackgroundColor: limeGreenBorder
+                }]
+            },
+            options: radarOptions
+        });
+
+        new Chart(document.getElementById('irvin-pitch-vuln'), {
+            type: 'bar',
+            data: {
+                labels: ['Curveball', '4-Seam FB'],
+                datasets: [{
+                    label: 'Run Value / 100',
+                    data: [-0.8, -0.8],
+                    backgroundColor: ['rgba(239, 68, 68, 0.6)', 'rgba(239, 68, 68, 0.6)'],
+                    borderColor: ['rgba(239, 68, 68, 1)', 'rgba(239, 68, 68, 1)'],
+                    borderWidth: 1
+                }]
+            },
+            options: { ...chartOptions, indexAxis: 'y', scales: { x: { grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: 'white' } }, y: { grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: 'white' } } }, plugins: { ...chartOptions.plugins, legend: { labels: {color: 'white'} } }}
+        });
+
+        new Chart(document.getElementById('guerrero-radar'), {
+            type: 'radar',
+            data: {
+                labels: ['xBA', 'HardHit%', 'Barrel%', 'Bat Speed', 'Squared-Up%'],
+                datasets: [{
+                    label: 'Guerrero Jr.',
+                    data: [95, 90, 85, 96, 86],
+                    backgroundColor: limeGreenBg,
+                    borderColor: limeGreenBorder,
+                    pointBackgroundColor: limeGreenBorder
+                }]
+            },
+            options: radarOptions
+        });
+
+        new Chart(document.getElementById('civale-pitch-vuln'), {
+            type: 'bar',
+            data: {
+                labels: ['Sinker', 'Cutter', 'Curveball'],
+                datasets: [{
+                    label: 'Run Value / 100',
+                    data: [-3.4, -1.5, -0.9],
+                    backgroundColor: ['rgba(239, 68, 68, 0.6)', 'rgba(239, 68, 68, 0.6)', 'rgba(239, 68, 68, 0.6)'],
+                    borderColor: ['rgba(239, 68, 68, 1)', 'rgba(239, 68, 68, 1)', 'rgba(239, 68, 68, 1)'],
+                    borderWidth: 1
+                }]
+            },
+            options: { ...chartOptions, indexAxis: 'y', scales: { x: { grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: 'white' } }, y: { grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: 'white' } } }, plugins: { ...chartOptions.plugins, legend: { labels: {color: 'white'} } }}
+        });
+
+        new Chart(document.getElementById('soto-radar'), {
+            type: 'radar',
+            data: {
+                labels: ['xBA', 'HardHit%', 'Barrel%', 'Chase Rate', 'Squared-Up%'],
+                datasets: [{
+                    label: 'Soto',
+                    data: [92, 95, 85, 100, 94],
+                    backgroundColor: limeGreenBg,
+                    borderColor: limeGreenBorder,
+                    pointBackgroundColor: limeGreenBorder
+                }]
+            },
+            options: radarOptions
+        });
+
+        new Chart(document.getElementById('philly-park-factors'), {
+            type: 'bar',
+            data: {
+                labels: ['Hits', 'Runs', 'Home Runs'],
+                datasets: [{
+                    label: 'Park Factor Index (100=Avg)',
+                    data: [105, 108, 106],
+                    backgroundColor: [limeGreenBg, limeGreenBg, limeGreenBg],
+                    borderColor: [limeGreenBorder, limeGreenBorder, limeGreenBorder],
+                    borderWidth: 1
+                }]
+            },
+            options: {...chartOptions, scales: { y: { beginAtZero: false, grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: 'white' } }, x: { grid: { display: false }, ticks: { color: 'white' } } }, plugins: { ...chartOptions.plugins, legend: { labels: {color: 'white'} } }}
+        });
+
+        new Chart(document.getElementById('judge-radar'), {
+            type: 'radar',
+            data: {
+                labels: ['xBA', 'HardHit%', 'Barrel%', 'Bat Speed', 'xSLG'],
+                datasets: [{
+                    label: 'Judge',
+                    data: [94, 94, 99, 98, 100],
+                    backgroundColor: limeGreenBg,
+                    borderColor: limeGreenBorder,
+                    pointBackgroundColor: limeGreenBorder
+                }]
+            },
+            options: radarOptions
+        });
+        
+        new Chart(document.getElementById('eflin-pitch-vuln'), {
+            type: 'bar',
+            data: {
+                labels: ['Curveball', 'Sweeper'],
+                datasets: [{
+                    label: 'Run Value / 100',
+                    data: [-5.8, -0.7],
+                    backgroundColor: ['rgba(239, 68, 68, 0.6)', 'rgba(239, 68, 68, 0.6)'],
+                    borderColor: ['rgba(239, 68, 68, 1)', 'rgba(239, 68, 68, 1)'],
+                    borderWidth: 1
+                }]
+            },
+            options: { ...chartOptions, indexAxis: 'y', scales: { x: { grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: 'white' } }, y: { grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: 'white' } } }, plugins: { ...chartOptions.plugins, legend: { labels: {color: 'white'} } }}
+        });
+
+        new Chart(document.getElementById('comparison-chart'), {
+            type: 'bar',
+            data: {
+                labels: ['xBA', 'HardHit%', 'Barrel%'],
+                datasets: [
+                    {
+                        label: 'Ohtani',
+                        data: [0.297, 0.618, 0.217],
+                        backgroundColor: 'rgba(163, 230, 53, 0.7)',
+                        borderColor: 'rgba(163, 230, 53, 1)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Guerrero Jr.',
+                        data: [0.324, 0.536, 0.146],
+                        backgroundColor: 'rgba(59, 130, 246, 0.7)',
+                        borderColor: 'rgba(59, 130, 246, 1)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Soto',
+                        data: [0.311, 0.562, 0.146],
+                        backgroundColor: 'rgba(249, 115, 22, 0.7)',
+                        borderColor: 'rgba(249, 115, 22, 1)',
+                        borderWidth: 1
+                    },
+                     {
+                        label: 'Judge',
+                        data: [0.318, 0.556, 0.250],
+                        backgroundColor: 'rgba(251, 191, 36, 0.7)',
+                        borderColor: 'rgba(251, 191, 36, 1)',
+                        borderWidth: 1
+                    }
+                ]
+            },
+            options: {
+                maintainAspectRatio: false,
+                scales: {
+                    y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: 'white' } },
+                    x: { grid: { display: false }, ticks: { color: 'white' } }
+                },
+                plugins: {
+                    legend: { position: 'top', labels: { color: 'white' } },
+                    tooltip: {
+                        callbacks: {
+                            title: function(tooltipItems) {
+                                const item = tooltipItems[0];
+                                let label = item.chart.data.labels[item.dataIndex];
+                                if (Array.isArray(label)) { return label.join(' '); }
+                                return label;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
