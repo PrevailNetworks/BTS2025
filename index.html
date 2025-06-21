@@ -4,26 +4,31 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>BTS2025 • All Reports</title>
-  <!-- FOR PRODUCTION: see Tailwind docs; this CDN is just for quick testing -->
+  <!-- Quick-and-dirty Tailwind CDN (swap for a build step in prod) -->
   <script src="https://cdn.tailwindcss.com"></script>
-
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap"
     rel="stylesheet"
   />
-
   <style>
+    /* Full-screen background + dark overlay */
     body {
       font-family: 'Inter', sans-serif;
-      background-color: #000;
+      background: 
+        /* bottom layer: your stadium shot */
+        url('assets/images/truistpark2.jpg') no-repeat center center/cover,
+        /* top layer: 85% black */
+        rgba(0,0,0,0.85);
+      background-blend-mode: overlay;
       color: #FFF;
+      min-height: 100vh;
     }
   </style>
 </head>
-<body class="bg-black min-h-screen">
-  <div class="container mx-auto p-8">
+<body class="relative">
+  <div class="relative z-10 container mx-auto p-8">
     <header class="text-center mb-12">
       <h1 class="text-5xl font-black tracking-tight">BEAT THE STREAK</h1>
       <p class="text-gray-400 mt-2">
@@ -32,10 +37,10 @@
     </header>
 
     <div id="reports" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-      <!-- JS will inject cards here -->
+      <!-- Cards injected here -->
     </div>
 
-    <footer class="text-center text-gray-600 text-sm mt-16">
+    <footer class="text-center text-gray-400 text-sm mt-16">
       <p>Powered by GitHub’s API. Confirm lineups on MLB.com.</p>
     </footer>
   </div>
@@ -46,7 +51,6 @@
     const res = await fetch('https://api.github.com/repos/PrevailNetworks/BTS2025/contents?ref=main');
     const files = await res.json();
 
-    // 1) pick up only picks, ig, or report HTML files
     const reports = files
       .filter(f => /-(picks|ig|report)\.html$/.test(f.name))
       .reduce((acc, f) => {
@@ -58,10 +62,8 @@
         return acc;
       }, {});
 
-    // 2) sort dates newest first
     const sortedDates = Object.keys(reports).sort((a,b) => b.localeCompare(a));
 
-    // 3) render a card per date
     for (const datePart of sortedDates) {
       const { picks, ig, report } = reports[datePart];
       const displayDate = 
@@ -69,16 +71,15 @@
 
       const card = document.createElement('div');
       card.className = [
-        'bg-gray-900','border-2','border-gray-700','rounded-lg','p-6',
+        'bg-gray-900/60','border','border-gray-700','rounded-lg','p-6',
         'flex','flex-col','justify-between',
         'transition-transform','transform','hover:-translate-y-1','hover:shadow-xl'
       ].join(' ');
 
-      // Note: careful with your backticks and template literals here
       card.innerHTML = `
         <div>
           <h2 class="text-xl font-bold mb-2 text-lime-400">${displayDate}</h2>
-          <p class="text-gray-400 mb-4">Daily Picks & Infographic</p>
+          <p class="text-gray-300 mb-4">Daily Picks & Infographic</p>
         </div>
         <div class="space-x-2">
           ${picks  ? `<a class="inline-block bg-lime-500 text-black font-semibold px-4 py-2 rounded hover:bg-lime-600" href="${picks}">Picks</a>`        : ''}
