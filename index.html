@@ -4,89 +4,16 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>BTS2025 • All Reports</title>
+  <!-- FOR PRODUCTION: see Tailwind docs; this CDN is just for quick testing -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <link
-    rel="preconnect"
-    href="https://fonts.googleapis.com"
-  />
-  <link
-    rel="preconnect"
-    href="https://fonts.gstatic.com"
-    crossorigin
-  />
-  <link
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap"
-    rel="stylesheet"
-  />
-  <style>
-    body {
-      font-family: 'Inter', sans-serif;
-      background-color: #000;
-      color: #FFF;
-    }
-    .report-card {
-      @apply bg-gray-900 border-2 border-gray-700 rounded-lg p-6 flex flex-col justify-between;
-      transition: transform .2s, box-shadow .2s;
-    }
-    .report-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 10px 15px rgba(0,0,0,0.5);
-    }
-    .btn {
-      @apply inline-block text-sm font-semibold px-4 py-2 rounded;
-    }
-    .btn-picks {
-      @apply bg-lime-500 text-black hover:bg-lime-600;
-    }
-    .btn-ig {
-      @apply bg-blue-600 text-white hover:bg-blue-700;
-    }
-  </style>
-</head>
-<body class="bg-black min-h-screen">
-  <div class="container mx-auto p-8">
-    <header class="text-center mb-12">
-      <h1 class="text-5xl font-black tracking-tight">BEAT THE STREAK</h1>
-      <p class="text-gray-400 mt-2">All Reports • Click any card to view Picks or Infographic</p>
-    </header>
 
-    <div id="reports" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-      <!-- Cards will be injected here -->
-    </div>
-
-    <footer class="text-center text-gray-600 text-sm mt-16">
-      <p>Powered by GitHub’s API. Confirm lineups on MLB.com.</p>
-    </footer>
-  </div>
-
-  <script>
-    (async () => {
-      const container = document.getElementById('reports');
-      const res = await fetch('https://api.github.com/repos/PrevailNetworks/BTS2025/contents?ref=main');
-      const files = await res.json();
-
-      // group files by date prefix
-      const reports = files
-        .filter(f => /-(picks|ig)\.html$/.test(f.name))
-        .reduce((acc, f) => {
-          const [datePart, type] = f.name.split('-');
-          acc[datePart] = acc[datePart] || {};
-          if (type.startsWith('picks'))  acc[datePart].picks = f.name;
-          else                             acc[datePart].ig    = f.name;
-          return acc;
-        }, {});<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>BTS2025 • All Reports</title>
-  <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap"
     rel="stylesheet"
   />
+
   <style>
     body {
       font-family: 'Inter', sans-serif;
@@ -99,11 +26,13 @@
   <div class="container mx-auto p-8">
     <header class="text-center mb-12">
       <h1 class="text-5xl font-black tracking-tight">BEAT THE STREAK</h1>
-      <p class="text-gray-400 mt-2">All Reports • Click any card to view Picks, Infographic, or Full Analysis</p>
+      <p class="text-gray-400 mt-2">
+        All Reports • Click any card to view Picks, Infographic, or Full Analysis
+      </p>
     </header>
 
     <div id="reports" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-      <!-- Cards will be injected here -->
+      <!-- JS will inject cards here -->
     </div>
 
     <footer class="text-center text-gray-600 text-sm mt-16">
@@ -112,102 +41,60 @@
   </div>
 
   <script>
-    (async () => {
-      const container = document.getElementById('reports');
-      const res = await fetch('https://api.github.com/repos/PrevailNetworks/BTS2025/contents?ref=main');
-      const files = await res.json();
+  (async () => {
+    const container = document.getElementById('reports');
+    const res = await fetch('https://api.github.com/repos/PrevailNetworks/BTS2025/contents?ref=main');
+    const files = await res.json();
 
-      // group files by date prefix, including picks, ig, and report
-      const reports = files
-        .filter(f => /-(picks|ig|report)\.html$/.test(f.name))
-        .reduce((acc, f) => {
-          const [datePart, type] = f.name.split('-');
-          acc[datePart] = acc[datePart] || {};
-          if (type.startsWith('picks'))    acc[datePart].picks  = f.name;
-          else if (type.startsWith('ig'))  acc[datePart].ig     = f.name;
-          else if (type.startsWith('report')) acc[datePart].report = f.name;
-          return acc;
-        }, {});
+    // 1) pick up only picks, ig, or report HTML files
+    const reports = files
+      .filter(f => /-(picks|ig|report)\.html$/.test(f.name))
+      .reduce((acc, f) => {
+        const [datePart, type] = f.name.split('-');
+        acc[datePart] = acc[datePart] || {};
+        if (type.startsWith('picks'))     acc[datePart].picks  = f.name;
+        else if (type.startsWith('ig'))   acc[datePart].ig     = f.name;
+        else if (type.startsWith('report')) acc[datePart].report = f.name;
+        return acc;
+      }, {});
 
-      // sort dates newest-first
-      const sortedDates = Object.keys(reports).sort((a, b) => b.localeCompare(a));
+    // 2) sort dates newest first
+    const sortedDates = Object.keys(reports).sort((a,b) => b.localeCompare(a));
 
-      for (const datePart of sortedDates) {
-        const { picks, ig, report } = reports[datePart];
-        const displayDate = `${datePart.slice(0,2)}/${datePart.slice(2,4)}/20${datePart.slice(4)}`;
+    // 3) render a card per date
+    for (const datePart of sortedDates) {
+      const { picks, ig, report } = reports[datePart];
+      const displayDate = 
+        `${datePart.slice(0,2)}/${datePart.slice(2,4)}/20${datePart.slice(4)}`;
 
-        const card = document.createElement('div');
-        // Inline all Tailwind classes
-        card.className = [
-          'bg-gray-900','border-2','border-gray-700','rounded-lg','p-6',
-          'flex','flex-col','justify-between',
-          'transition-transform','transform','hover:-translate-y-1','hover:shadow-xl'
-        ].join(' ');
+      const card = document.createElement('div');
+      card.className = [
+        'bg-gray-900','border-2','border-gray-700','rounded-lg','p-6',
+        'flex','flex-col','justify-between',
+        'transition-transform','transform','hover:-translate-y-1','hover:shadow-xl'
+      ].join(' ');
 
-        card.innerHTML = `
-          <div>
-            <h2 class="text-xl font-bold mb-2 text-lime-400">${displayDate}</h2>
-            <p class="text-gray-400 mb-4">Daily Picks & Infographic</p>
-          </div>
-          <div class="space-x-2">
-            ${picks  ? `<a class="inline-block bg-lime-500 text-black font-semibold px-4 py-2 rounded hover:bg-lime-600" href="${picks}">Picks</a>`        : ''}
-            ${ig     ? `<a class="inline-block bg-blue-600 text-white font-semibold px-4 py-2 rounded hover:bg-blue-700" href="${ig}">Infographic</a>`     : ''}
-            ${report ? `<a class="inline-block bg-purple-600 text-white font-semibold px-4 py-2 rounded hover:bg-purple-700" href="${report}">Full Analysis</a>` : ''}
-          </div>
-        `;
+      // Note: careful with your backticks and template literals here
+      card.innerHTML = `
+        <div>
+          <h2 class="text-xl font-bold mb-2 text-lime-400">${displayDate}</h2>
+          <p class="text-gray-400 mb-4">Daily Picks & Infographic</p>
+        </div>
+        <div class="space-x-2">
+          ${picks  ? `<a class="inline-block bg-lime-500 text-black font-semibold px-4 py-2 rounded hover:bg-lime-600" href="${picks}">Picks</a>`        : ''}
+          ${ig     ? `<a class="inline-block bg-blue-600 text-white font-semibold px-4 py-2 rounded hover:bg-blue-700" href="${ig}">Infographic</a>`     : ''}
+          ${report ? `<a class="inline-block bg-purple-600 text-white font-semibold px-4 py-2 rounded hover:bg-purple-700" href="${report}">Full Analysis</a>` : ''}
+        </div>
+      `;
 
-        container.appendChild(card);
-      }
-    })().catch(err => {
-      console.error(err);
-      document.getElementById('reports').innerText =
-        '⚠️ Could not load reports. See console for details.';
-    });
-  </script>
-</body>
-</html>
-
-
-      // sort dates newest-first
-      const sortedDates = Object.keys(reports).sort((a,b) => b.localeCompare(a));
-
-      for (const datePart of sortedDates) {
-        const { picks, ig } = reports[datePart];
-        // format date MM/DD/YYYY
-        const displayDate = `${datePart.slice(0,2)}/${datePart.slice(2,4)}/20${datePart.slice(4)}`;
-const card = document.createElement('div');
-card.className = [
-  'bg-gray-900',
-  'border-2',
-  'border-gray-700',
-  'rounded-lg',
-  'p-6',
-  'flex',
-  'flex-col',
-  'justify-between',
-  'transition-transform',
-  'transform',
-  'hover:-translate-y-1',
-  'hover:shadow-xl'
-].join(' ');
-card.innerHTML = `
-  <div>
-    <h2 class="text-xl font-bold mb-2 text-lime-400">${displayDate}</h2>
-    <p class="text-gray-400 mb-4">Daily Picks & Infographic</p>
-  </div>
-  <div class="space-x-2">
-    ${picks ? `<a class="inline-block bg-lime-500 text-black font-semibold px-4 py-2 rounded hover:bg-lime-600" href="${picks}">Picks</a>` : ''}
-    ${ig    ? `<a class="inline-block bg-blue-600 text-white font-semibold px-4 py-2 rounded hover:bg-blue-700" href="${ig}">Infographic</a>` : ''}
-  </div>
-`;
-container.appendChild(card);
-
-      }
-    })().catch(err => {
-      console.error(err);
-      document.getElementById('reports').innerText =
-        '⚠️ Could not load reports. See console for details.';
-    });
+      container.appendChild(card);
+    }
+  })()
+  .catch(err => {
+    console.error(err);
+    document.getElementById('reports').innerText =
+      '⚠️ Could not load reports. See console for details.';
+  });
   </script>
 </body>
 </html>
