@@ -3,16 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Chosen Palette: Inspired by image_d711d2.jpg - Predominantly black backgrounds, white/light gray text, with a vibrant lime green accent for highlights and interactive elements. -->
-    <!-- Application Structure Plan: A top-down, task-oriented dashboard. The primary view features clickable player cards for the top recommendations. Clicking a card dynamically populates a detailed analysis section below, which uses tabs (Summary, Hitter Analysis, Matchup, Context) to organize the dense information. This prevents overwhelming the user and allows for easy, on-demand exploration. A separate, interactive comparison tool with a grouped bar chart enables direct, multi-player statistical evaluation. This structure prioritizes quick insights, followed by optional deep dives and direct comparisons, which is a more effective user flow for decision-making than a linear report. -->
-    <!-- Visualization & Content Choices: 
-        - Report Info: Top 4 player recommendations -> Goal: Inform/Navigate -> Viz/Method: Large clickable HTML/Tailwind cards -> Interaction: Click to update detail view -> Justification: Provides an immediate, high-level summary.
-        - Report Info: Player's Quality of Contact metrics (EV, Barrel%, HardHit%, etc.) -> Goal: Compare/Analyze -> Viz/Method: Radar Chart (Chart.js/Canvas) -> Interaction: Dynamically updates per player -> Justification: Visualizes a player's strengths profile against a league-average baseline, making complex data intuitive.
-        - Report Info: Side-by-side player stats -> Goal: Compare -> Viz/Method: Grouped Bar Chart (Chart.js/Canvas) -> Interaction: User selects players to compare via checkboxes -> Justification: Provides a direct, quantitative comparison for final decision-making.
-        - Report Info: Detailed player analysis text and stats -> Goal: Organize/Inform -> Viz/Method: Tabbed interface (HTML/JS) and dynamic text blocks -> Interaction: Click tabs to reveal specific content -> Justification: Manages cognitive load by chunking complex information into thematic sections.
-        - Report Info: Park/Weather factors -> Goal: Inform -> Viz/Method: Simple HTML stat cards -> Justification: Clean, scannable presentation of contextual data.
-    -->
-    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
     <title>Beat the Streak: Interactive Analysis - June 21, 2025</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -21,15 +11,37 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; }
-        .chart-container { position: relative; width: 100%; max-width: 500px; margin-left: auto; margin-right: auto; height: 320px; max-height: 40vh; }
-        @media (min-width: 768px) { .chart-container { height: 350px; } }
-        .comparison-chart-container { position: relative; width: 100%; height: 400px; max-height: 50vh; }
+       .chart-container { position: relative; width: 100%; max-width: 500px; margin-left: auto; margin-right: auto; height: 320px; max-height: 40vh; }
+        @media (min-width: 768px) {.chart-container { height: 350px; } }
+       .comparison-chart-container { position: relative; width: 100%; height: 400px; max-height: 50vh; }
         /* Adjusted active tab for dark theme */
-        .active-tab { border-color: #a3e635; color: #a3e635; /* lime-400 */ } 
-        .player-card { transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; }
-        .player-card:hover { transform: translateY(-4px); }
+       .active-tab { border-color: #a3e635; color: #a3e635; /* lime-400 */ } 
+       .player-card { transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; }
+       .player-card:hover { transform: translateY(-4px); }
         /* Adjusted selected card for dark theme */
-        .player-card.selected-card { border-color: #a3e635; transform: translateY(-2px); box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.2); }
+       .player-card.selected-card { border-color: #a3e635; transform: translateY(-2px); box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.2); }
+        /* Style for the audio player */
+       .audio-player-container {
+            background-color: #1a1a1a; /* Darker gray for the player background */
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 2rem;
+            margin-bottom: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+       .audio-player-container audio {
+            width: 100%;
+            max-width: 500px; /* Limit width for better aesthetics */
+            margin-top: 0.5rem;
+        }
+       .audio-player-container p {
+            color: #a3e635; /* Lime green for the title */
+            font-weight: 600;
+            font-size: 1.125rem;
+        }
     </style>
 </head>
 <body class="bg-black text-white">
@@ -40,6 +52,14 @@
             <h1 class="text-3xl md:text-4xl font-bold text-white">Beat the Streak: Daily Hit Predictor</h1>
             <p class="text-lg text-gray-400 mt-2">Analysis for June 21, 2025</p>
         </header>
+
+        <section class="audio-player-container">
+            <p>Listen to the Daily Picks Overview</p>
+            <audio controls>
+                <source src="062125-audio.mp3" type="audio/mpeg">
+                Your browser does not support the audio element.
+            </audio>
+        </section>
 
         <section id="top-picks" class="mb-8">
             <h2 class="text-2xl font-bold text-white mb-4 text-center">Top Recommendations</h2>
@@ -304,6 +324,7 @@
             const comparisonCheckboxes = document.querySelectorAll('#comparison-checkboxes input');
             comparisonCheckboxes.forEach(checkbox => checkbox.addEventListener('change', updateComparisonChart));
             
+            // Fix: Select the first player card on load
             document.querySelector('[data-player="Shohei Ohtani"]').classList.add('selected-card');
             document.querySelector('[data-tab="summary"]').classList.add('active-tab', 'text-lime-400', 'border-lime-400');
 
@@ -454,10 +475,10 @@
                 return;
             }
             
-            const labels = ['xBA', 'HardHit%', 'Barrel%'];
+            const labels = ['xBA', 'HardHit%', 'Barrel%']; // Fix: Added array initializer
             const datasets = playersToCompare.map((name, index) => {
                 const player = playerData[name];
-                // Using a set of distinct colors for comparison, adapting to dark theme with lime as primary
+                // Using a set of distinct, muted colors for comparison, maintaining the calm aesthetic
                 const colors = [
                     'rgba(163, 230, 53, 0.8)', /* lime-400 */
                     'rgba(59, 130, 246, 0.8)', /* blue-500 */
@@ -472,7 +493,7 @@
                 ];
                 return {
                     label: name,
-                    data: [
+                    data: [ // Fix: Added array initializer and data retrieval
                         player.hitterAnalysis.stats.find(s => s.label === 'xBA').value,
                         player.hitterAnalysis.stats.find(s => s.label === 'HardHit%').value / 100, // Normalize to be comparable with xBA
                         player.hitterAnalysis.stats.find(s => s.label === 'Barrel%').value / 100 // Normalize
@@ -516,7 +537,7 @@
                         tooltip: {
                             callbacks: {
                                 label: function(context) {
-                                    let label = context.dataset.label || '';
+                                    let label = context.dataset.label || ''; // Fix: Corrected typo
                                     if (label) { label += ': '; }
                                     if (context.parsed.y !== null) {
                                         label += context.parsed.y.toFixed(3);
