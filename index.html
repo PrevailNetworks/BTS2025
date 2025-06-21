@@ -39,7 +39,7 @@
 </head>
 <body>
   <!-- Barba wrapper -->
-  <div id="barba-wrapper">
+  <div data-barba="wrapper">
     <div class="barba-container is-visible" data-barba="container" data-barba-namespace="reports">
 
       <div class="relative z-10 container mx-auto p-4 sm:p-8">
@@ -67,20 +67,18 @@
   <script>
   // Initialize Barba.js with a fade transition
   barba.init({
+    sync: true,
     transitions: [{
       name: 'fade',
       once(data) {
-        // initial fade-in
         gsap.from(data.next.container, { opacity: 0, duration: 0.5, onComplete: () => {
           data.next.container.classList.add('is-visible');
         }});
       },
       leave(data) {
-        // fade-out current container
         return gsap.to(data.current.container, { opacity: 0, duration: 0.3 });
       },
       enter(data) {
-        // fade-in new container
         data.next.container.classList.add('is-visible');
         return gsap.from(data.next.container, { opacity: 0, duration: 0.3 });
       }
@@ -116,7 +114,6 @@
 
     for (const datePart of sortedDates) {
       const { picks, ig, report } = reports[datePart];
-      // Correct displayDate template literal without escaped dollars
       const displayDate = `${datePart.slice(0,2)}/${datePart.slice(2,4)}/20${datePart.slice(4)}`;
 
       const card = document.createElement('div');
