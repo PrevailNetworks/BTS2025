@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>BTS2025 • Daily Reports</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link
+    rel="preconnect"
+    href="https://fonts.googleapis.com"
+  />
+  <link
+    rel="preconnect"
+    href="https://fonts.gstatic.com"
+    crossorigin
+  />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap"
+    rel="stylesheet"
+  />
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #000;
+      color: #FFF;
+    }
+    .card {
+      @apply bg-gray-900 border-2 border-gray-700 rounded-lg p-6 text-center transition-transform hover:scale-105;
+    }
+    .card h2 {
+      @apply text-xl font-bold mb-2;
+    }
+    .card p {
+      @apply text-gray-400 mb-4;
+    }
+    .card a {
+      @apply inline-block bg-lime-500 text-black font-semibold px-4 py-2 rounded;
+    }
+  </style>
+</head>
+<body class="bg-black">
+  <div class="container mx-auto p-8">
+    <header class="text-center mb-12">
+      <h1 class="text-4xl font-black tracking-wide">
+        BEAT THE STREAK • All Reports
+      </h1>
+      <p class="text-gray-400 mt-2">
+        Automatically listing every day’s Picks & Infographics
+      </p>
+    </header>
+
+    <div id="reports" class="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <!-- JS will inject cards here -->
+    </div>
+
+    <footer class="text-center text-gray-600 text-sm mt-16">
+      <p>
+        Powered by GitHub’s API – always up to date. Confirm lineups on
+        MLB.com.
+      </p>
+    </footer>
+  </div>
+
+  <script>
+    (async () => {
+      const container = document.getElementById('reports');
+      // Fetch root contents of your repo
+      const res = await fetch(
+        'https://api.github.com/repos/PrevailNetworks/BTS2025/contents?ref=main'
+      );
+      const files = await res.json();
+      // Filter for picks & ig HTML files
+      const htmlFiles = files
+        .filter(f => /-(picks|ig)\.html$/.test(f.name))
+        // sort newest-first by filename (MMDDYY... so lex works)
+        .sort((a, b) => b.name.localeCompare(a.name));
+
+      for (const f of htmlFiles) {
+        // derive date and type
+        const [datePart, typePart] = f.name.split('-');
+        const displayDate = `${datePart.slice(0,2)}/${datePart.slice(2,4)}/${'20'+datePart.slice(4)}`;
+        const isPicks = typePart.startsWith('picks');
+        const title = isPicks
+          ? `Picks • ${displayDate}`
+          : `Infographic • ${displayDate}`;
+        const description = isPicks
+          ? 'View today’s Top 4 Hit Probability Picks'
+          : 'See today’s full infographic breakdown';
+
+        // build card
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+          <h2>${title}</h2>
+          <p>${description}</p>
+          <a href="${f.name}">Open</a>
+        `;
+        container.appendChild(card);
+      }
+    })().catch(err => {
+      console.error(err);
+      document.getElementById('reports').innerText =
+        '⚠️ Failed to load reports. Check console for details.';
+    });
+  </script>
+</body>
+</html>
