@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>BTS2025 • All Reports</title>
-  <!-- Quick-and-dirty Tailwind CDN (swap for a build step in prod) -->
+  <!-- Tailwind CDN for quick testing -->
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -13,17 +13,14 @@
     rel="stylesheet"
   />
   <style>
-    /* Full-screen background + dark overlay */
     body {
       font-family: 'Inter', sans-serif;
-      background: 
-        /* bottom layer: your stadium shot */
-        url('assets/images/truistpark2.jpg') no-repeat center center/cover,
-        /* top layer: 85% black */
+      background:
+        url('assets/images/truistpark2.jpg') no-repeat center/cover,
         rgba(0,0,0,0.85);
       background-blend-mode: overlay;
-      color: #FFF;
       min-height: 100vh;
+      color: #FFF;
     }
   </style>
 </head>
@@ -36,12 +33,17 @@
       </p>
     </header>
 
-    <div id="reports" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-      <!-- Cards injected here -->
+    <!-- Responsive grid: centered until large, then left-aligned -->
+    <div
+      id="reports"
+      class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8
+             justify-items-center lg:justify-items-start"
+    >
+      <!-- Cards get injected here by JS -->
     </div>
 
     <footer class="text-center text-gray-400 text-sm mt-16">
-      <p>'MURICA. Fuck Yeah.</p>
+      <p>Powered by GitHub’s API. Confirm lineups on MLB.com.</p>
     </footer>
   </div>
 
@@ -51,6 +53,7 @@
     const res = await fetch('https://api.github.com/repos/PrevailNetworks/BTS2025/contents?ref=main');
     const files = await res.json();
 
+    // Group picks, infographics, and full reports by date prefix
     const reports = files
       .filter(f => /-(picks|ig|report)\.html$/.test(f.name))
       .reduce((acc, f) => {
@@ -62,11 +65,13 @@
         return acc;
       }, {});
 
+    // Sort newest-first
     const sortedDates = Object.keys(reports).sort((a,b) => b.localeCompare(a));
 
+    // Render a card per date
     for (const datePart of sortedDates) {
       const { picks, ig, report } = reports[datePart];
-      const displayDate = 
+      const displayDate =
         `${datePart.slice(0,2)}/${datePart.slice(2,4)}/20${datePart.slice(4)}`;
 
       const card = document.createElement('div');
