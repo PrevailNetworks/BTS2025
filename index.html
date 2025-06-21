@@ -41,7 +41,7 @@
     ></div>
 
     <footer class="text-center text-gray-400 text-xs sm:text-sm mt-8 sm:mt-16">
-      <p>Powered by GitHub’s API. Confirm lineups on MLB.com.</p>
+      <p>YOU'RE KILLING ME SMALLS!</p>
     </footer>
   </div>
 
@@ -71,10 +71,15 @@
 
       const card = document.createElement('div');
       card.className = [
-        'bg-gray-900/60','border','border-gray-700','rounded-lg','p-4 sm:p-6',
+        'bg-gray-900/60',           // semi-transparent dark bg
+        'border',                   // default border
+        'border-gray-700',          // gray border
+        'rounded-lg',               // rounded corners
+        'p-4',                      // padding
         'flex','flex-col','justify-between',
-        'transition-transform','transform','hover:-translate-y-1','hover:shadow-xl',
-        'max-w-sm'
+        'transition-transform','transform','hover:-translate-y-1','hover:shadow-xl',  // lift on hover
+        'transition-colors','duration-200','hover:border-lime-500', // animate border color
+        'max-w-sm','w-full'         // sizing
       ].join(' ');
 
       card.innerHTML = `
@@ -83,18 +88,9 @@
           <p class="text-gray-300 mb-3 sm:mb-4 text-sm sm:text-base">Daily Picks & Infographic</p>
         </div>
         <div class="flex flex-col sm:flex-row sm:space-x-2 space-y-2 sm:space-y-0">
-          ${picks  ? `<a class="inline-block bg-lime-500 text-black font-semibold
-                           px-3 py-1.5 sm:px-4 sm:py-2 rounded hover:bg-lime-600
-                           text-center"
-                           href="${picks}">Picks</a>`        : ''}
-          ${ig     ? `<a class="inline-block bg-blue-600 text-white font-semibold
-                           px-3 py-1.5 sm:px-4 sm:py-2 rounded hover:bg-blue-700
-                           text-center"
-                           href="${ig}">Infographic</a>`     : ''}
-          ${report ? `<a class="inline-block bg-purple-600 text-white font-semibold
-                           px-3 py-1.5 sm:px-4 sm:py-2 rounded hover:bg-purple-700
-                           text-center"
-                           href="${report}">Full Analysis</a>` : ''}
+          ${picks  ? `<a class="inline-block bg-lime-500 text-black font-semibold px-3 py-1.5 rounded hover:bg-lime-600 text-center" href="${picks}">Picks</a>`        : ''}
+          ${ig     ? `<a class="inline-block bg-blue-600 text-white font-semibold px-3 py-1.5 rounded hover:bg-blue-700 text-center" href="${ig}">Infographic</a>`     : ''}
+          ${report ? `<a class="inline-block bg-purple-600 text-white font-semibold px-3 py-1.5 rounded hover:bg-purple-700 text-center" href="${report}">Full Analysis</a>` : ''}
         </div>
       `;
 
