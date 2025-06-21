@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-barba="wrapper">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -16,6 +16,8 @@
     <title>Beat the Streak Infographic - June 21, 2025</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/@barba/core"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.5/gsap.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
@@ -51,10 +53,12 @@
             font-weight: 600;
             font-size: 1.125rem;
         }
+        [data-barba] { visibility: hidden; }
+        [data-barba].is-visible { visibility: visible; }
     </style>
 </head>
-<body class="bg-black">
-
+<body data-barba="container" data-barba-namespace="infographic" class="is-visible">
+   <div class="bg-black">
     <div class="container mx-auto p-4 md:p-8">
 
         <header class="text-center my-12">
@@ -451,5 +455,34 @@
             }
         });
     </script>
+    <script>
+  // Initialize Barba with a simple fade
+  barba.init({
+    transitions: [{
+      name: 'fade',
+      once({ next }) {
+        // initial paint
+        gsap.from(next.container, { opacity: 0, duration: 0.5, onComplete: () => {
+          next.container.classList.add('is-visible');
+        }});
+      },
+      leave({ current }) {
+        // fade out old
+        return gsap.to(current.container, { opacity: 0, duration: 0.3 });
+      },
+      enter({ next }) {
+        // fade in new
+        next.container.classList.add('is-visible');
+        return gsap.from(next.container, { opacity: 0, duration: 0.3 });
+      }
+    }]
+  });
+
+  // Prefetch on hover
+  document.addEventListener('mouseover', e => {
+    const a = e.target.closest('a');
+    if (a && a.href.endsWith('.html')) fetch(a.href, {mode: 'no-cors'});
+  });
+  </script>
 </body>
 </html>
