@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>BTS2025 • Daily Reports</title>
+  <title>BTS2025 • All Reports</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link
     rel="preconnect"
@@ -24,83 +24,83 @@
       background-color: #000;
       color: #FFF;
     }
-    .card {
-      @apply bg-gray-900 border-2 border-gray-700 rounded-lg p-6 text-center transition-transform hover:scale-105;
+    .report-card {
+      @apply bg-gray-900 border-2 border-gray-700 rounded-lg p-6 flex flex-col justify-between;
+      transition: transform .2s, box-shadow .2s;
     }
-    .card h2 {
-      @apply text-xl font-bold mb-2;
+    .report-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 10px 15px rgba(0,0,0,0.5);
     }
-    .card p {
-      @apply text-gray-400 mb-4;
+    .btn {
+      @apply inline-block text-sm font-semibold px-4 py-2 rounded;
     }
-    .card a {
-      @apply inline-block bg-lime-500 text-black font-semibold px-4 py-2 rounded;
+    .btn-picks {
+      @apply bg-lime-500 text-black hover:bg-lime-600;
+    }
+    .btn-ig {
+      @apply bg-blue-600 text-white hover:bg-blue-700;
     }
   </style>
 </head>
-<body class="bg-black">
+<body class="bg-black min-h-screen">
   <div class="container mx-auto p-8">
     <header class="text-center mb-12">
-      <h1 class="text-4xl font-black tracking-wide">
-        BEAT THE STREAK • All Reports
-      </h1>
-      <p class="text-gray-400 mt-2">
-        Automatically listing every day’s Picks & Infographics
-      </p>
+      <h1 class="text-5xl font-black tracking-tight">BEAT THE STREAK</h1>
+      <p class="text-gray-400 mt-2">All Reports • Click any card to view Picks or Infographic</p>
     </header>
 
-    <div id="reports" class="grid grid-cols-1 md:grid-cols-2 gap-8">
-      <!-- JS will inject cards here -->
+    <div id="reports" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+      <!-- Cards will be injected here -->
     </div>
 
     <footer class="text-center text-gray-600 text-sm mt-16">
-      <p>
-        Powered by GitHub’s API – always up to date. Confirm lineups on
-        MLB.com.
-      </p>
+      <p>Powered by GitHub’s API. Confirm lineups on MLB.com.</p>
     </footer>
   </div>
 
   <script>
     (async () => {
       const container = document.getElementById('reports');
-      // Fetch root contents of your repo
-      const res = await fetch(
-        'https://api.github.com/repos/PrevailNetworks/BTS2025/contents?ref=main'
-      );
+      const res = await fetch('https://api.github.com/repos/PrevailNetworks/BTS2025/contents?ref=main');
       const files = await res.json();
-      // Filter for picks & ig HTML files
-      const htmlFiles = files
+
+      // group files by date prefix
+      const reports = files
         .filter(f => /-(picks|ig)\.html$/.test(f.name))
-        // sort newest-first by filename (MMDDYY... so lex works)
-        .sort((a, b) => b.name.localeCompare(a.name));
+        .reduce((acc, f) => {
+          const [datePart, type] = f.name.split('-');
+          acc[datePart] = acc[datePart] || {};
+          if (type.startsWith('picks'))  acc[datePart].picks = f.name;
+          else                             acc[datePart].ig    = f.name;
+          return acc;
+        }, {});
 
-      for (const f of htmlFiles) {
-        // derive date and type
-        const [datePart, typePart] = f.name.split('-');
-        const displayDate = `${datePart.slice(0,2)}/${datePart.slice(2,4)}/${'20'+datePart.slice(4)}`;
-        const isPicks = typePart.startsWith('picks');
-        const title = isPicks
-          ? `Picks • ${displayDate}`
-          : `Infographic • ${displayDate}`;
-        const description = isPicks
-          ? 'View today’s Top 4 Hit Probability Picks'
-          : 'See today’s full infographic breakdown';
+      // sort dates newest-first
+      const sortedDates = Object.keys(reports).sort((a,b) => b.localeCompare(a));
 
-        // build card
+      for (const datePart of sortedDates) {
+        const { picks, ig } = reports[datePart];
+        // format date MM/DD/YYYY
+        const displayDate = `${datePart.slice(0,2)}/${datePart.slice(2,4)}/20${datePart.slice(4)}`;
         const card = document.createElement('div');
-        card.className = 'card';
+        card.className = 'report-card';
         card.innerHTML = `
-          <h2>${title}</h2>
-          <p>${description}</p>
-          <a href="${f.name}">Open</a>
+          <div>
+            <h2 class="text-xl font-bold mb-2 text-lime-400">${displayDate}</h2>
+            <p class="text-gray-400 mb-4">Daily Picks & Infographic</p>
+          </div>
+          <div class="space-x-2">
+            ${picks ? `<a class="btn btn-picks" href="${picks}">Picks</a>` : ''}
+            ${ig    ? `<a class="btn btn-ig"    href="${ig}"   >Infographic</a>` : ''}
+          </div>
         `;
         container.appendChild(card);
       }
     })().catch(err => {
       console.error(err);
       document.getElementById('reports').innerText =
-        '⚠️ Failed to load reports. Check console for details.';
+        '⚠️ Could not load reports. See console for details.';
     });
   </script>
 </body>
