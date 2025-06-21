@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Beat the Streak: Full Analysis - June 21, 2025</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@barba/core"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.5/gsap.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
@@ -63,11 +65,14 @@
         table tr:nth-child(odd) {
             background-color: #0d0d0d; /* Alternate row background */
         }
+        [data-barba] { visibility: hidden; }
+        [data-barba].is-visible { visibility: visible; }
     </style>
 </head>
 <body class="bg-black text-white">
-
-    <div class="container mx-auto p-4 md:p-8">
+  <div data-barba="wrapper">
+    <div class="barba-container is-visible" data-barba="container" data-barba-namespace="report">
+      <div class="container mx-auto p-4 md:p-8">
 
         <header class="text-center my-12">
             <h1 class="section-title text-white">BEAT THE STREAK: DAILY HIT PREDICTOR</h1>
@@ -877,5 +882,36 @@
         </footer>
 
     </div>
+    <script>
+  // Initialize Barba.js with a fade transition
+  barba.init({
+    sync: true,
+    transitions: [{
+      name: 'fade',
+      once(data) {
+        gsap.from(data.next.container, { opacity: 0, duration: 0.5, onComplete: () => {
+          data.next.container.classList.add('is-visible');
+        }});
+      },
+      leave(data) {
+        return gsap.to(data.current.container, { opacity: 0, duration: 0.3 });
+      },
+      enter(data) {
+        data.next.container.classList.add('is-visible');
+        return gsap.from(data.next.container, { opacity: 0, duration: 0.3 });
+      }
+    }]
+  });
+
+  // Prefetch links on hover for instant navigation
+  document.addEventListener('mouseover', e => {
+    const link = e.target.closest('a');
+    if (link && link.href && link.href.endsWith('.html')) {
+      fetch(link.href, { mode: 'no-cors' });
+    }
+  });
+    </script>
+    </div>
+  </div>
 </body>
 </html>
