@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beat the Streak: Interactive Analysis - June 21, 2025</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+       .chart-container { position: relative; width: 100%; max-width: 500px; margin-left: auto; margin-right: auto; height: 320px; max-height: 40vh; }
+        @media (min-width: 768px) {.chart-container { height: 350px; } }
+       .comparison-chart-container { position: relative; width: 100%; height: 400px; max-height: 50vh; }
+        /* Adjusted active tab for dark theme */
+       .active-tab { border-color: #a3e635; color: #a3e635; /* lime-400 */ } 
+       .player-card { transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; }
+       .player-card:hover { transform: translateY(-4px); }
+        /* Adjusted selected card for dark thexme */
+       .player-card.selected-card { border-color: #a3e635; transform: translateY(-2px); box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.2); }
+        /* Style for the audio player */
+       .audio-player-container {
+            background-color: #1a1a1a; /* Darker gray for the player background */
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 2rem;
+            margin-bottom: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+       .audio-player-container audio {
+            width: 100%;
+            max-width: 500px; /* Limit width for better aesthetics */
+            margin-top: 0.5rem;
+        }
+       .audio-player-container p {
+            color: #a3e635; /* Lime green for the title */
+            font-weight: 600;
+            font-size: 1.125rem;
+        }
+    </style>
+</head>
+<body class="bg-black text-white">
+
+    <div class="container mx-auto p-4 md:p-8">
+
+        <header class="text-center mb-8">
+            <h1 class="text-3xl md:text-4xl font-bold text-white">Beat the Streak: Daily Hit Predictor</h1>
+            <p class="text-lg text-gray-400 mt-2">Analysis for June 21, 2025</p>
+        </header>
+
+        <section class="audio-player-container">
+            <p>Listen to the Daily Picks Overview</p>
+            <audio controls>
+                <source src="062125-audio.mp3" type="audio/mpeg">
+                Your browser does not support the audio element.
+            </audio>
+        </section>
+
+        <section id="top-picks" class="mb-8">
+            <h2 class="text-2xl font-bold text-white mb-4 text-center">Top Recommendations</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            </div>
+        </section>
+
+        <main id="player-detail-section" class="bg-gray-900 p-6 rounded-2xl shadow-xl">
+            <div class="flex flex-col lg:flex-row gap-6">
+                <div class="lg:w-1/3">
+                    <div class="flex items-center gap-4 mb-4">
+                        <img id="player-image" src="" alt="Player image" class="h-24 w-24 rounded-full object-cover bg-gray-800">
+                        <div>
+                            <h3 id="player-name" class="text-3xl font-bold text-white"></h3>
+                            <p id="player-team-pos" class="text-gray-400"></p>
+                        </div>
+                    </div>
+                     <div class="bg-lime-950 border-l-4 border-lime-600 p-4 rounded-r-lg">
+                        <p class="font-semibold text-lime-300">Estimated Hit Probability</p>
+                        <p id="player-probability" class="text-4xl font-bold text-lime-400"></p>
+                    </div>
+                </div>
+                <div class="lg:w-2/3">
+                     <div class="border-b border-gray-700 mb-4">
+                        <nav class="-mb-px flex space-x-6" aria-label="Tabs">
+                            <button data-tab="summary" class="tab-btn whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-gray-400 hover:text-lime-400 hover:border-lime-400 focus:outline-none"></button>
+                            <button data-tab="hitter-analysis" class="tab-btn whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-gray-400 hover:text-lime-400 hover:border-lime-400 focus:outline-none"></button>
+                            <button data-tab="matchup" class="tab-btn whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-gray-400 hover:text-lime-400 hover:border-lime-400 focus:outline-none"></button>
+                            <button data-tab="context" class="tab-btn whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-gray-400 hover:text-lime-400 hover:border-lime-400 focus:outline-none"></button>
+                        </nav>
+                    </div>
+                    <div id="tab-content">
+                        <div id="summary-content" class="tab-panel"></div>
+                        <div id="hitter-analysis-content" class="tab-panel hidden">
+                            <p class="text-sm text-gray-400 mb-4">These metrics, on a scale of 0-100, show the player's quality of contact percentiles compared to the league. Higher numbers closer to the edge are better.</p>
+                            <div class="chart-container">
+                                <canvas id="hitter-radar-chart"></canvas>
+                            </div>
+                        </div>
+                        <div id="matchup-content" class="tab-panel hidden"></div>
+                        <div id="context-content" class="tab-panel hidden"></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <section id="comparison-tool" class="mt-8 bg-gray-900 p-6 rounded-2xl shadow-xl">
+            <h2 class="text-2xl font-bold text-white mb-2 text-center">Compare Top Picks</h2>
+            <p class="text-center text-gray-400 mb-4">Select two or more players to compare their key performance indicators side-by-side.</p>
+            <div id="comparison-checkboxes" class="flex justify-center items-center flex-wrap gap-4 mb-6">
+            </div>
+            <div class="comparison-chart-container">
+                <canvas id="comparison-bar-chart"></canvas>
+            </div>
+        </section>
+
+    </div>
+
+    <script>
+        const playerData = {
+            "Shohei Ohtani": {
+                team: "Los Angeles Dodgers",
+                position: "DH",
+                image: "https://placehold.co/128x128/1E40AF/FFFFFF?text=SO",
+                probability: "81.2%",
+                summary: {
+                    rationale: "Ohtani combines elite quality of contact with a highly favorable historical matchup against a pitcher due for negative regression. The hitter-friendly Dodger Stadium further boosts his high probability.",
+                    risks: "Recently hit by a pitch, but has been cleared to play. The opposing pitcher, Irvin, can occasionally outperform his peripherals."
+                },
+                hitterAnalysis: {
+                    stats: [
+                        { label: 'xBA', value: .297, percentile: 86 },
+                        { label: 'HardHit%', value: 61.8, percentile: 99 },
+                        { label: 'Barrel%', value: 21.7, percentile: 98 },
+                        { label: 'Bat Speed', value: '96th', percentile: 96},
+                        { label: 'Squared-Up%', value: '55th', percentile: 55},
+                        { label: 'Avg EV', value: 95.2, percentile: 95 }
+                    ],
+                    battedBall: { gb: 43.4, ld: 21.2, fb: 32.5 }
+                },
+                matchup: {
+                    pitcher: "Jake Irvin (RHP)",
+                    pitcherERA: 4.23,
+                    pitcherXERA: 5.24,
+                    pitcherAnalysis: "Irvin's xERA is significantly higher than his ERA, suggesting he's been lucky. His frequently used Curveball and 4-Seam Fastball both carry negative run values, making them vulnerable.",
+                    history: "Excellent history: 4-for-8 (.500 BA) with a double and a 1.181 OPS in 9 plate appearances."
+                },
+                context: {
+                    park: "Dodger Stadium",
+                    parkFactors: { wOBA: 102, HR: 146, Hits: 103, Runs: 117 },
+                    weather: "Sunny, 74°F, 8 mph wind blowing south.",
+                    notes: "Playing at home in a park that significantly amplifies home runs and overall offense."
+                }
+            },
+            "Vladimir Guerrero Jr.": {
+                team: "Toronto Blue Jays",
+                position: "1B",
+                image: "https://placehold.co/128x128/1D4ED8/FFFFFF?text=VGJ",
+                probability: "78.5%",
+                summary: {
+                    rationale: "Guerrero Jr. shows strong signs of positive regression with a high xBA and excellent quality of contact. He has a great historical matchup against a hittable pitcher in a very hitter-friendly park.",
+                    risks: "Has been dealing with 'mild aches,' though he is expected to play. Past performance vs. pitcher isn't a guarantee."
+                },
+                hitterAnalysis: {
+                    stats: [
+                        { label: 'xBA', value: .324, percentile: 95 },
+                        { label: 'HardHit%', value: 53.6, percentile: 90 },
+                        { label: 'Barrel%', value: 14.6, percentile: 85 },
+                        { label: 'Bat Speed', value: '96th', percentile: 96},
+                        { label: 'Squared-Up%', value: '86th', percentile: 86},
+                        { label: 'Avg EV', value: 93.4, percentile: 88 }
+                    ],
+                    battedBall: { gb: 46.4, ld: 27.5, fb: 21.5 }
+                },
+                matchup: {
+                    pitcher: "Aaron Civale (RHP)",
+                    pitcherERA: 4.67,
+                    pitcherXERA: 4.18,
+                    pitcherAnalysis: "Civale's ERA and xERA are both above league average. His Cutter, Sinker, and Curveball all have negative run values, providing clear targets for hitters.",
+                    history: "Excellent history: 4-for-10 (.400 BA) with a home run and a 1.238 OPS in 13 plate appearances."
+                },
+                context: {
+                    park: "Rogers Centre",
+                    parkFactors: { wOBA: 102, HR: 135, Hits: 102, Runs: 110 },
+                    weather: "N/A (Dome)",
+                    notes: "Playing in a dome negates weather, but the park itself is a significant advantage for hitters."
+                }
+            },
+            "Juan Soto": {
+                team: "New York Mets",
+                position: "OF",
+                image: "https://placehold.co/128x128/FF5910/FFFFFF?text=JS",
+                probability: "76.8%",
+                summary: {
+                    rationale: "Soto is a prime candidate for positive regression, with an xBA significantly higher than his actual BA. His elite plate discipline against a young, inexperienced pitcher in a hitter's park is a recipe for success.",
+                    risks: "His current low batting average may be a psychological concern. He faces a rookie pitcher who, while likely to regress, has shown flashes of high potential."
+                },
+                hitterAnalysis: {
+                    stats: [
+                        { label: 'xBA', value: .311, percentile: 92 },
+                        { label: 'HardHit%', value: 56.2, percentile: 95 },
+                        { label: 'Barrel%', value: 14.6, percentile: 85 },
+                        { label: 'Chase Rate', value: '100th', percentile: 100},
+                        { label: 'Squared-Up%', value: '94th', percentile: 94},
+                        { label: 'Avg EV', value: 94.1, percentile: 91 }
+                    ],
+                    battedBall: { gb: 49.3, ld: 21.0, fb: 25.1 }
+                },
+                matchup: {
+                    pitcher: "Mick Abel (RHP)",
+                    pitcherERA: 2.21,
+                    pitcherXERA: 4.05, // Using FIP as proxy for xERA
+                    pitcherAnalysis: "Abel is a young pitcher with a large gap between his ERA and FIP, suggesting regression is likely. His strikeout numbers have declined in recent starts.",
+                    history: "No significant head-to-head history. Soto's elite plate discipline is a major advantage against a rookie."
+                },
+                context: {
+                    park: "Citizens Bank Park",
+                    parkFactors: { wOBA: 104, HR: 106, Hits: 105, Runs: 108 },
+                    weather: "Partly cloudy, 89°F, 8 mph wind blowing southwest.",
+                    notes: "Playing in a top-tier hitter's park with weather conditions that further aid batted balls."
+                }
+            },
+            "Aaron Judge": {
+                team: "New York Yankees",
+                position: "OF",
+                image: "https://placehold.co/128x128/0C2340/FFFFFF?text=AJ",
+                probability: "75.9%",
+                summary: {
+                    rationale: "Judge is having an MVP-level season with elite quality of contact and is in red-hot recent form. The power-friendly dimensions of Yankee Stadium provide a significant boost, outweighing a poor, small-sample historical matchup.",
+                    risks: "The historical head-to-head numbers against Eflin are poor. Eflin's underlying metrics (xERA) suggest he's a better pitcher than his current ERA indicates."
+                },
+                hitterAnalysis: {
+                    stats: [
+                        { label: 'xBA', value: .318, percentile: 94 },
+                        { label: 'HardHit%', value: 55.6, percentile: 94 },
+                        { label: 'Barrel%', value: 25.0, percentile: 99 },
+                        { label: 'Bat Speed', value: '98th', percentile: 98},
+                        { label: 'xSLG', value: '.722', percentile: 100},
+                        { label: 'Avg EV', value: 95.3, percentile: 96 }
+                    ],
+                    battedBall: { gb: 35.7, ld: 24.5, fb: 36.2 }
+                },
+                matchup: {
+                    pitcher: "Zach Eflin (RHP)",
+                    pitcherERA: 4.81,
+                    pitcherXERA: 3.78,
+                    pitcherAnalysis: "Eflin has struggled recently, and his hittable Curveball and Sweeper pitches have negative run values. However, his xERA suggests he may be due for positive regression.",
+                    history: "Challenging history: 4-for-19 (.211 BA) with a high strikeout rate. This is a small sample size and may not be predictive given Judge's current form."
+                },
+                context: {
+                    park: "Yankee Stadium",
+                    parkFactors: { wOBA: 100, HR: 126, Hits: 90, Runs: 100 },
+                    weather: "Partly cloudy, 88°F, 8 mph wind blowing southwest.",
+                    notes: "Hot weather and winds blowing out at a homer-amplifying park creates a favorable environment."
+                }
+            }
+        };
+
+        let selectedPlayerName = "Shohei Ohtani";
+        let radarChart, comparisonBarChart;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const topPicksContainer = document.querySelector('#top-picks .grid');
+            const comparisonCheckboxesContainer = document.getElementById('comparison-checkboxes');
+
+            Object.keys(playerData).forEach(name => {
+                const player = playerData[name];
+                
+                const card = document.createElement('div');
+                card.className = 'player-card bg-gray-900 p-4 rounded-xl shadow-md cursor-pointer border-2 border-transparent';
+                card.dataset.player = name;
+                card.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <img src="${player.image}" alt="${name}" class="h-12 w-12 rounded-full bg-gray-800">
+                        <div>
+                            <p class="font-bold text-white">${name}</p>
+                            <p class="text-sm text-gray-400">${player.team}</p>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex justify-between items-baseline">
+                        <span class="text-sm text-gray-400">Hit Probability</span>
+                        <span class="font-bold text-xl text-lime-400">${player.probability}</span>
+                    </div>
+                `;
+                topPicksContainer.appendChild(card);
+                
+                const checkboxDiv = document.createElement('div');
+                checkboxDiv.className = 'flex items-center';
+                checkboxDiv.innerHTML = `
+                    <input id="compare-${name.replace(/\s+/g, '-')}" data-player="${name}" type="checkbox" class="h-4 w-4 rounded border-gray-700 text-lime-400 focus:ring-lime-400">
+                    <label for="compare-${name.replace(/\s+/g, '-')}" class="ml-2 block text-white text-sm">${name}</label>
+                `;
+                comparisonCheckboxesContainer.appendChild(checkboxDiv);
+            });
+
+            const playerCards = document.querySelectorAll('.player-card');
+            playerCards.forEach(card => card.addEventListener('click', () => {
+                selectedPlayerName = card.dataset.player;
+                updateUI();
+            }));
+            
+            const tabButtons = document.querySelectorAll('.tab-btn');
+            const tabLabels = {
+                "summary": "Summary",
+                "hitter-analysis": "Hitter Analysis",
+                "matchup": "Matchup",
+                "context": "Context"
+            };
+
+            tabButtons.forEach(btn => {
+                btn.textContent = tabLabels[btn.dataset.tab];
+                btn.addEventListener('click', () => {
+                    const tab = btn.dataset.tab;
+                    document.querySelectorAll('.tab-panel').forEach(panel => panel.classList.add('hidden'));
+                    document.getElementById(`${tab}-content`).classList.remove('hidden');
+                    
+                    tabButtons.forEach(b => b.classList.remove('active-tab', 'text-lime-400', 'border-lime-400'));
+                    btn.classList.add('active-tab', 'text-lime-400', 'border-lime-400');
+                });
+            });
+
+            const comparisonCheckboxes = document.querySelectorAll('#comparison-checkboxes input');
+            comparisonCheckboxes.forEach(checkbox => checkbox.addEventListener('change', updateComparisonChart));
+            
+            // Fix: Select the first player card on load
+            document.querySelector('[data-player="Shohei Ohtani"]').classList.add('selected-card');
+            document.querySelector('[data-tab="summary"]').classList.add('active-tab', 'text-lime-400', 'border-lime-400');
+
+            updateUI();
+            updateComparisonChart();
+        });
+
+        function updateUI() {
+            const player = playerData[selectedPlayerName];
+
+            document.querySelectorAll('.player-card').forEach(c => c.classList.remove('selected-card'));
+            document.querySelector(`[data-player="${selectedPlayerName}"]`).classList.add('selected-card');
+
+            document.getElementById('player-image').src = player.image;
+            document.getElementById('player-image').alt = selectedPlayerName;
+            document.getElementById('player-name').textContent = selectedPlayerName;
+            document.getElementById('player-team-pos').textContent = `${player.team} | ${player.position}`;
+            document.getElementById('player-probability').textContent = player.probability;
+
+            updateSummaryTab(player);
+            updateHitterAnalysisTab(player);
+            updateMatchupTab(player);
+            updateContextTab(player);
+        }
+
+        function updateSummaryTab(player) {
+            const container = document.getElementById('summary-content');
+            container.innerHTML = `
+                <div class="space-y-4">
+                    <div>
+                        <h4 class="font-semibold text-white">Rationale</h4>
+                        <p class="text-gray-400">${player.summary.rationale}</p>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-white">Potential Risks</h4>
+                        <p class="text-gray-400">${player.summary.risks}</p>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function updateHitterAnalysisTab(player) {
+            if (radarChart) {
+                radarChart.destroy();
+            }
+            const ctx = document.getElementById('hitter-radar-chart').getContext('2d');
+            radarChart = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: player.hitterAnalysis.stats.map(s => s.label),
+                    datasets: [{
+                        label: selectedPlayerName,
+                        data: player.hitterAnalysis.stats.map(s => s.percentile),
+                        backgroundColor: 'rgba(163, 230, 53, 0.2)', /* lime-400 with transparency */
+                        borderColor: 'rgba(163, 230, 53, 1)',    /* lime-400 */
+                        pointBackgroundColor: 'rgba(163, 230, 53, 1)',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: 'rgba(163, 230, 53, 1)'
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: { color: 'rgba(255,255,255,0.1)' }, /* light lines on dark background */
+                            grid: { color: 'rgba(255,255,255,0.1)' },      /* light lines on dark background */
+                            pointLabels: { font: { size: 12 }, color: 'white' }, /* white labels */
+                            min: 0,
+                            max: 100,
+                            ticks: {
+                                backdropColor: 'rgba(0, 0, 0, 0.75)', /* dark backdrop for ticks */
+                                color: 'white', /* white tick labels */
+                                stepSize: 20
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        }
+
+        function updateMatchupTab(player) {
+            const container = document.getElementById('matchup-content');
+            container.innerHTML = `
+                 <div class="space-y-4">
+                    <div>
+                        <h4 class="font-semibold text-white">Opposing Pitcher: ${player.matchup.pitcher}</h4>
+                        <div class="flex space-x-4 text-sm mt-2">
+                           <div class="text-center">
+                                <p class="text-gray-400">ERA</p>
+                                <p class="font-bold text-lg">${player.matchup.pitcherERA}</p>
+                           </div>
+                           <div class="text-center">
+                                <p class="text-gray-400">xERA</p>
+                                <p class="font-bold text-lg">${player.matchup.pitcherXERA}</p>
+                           </div>
+                        </div>
+                         <p class="text-gray-400 mt-2">${player.matchup.pitcherAnalysis}</p>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-white">Head-to-Head History</h4>
+                        <p class="text-gray-400">${player.matchup.history}</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function updateContextTab(player) {
+            const container = document.getElementById('context-content');
+             container.innerHTML = `
+                <div class="space-y-4">
+                    <div>
+                        <h4 class="font-semibold text-white">Park: ${player.context.park}</h4>
+                         <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center mt-2">
+                            <div><p class="text-sm text-gray-400">wOBA Idx</p><p class="font-bold text-lg">${player.context.parkFactors.wOBA}</p></div>
+                            <div><p class="text-sm text-gray-400">HR Idx</p><p class="font-bold text-lg">${player.context.parkFactors.HR}</p></div>
+                            <div><p class="text-sm text-gray-400">Hits Idx</p><p class="font-bold text-lg">${player.context.parkFactors.Hits}</p></div>
+                            <div><p class="text-sm text-gray-400">Runs Idx</p><p class="font-bold text-lg">${player.context.parkFactors.Runs}</p></div>
+                         </div>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-white">Weather & Notes</h4>
+                        <p class="text-gray-400"><strong>Weather:</strong> ${player.context.weather}</p>
+                        <p class="text-gray-400"><strong>Notes:</strong> ${player.context.notes}</p>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function updateComparisonChart() {
+            const selectedCheckboxes = document.querySelectorAll('#comparison-checkboxes input:checked');
+            const playersToCompare = Array.from(selectedCheckboxes).map(cb => cb.dataset.player);
+            
+            if (comparisonBarChart) {
+                comparisonBarChart.destroy();
+            }
+
+            if (playersToCompare.length < 2) {
+                const ctx = document.getElementById('comparison-bar-chart').getContext('2d');
+                ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+                ctx.font = '16px Inter';
+                ctx.fillStyle = 'rgb(156 163 175)'; /* gray-400 */
+                ctx.textAlign = 'center';
+                ctx.fillText('Please select 2 to 4 players to compare.', ctx.canvas.width / 2, 50);
+                return;
+            }
+            
+            const labels = ['xBA', 'HardHit%', 'Barrel%']; // Fix: Added array initializer
+            const datasets = playersToCompare.map((name, index) => {
+                const player = playerData[name];
+                // Using a set of distinct, muted colors for comparison, maintaining the calm aesthetic
+                const colors = [
+                    'rgba(163, 230, 53, 0.8)', /* lime-400 */
+                    'rgba(59, 130, 246, 0.8)', /* blue-500 */
+                    'rgba(249, 115, 22, 0.8)', /* orange-500 */
+                    'rgba(251, 191, 36, 0.8)'  /* amber-400 */
+                ];
+                 const bgColors = [
+                    'rgba(163, 230, 53, 0.6)', 
+                    'rgba(59, 130, 246, 0.6)', 
+                    'rgba(249, 115, 22, 0.6)', 
+                    'rgba(251, 191, 36, 0.6)'
+                ];
+                return {
+                    label: name,
+                    data: [ // Fix: Added array initializer and data retrieval
+                        player.hitterAnalysis.stats.find(s => s.label === 'xBA').value,
+                        player.hitterAnalysis.stats.find(s => s.label === 'HardHit%').value / 100, // Normalize to be comparable with xBA
+                        player.hitterAnalysis.stats.find(s => s.label === 'Barrel%').value / 100 // Normalize
+                    ],
+                    backgroundColor: bgColors[index % colors.length],
+                    borderColor: colors[index % colors.length],
+                    borderWidth: 2
+                }
+            });
+
+            const ctx = document.getElementById('comparison-bar-chart').getContext('2d');
+            comparisonBarChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: datasets
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: 'rgba(255,255,255,0.1)' }, /* light lines on dark background */
+                            ticks: {
+                                color: 'white', /* white tick labels */
+                                callback: function(value) { return value.toFixed(3); }
+                            }
+                        },
+                        x: {
+                             grid: { display: false },
+                             ticks: { color: 'white' } /* white tick labels */
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                color: 'white' /* white legend labels */
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || ''; // Fix: Corrected typo
+                                    if (label) { label += ': '; }
+                                    if (context.parsed.y !== null) {
+                                        label += context.parsed.y.toFixed(3);
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+    </script>
+</body>
+</html>
