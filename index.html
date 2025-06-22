@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&family=Tilt+Neon&display=swap"
     rel="stylesheet"
   />
   <style>
@@ -27,13 +27,25 @@
       color: #c9d1d9; /* Light gray text for readability on dark bg */
       overflow-x: hidden;
     }
+    .font-tilt-neon {
+      font-family: 'Tilt Neon', sans-serif;
+    }
+    .neon-text {
+        color: #fff;
+        text-shadow:
+            0 0 5px rgba(163, 230, 53, 0.7),
+            0 0 10px rgba(163, 230, 53, 0.7),
+            0 0 20px rgba(163, 230, 53, 0.7),
+            0 0 40px rgba(37, 99, 235, 0.7),
+            0 0 80px rgba(37, 99, 235, 0.7);
+    }
   </style>
 </head>
 <body>
   <div class="relative z-10 container mx-auto p-4 sm:p-8">
     <header class="text-center mb-8 sm:mb-12">
-      <h1 class="text-4xl sm:text-5xl font-black tracking-tight text-white">BEAT THE STREAK</h1>
-      <p class="text-gray-400 mt-2">
+      <h1 class="text-4xl sm:text-6xl font-black tracking-tight uppercase font-tilt-neon neon-text">Beat The Streak</h1>
+      <p class="text-gray-400 mt-4">
         Daily Analysis Reports
       </p>
     </header>
