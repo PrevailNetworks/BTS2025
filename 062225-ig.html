@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beat the Streak: Infographic Analysis - June 22, 2025</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Deep Space (Lime Accent) -->
+    <!-- 
+        Application Structure Plan: A top-down narrative, single-page scrollable infographic.
+        1. Hero Section: Hook with the title and the #1 pick as the main feature.
+        2. Top 5 Rankings: A clear, visual list of the top 5 players to establish the hierarchy immediately.
+        3. Deep Dive - The #1 Pick: A detailed breakdown of Ketel Marte, using multiple charts and data callouts to explain why he's the top choice. This section explains his performance, matchup, and environmental advantages.
+        4. Tier 2 Comparison: A grid layout comparing the remaining top players (Judge, Guerrero, Diaz, Arraez) on their key metrics, allowing for quick visual analysis.
+        5. Watch List: A simple section highlighting the honorable mentions.
+        This structure tells a story, starting broad and then progressively detailing the evidence for each recommendation.
+    -->
+    <!-- 
+        Visualization & Content Choices:
+        - Hit Probability (Goal: Inform): Donut Chart (Chart.js) for high visual impact.
+        - BA vs. xBA (Goal: Compare): Horizontal Bar Chart (Chart.js) for clear comparison of actual vs. expected performance.
+        - Pitcher Vulnerability (Goal: Compare): Horizontal Bar Chart (Chart.js) showing opponent BA by pitch type.
+        - Park Factors / Hitting Streaks (Goal: Inform): Large, bold text (HTML/CSS) for "Single Big Number" callouts.
+        - Player Rankings (Goal: Organize): Styled list using HTML/CSS.
+        - All diagrams and icons are built with HTML/CSS and Unicode characters, adhering to the NO SVG/Mermaid constraint.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0d1117;
+            color: #c9d1d9;
+        }
+        .card {
+            background-color: #161b22;
+            border: 1px solid #30363d;
+        }
+        .text-accent {
+            color: #a3e635;
+        }
+        .text-highlight {
+            color: #f0f6fc;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            margin-left: auto;
+            margin-right: auto;
+            max-width: 600px;
+            height: 250px;
+            max-height: 40vh;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div class="container mx-auto p-4 md:p-8 max-w-6xl">
+
+        <header class="text-center mb-12">
+            <h1 class="text-4xl md:text-6xl font-black text-highlight leading-tight">BEAT THE STREAK</h1>
+            <p class="text-xl text-slate-400 font-light">Deep Dive Analysis for June 22, 2025</p>
+        </header>
+
+        <section class="mb-16">
+            <h2 class="text-3xl font-bold text-center mb-8 text-highlight">Today's Top 5 Picks</h2>
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                <div class="card rounded-lg p-4 text-center transform hover:scale-105 transition-transform duration-300">
+                    <p class="text-4xl font-black text-highlight">#1</p>
+                    <p class="font-bold text-lg text-accent">Ketel Marte</p>
+                    <p class="text-sm opacity-75">vs Senzatela @ COL</p>
+                </div>
+                <div class="card rounded-lg p-4 text-center transform hover:scale-105 transition-transform duration-300">
+                    <p class="text-4xl font-black text-highlight">#2</p>
+                    <p class="font-bold text-lg text-accent">Aaron Judge</p>
+                    <p class="text-sm opacity-75">vs Kremer @ NYY</p>
+                </div>
+                <div class="card rounded-lg p-4 text-center transform hover:scale-105 transition-transform duration-300">
+                    <p class="text-4xl font-black text-highlight">#3</p>
+                    <p class="font-bold text-lg text-accent">V. Guerrero Jr.</p>
+                    <p class="text-sm opacity-75">vs Houser @ TOR</p>
+                </div>
+                 <div class="card rounded-lg p-4 text-center transform hover:scale-105 transition-transform duration-300">
+                    <p class="text-4xl font-black text-highlight">#4</p>
+                    <p class="font-bold text-lg text-accent">Yandy Diaz</p>
+                    <p class="text-sm opacity-75">vs Mize @ TB</p>
+                </div>
+                 <div class="card rounded-lg p-4 text-center transform hover:scale-105 transition-transform duration-300">
+                    <p class="text-4xl font-black text-highlight">#5</p>
+                    <p class="font-bold text-lg text-accent">Luis Arraez</p>
+                    <p class="text-sm opacity-75">vs Lugo @ SD</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-16">
+            <div class="text-center mb-8">
+                <p class="text-sm uppercase tracking-widest text-slate-400">THE PERFECT STORM</p>
+                <h2 class="text-5xl font-black text-highlight">#1 Ketel Marte</h2>
+                <p class="text-lg text-slate-400">A rare confluence of elite form, a dominant matchup, and the perfect environment.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="card rounded-lg p-6 flex flex-col items-center justify-center lg:col-span-1 md:col-span-2">
+                    <h3 class="text-xl font-bold mb-2 text-highlight">Estimated Hit Probability</h3>
+                    <div class="chart-container w-full h-48">
+                        <canvas id="marteProbChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="card rounded-lg p-6 flex flex-col items-center justify-center">
+                    <h3 class="text-xl font-bold mb-2 text-highlight">Venue: Coors Field</h3>
+                    <p class="text-7xl font-black text-accent">+18%</p>
+                    <p class="text-center">Increase in likelihood of a base hit compared to a league-average park.</p>
+                </div>
+                
+                <div class="card rounded-lg p-6 text-center">
+                    <h3 class="text-xl font-bold mb-2 text-highlight">vs. A. Senzatela</h3>
+                    <p class="text-5xl font-black text-accent">.364</p>
+                    <p class="font-bold">Batting Average</p>
+                    <p class="text-xs opacity-75">(12-for-33)</p>
+                    <hr class="border-slate-700 my-3">
+                     <p class="text-3xl font-black text-accent">.958</p>
+                    <p class="font-bold">OPS</p>
+                </div>
+
+                <div class="card rounded-lg p-6 lg:col-span-2 md:col-span-2">
+                     <h3 class="text-xl font-bold mb-2 text-highlight">Performance vs. Expectation</h3>
+                     <p class="text-sm mb-4">Marte's success is earned. His Expected Batting Average (xBA), based on quality of contact, closely matches his actual results, validating his elite performance.</p>
+                     <div class="chart-container h-48 max-h-[200px]">
+                        <canvas id="marteBaChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="card rounded-lg p-6">
+                    <h3 class="text-xl font-bold mb-2 text-highlight">Pitcher Vulnerability</h3>
+                    <p class="text-sm mb-4">Senzatela's entire arsenal is getting hit hard. There are no safe pitches to turn to against an elite hitter like Marte.</p>
+                     <div class="chart-container h-48 max-h-[200px]">
+                        <canvas id="senzatelaPitchChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-16">
+             <h2 class="text-3xl font-bold text-center mb-8 text-highlight">The Elite Contenders</h2>
+             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                 <div class="card rounded-lg p-6">
+                     <h3 class="font-bold text-2xl text-highlight">Aaron Judge</h3>
+                     <p class="text-slate-400 mb-4">#2 Rank</p>
+                     <div class="chart-container w-full h-32 mb-4">
+                         <canvas id="judgeProbChart"></canvas>
+                     </div>
+                     <div class="text-sm space-y-3">
+                         <p><span class="font-bold text-highlight">Key Strength:</span> Elite Statcast & Power Matchup</p>
+                         <p><span class="opacity-75">BvP vs Kremer:</span> <span class="font-bold text-accent">.333 BA, 1.578 OPS</span></p>
+                         <p><span class="opacity-75">Statcast:</span> <span class="font-bold text-accent">95.3 mph</span> avg exit velocity (1st in MLB)</p>
+                     </div>
+                 </div>
+                 <div class="card rounded-lg p-6">
+                     <h3 class="font-bold text-2xl text-highlight">V. Guerrero Jr.</h3>
+                     <p class="text-slate-400 mb-4">#3 Rank</p>
+                     <div class="chart-container w-full h-32 mb-4">
+                         <canvas id="vladProbChart"></canvas>
+                     </div>
+                     <div class="text-sm space-y-3">
+                         <p><span class="font-bold text-highlight">Key Strength:</span> Elite Process vs. Regression Candidate</p>
+                         <p><span class="opacity-75">xBA vs. BA:</span> <span class="font-bold text-accent">.324 xBA</span> (1st) vs .281 BA</p>
+                         <p><span class="opacity-75">Pitcher Note:</span> Faces Houser, whose ERA is far better than his xERA suggests.</p>
+                     </div>
+                 </div>
+                 <div class="card rounded-lg p-6">
+                     <h3 class="font-bold text-2xl text-highlight">Yandy Diaz</h3>
+                     <p class="text-slate-400 mb-4">#4 Rank</p>
+                     <div class="chart-container w-full h-32 mb-4">
+                         <canvas id="diazProbChart"></canvas>
+                     </div>
+                     <div class="text-sm space-y-3">
+                         <p><span class="font-bold text-highlight">Key Strength:</span> Elite Recent Form & Leadoff PAs</p>
+                         <p><span class="opacity-75">Hitting Streak:</span> <span class="font-bold text-accent">12 Games</span> (.471 AVG)</p>
+                         <p><span class="opacity-75">Statcast:</span> <span class="font-bold text-accent">22.6% Blast%</span> (2nd in MLB)</p>
+                     </div>
+                 </div>
+                 <div class="card rounded-lg p-6">
+                     <h3 class="font-bold text-2xl text-highlight">Luis Arraez</h3>
+                     <p class="text-slate-400 mb-4">#5 Rank</p>
+                      <div class="chart-container w-full h-32 mb-4">
+                         <canvas id="arraezProbChart"></canvas>
+                     </div>
+                     <div class="text-sm space-y-3">
+                         <p><span class="font-bold text-highlight">Key Strength:</span> Elite Contact vs. Regression Candidate</p>
+                         <p><span class="opacity-75">Contact Skill:</span> Generational ability to put the bat on the ball (6.3% K rate)</p>
+                         <p><span class="opacity-75">Pitcher Note:</span> Faces Lugo, whose 4.94 xERA suggests major regression is due.</p>
+                     </div>
+                 </div>
+             </div>
+        </section>
+
+        <section>
+             <h2 class="text-3xl font-bold text-center mb-8 text-highlight">On The Watch List</h2>
+             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+                 <div class="card rounded-lg p-6">
+                     <h3 class="font-bold text-xl text-highlight">Juan Soto (OF, NYY)</h3>
+                     <p class="text-sm">Another elite hitter facing the vulnerable Dean Kremer. Judge's BvP is slightly better, but Soto is on a hot streak and is an excellent alternative.</p>
+                 </div>
+                 <div class="card rounded-lg p-6">
+                     <h3 class="font-bold text-xl text-highlight">Josh Naylor (1B, ARI)</h3>
+                     <p class="text-sm">Also benefits from the Senzatela/Coors Field matchup. Currently on a 10-game hitting streak. A fantastic secondary option from the Diamondbacks game.</p>
+                 </div>
+             </div>
+        </section>
+
+    </div>
+
+    <script>
+        const chartTextColor = '#c9d1d9';
+        const chartGridColor = 'rgba(201, 209, 217, 0.1)';
+        const chartTooltipOptions = {
+            plugins: {
+                tooltip: {
+                    backgroundColor: 'rgba(13, 17, 23, 0.9)',
+                    titleColor: '#f0f6fc',
+                    bodyColor: '#c9d1d9',
+                    borderColor: '#30363d',
+                    borderWidth: 1,
+                    padding: 10,
+                    callbacks: {
+                        title: function(tooltipItems) {
+                            const item = tooltipItems[0];
+                            let label = item.chart.data.labels[item.dataIndex];
+                            if (Array.isArray(label)) {
+                              return label.join(' ');
+                            } else {
+                              return label;
+                            }
+                        }
+                    }
+                }
+            }
+        };
+
+        function createDonutChart(elementId, probability) {
+            const ctx = document.getElementById(elementId).getContext('2d');
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Success', 'Failure'],
+                    datasets: [{
+                        data: [probability, 100 - probability],
+                        backgroundColor: ['#a3e635', '#30363d'],
+                        borderColor: '#161b22',
+                        borderWidth: 4,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '80%',
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { enabled: false }
+                    },
+                },
+                plugins: [{
+                    id: 'donut-text',
+                    afterDraw(chart) {
+                        const { ctx, width, height } = chart;
+                        ctx.restore();
+                        const text = probability + '%';
+                        ctx.font = 'bold ' + (width / 4) + 'px Inter';
+                        ctx.fillStyle = '#f0f6fc';
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        const textX = Math.round(width / 2);
+                        const textY = Math.round(height / 2);
+                        ctx.fillText(text, textX, textY);
+                        ctx.save();
+                    }
+                }]
+            });
+        }
+        
+        function createHorizontalBarChart(elementId, labels, data, dataLabel, backgroundColors) {
+             const ctx = document.getElementById(elementId).getContext('2d');
+             new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: dataLabel,
+                        data: data,
+                        backgroundColor: backgroundColors,
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    ...chartTooltipOptions,
+                    scales: {
+                        x: {
+                            grid: { color: chartGridColor },
+                            ticks: { color: chartTextColor }
+                        },
+                        y: {
+                            grid: { display: false },
+                            ticks: { color: chartTextColor, font: { weight: '600' } }
+                        }
+                    },
+                    plugins: {
+                        ...chartTooltipOptions.plugins,
+                        legend: { display: false },
+                    }
+                }
+             });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            createDonutChart('marteProbChart', 82);
+            createHorizontalBarChart('marteBaChart', ['Actual BA', 'Expected BA (xBA)'], [0.311, 0.324], 'Batting Average', ['#444c56', '#a3e635']);
+            createHorizontalBarChart('senzatelaPitchChart', ['vs Fastball', 'vs Changeup', 'vs Slider'], [0.360, 0.533, 0.380], "Opponent BA", ['#a3e635', '#bef264', '#cdeb9f']);
+
+            createDonutChart('judgeProbChart', 79);
+            createDonutChart('vladProbChart', 77);
+            createDonutChart('diazProbChart', 75);
+            createDonutChart('arraezProbChart', 74);
+        });
+
+    </script>
+</body>
+</html>
