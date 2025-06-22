@@ -14,133 +14,111 @@
   <style>
     body {
       font-family: 'Inter', sans-serif;
-      background:
-        url('assets/images/truistpark2.jpg') no-repeat center center fixed,
-        rgba(0,0,0,0.85);
+      /* Set the background image and a semi-transparent overlay */
+      background-image:
+        linear-gradient(rgba(13, 17, 23, 0.85), rgba(13, 17, 23, 0.85)),
+        url('assets/images/truistpark2.jpg');
+      background-repeat: no-repeat;
+      background-position: center center;
+      background-attachment: fixed;
       background-size: cover;
-      background-blend-mode: overlay;
       min-height: 100vh;
       margin: 0;
-      color: #FFF;
+      color: #c9d1d9; /* Light gray text for readability on dark bg */
       overflow-x: hidden;
     }
   </style>
 </head>
 <body>
   <div class="relative z-10 container mx-auto p-4 sm:p-8">
-        <header class="text-center mb-8 sm:mb-12">
-          <h1 class="text-4xl sm:text-5xl font-black tracking-tight">BEAT THE STREAK</h1>
-          <p class="text-gray-400 mt-2">
-            Click any card to view Picks, Infographic, or Full Analysis
-          </p>
-        </header>
+    <header class="text-center mb-8 sm:mb-12">
+      <h1 class="text-4xl sm:text-5xl font-black tracking-tight text-white">BEAT THE STREAK</h1>
+      <p class="text-gray-400 mt-2">
+        Daily Analysis Reports
+      </p>
+    </header>
 
-        <div
-          id="reports"
-          class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-8 justify-center lg:justify-start"
-        ></div>
+    <div
+      id="reports-container"
+      class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 justify-center"
+    >
+      <!-- Report cards will be dynamically inserted here -->
+    </div>
 
-        <footer class="text-center text-gray-400 text-xs sm:text-sm mt-8 sm:mt-16">
-          <p>YOU'RE KILLING ME SMALLS!</p>
-        </footer>
-      </div>
+    <footer class="text-center text-gray-500 text-xs sm:text-sm mt-8 sm:mt-16">
+      <p>YOU'RE KILLING ME SMALLS!</p>
+    </footer>
+  </div>
 
-    <script>
-  // The Barba.js library was not loaded, causing a script-halting error.
-  // This section has been commented out to allow the main script to function.
-  /*
-  barba.init({
-    sync: true,
-    transitions: [{
-      name: 'fade',
-      once(data) {
-        gsap.from(data.next.container, { opacity: 0, duration: 0.5, onComplete: () => {
-          data.next.container.classList.add('is-visible');
-        }});
-      },
-      leave(data) {
-        return gsap.to(data.current.container, { opacity: 0, duration: 0.3 });
-      },
-      enter(data) {
-        data.next.container.classList.add('is-visible');
-        return gsap.from(data.next.container, { opacity: 0, duration: 0.3 });
+  <script>
+    (async () => {
+      const container = document.getElementById('reports-container');
+      const repoURL = 'https://api.github.com/repos/PrevailNetworks/BTS2025/contents?ref=main';
+
+      try {
+        const response = await fetch(repoURL);
+        if (!response.ok) {
+          throw new Error(`GitHub API Error: ${response.status} ${response.statusText}`);
+        }
+        const files = await response.json();
+
+        // Regex to match the required file format: 6 digits, a hyphen, then 'picks', 'ig', or 'report', ending in .html
+        const fileRegex = /^\d{6}-(picks|ig|report)\.html$/;
+
+        const reportsByDate = files
+          .filter(file => file.type === 'file' && fileRegex.test(file.name))
+          .reduce((acc, file) => {
+            const datePart = file.name.substring(0, 6);
+            if (!acc[datePart]) {
+              acc[datePart] = {};
+            }
+            if (file.name.includes('-picks'))  acc[datePart].picks  = file.name;
+            if (file.name.includes('-ig'))     acc[datePart].ig     = file.name;
+            if (file.name.includes('-report')) acc[datePart].report = file.name;
+            return acc;
+          }, {});
+
+        // Sort dates descending (most recent first)
+        const sortedDates = Object.keys(reportsByDate).sort((a, b) => b.localeCompare(a));
+
+        if (sortedDates.length === 0) {
+          container.innerHTML = `<p class="text-center text-yellow-400 col-span-full">No report files found in the repository with the correct format (e.g., 062225-picks.html).</p>`;
+          return;
+        }
+
+        for (const date of sortedDates) {
+          const { picks, ig, report } = reportsByDate[date];
+          const displayDate = `${date.slice(0, 2)}/${date.slice(2, 4)}/20${date.slice(4)}`;
+
+          const card = document.createElement('div');
+          card.className = [
+            'bg-[#161b22]/80', // Card background color from theme
+            'border', 'border-[#30363d]', // Card border color from theme
+            'rounded-lg', 'p-5',
+            'flex', 'flex-col', 'justify-between',
+            'backdrop-blur-sm',
+            'transition-all', 'duration-300', 'transform', 'hover:-translate-y-1', 'hover:shadow-2xl', 'hover:shadow-lime-500/10',
+            'hover:border-lime-400' // Accent color on hover
+          ].join(' ');
+
+          card.innerHTML = `
+            <div>
+              <h2 class="text-xl sm:text-2xl font-bold mb-2 text-lime-400">${displayDate}</h2>
+              <p class="text-gray-400 mb-4 text-sm">Daily Analysis & Visuals</p>
+            </div>
+            <div class="flex flex-col space-y-2.5">
+              ${picks  ? `<a href="${picks}" class="text-center font-semibold rounded-md px-4 py-2 bg-blue-600 text-white hover:bg-blue-500 transition-colors">Picks Dashboard</a>` : ''}
+              ${ig     ? `<a href="${ig}" class="text-center font-semibold rounded-md px-4 py-2 bg-purple-600 text-white hover:bg-purple-500 transition-colors">Infographic</a>` : ''}
+              ${report ? `<a href="${report}" class="text-center font-semibold rounded-md px-4 py-2 bg-gray-600 text-white hover:bg-gray-500 transition-colors">Full Report</a>` : ''}
+            </div>
+          `;
+          container.appendChild(card);
+        }
+      } catch (error) {
+        console.error('Failed to load reports:', error);
+        container.innerHTML = `<p class="text-center text-red-500 col-span-full">⚠️ Could not load reports. Check the browser console for more details.</p>`;
       }
-    }]
-  });
-
-  document.addEventListener('mouseover', e => {
-    const link = e.target.closest('a');
-    if (link && link.href && link.href.endsWith('.html')) {
-      fetch(link.href, { mode: 'no-cors' });
-    }
-  });
-  */
-
-  // Populate cards dynamically
-  (async () => {
-    const container = document.getElementById('reports');
-    
-    try {
-      const res = await fetch('https://api.github.com/repos/PrevailNetworks/BTS2025/contents?ref=main');
-      if (!res.ok) {
-        throw new Error(`GitHub API request failed: ${res.status}`);
-      }
-      const files = await res.json();
-
-      // This logic correctly handles the 'MMDDYY-type.html' naming convention.
-      const reportsByDate = files
-       .filter(f => /^\d{6}-(picks|ig|report)\.html$/.test(f.name))
-       .reduce((acc, file) => {
-          const [datePart] = file.name.split('-');
-          acc[datePart] = acc[datePart] |
-| {};
-          
-          if (file.name.includes('-picks'))  acc[datePart].picks  = file.name;
-          if (file.name.includes('-ig'))     acc[datePart].ig     = file.name;
-          if (file.name.includes('-report')) acc[datePart].report = file.name;
-          
-          return acc;
-        }, {});
-
-      const sortedDates = Object.keys(reportsByDate).sort((a, b) => b.localeCompare(a));
-
-      if (sortedDates.length === 0) {
-        container.innerHTML = '<p class="text-center text-yellow-400 col-span-full">No reports found with the expected naming format (e.g., 062225-picks.html).</p>';
-        return;
-      }
-
-      for (const datePart of sortedDates) {
-        const { picks, ig, report } = reportsByDate[datePart];
-        const displayDate = `${datePart.slice(0, 2)}/${datePart.slice(2, 4)}/20${datePart.slice(4)}`;
-
-        const card = document.createElement('div');
-        card.className = [
-          'bg-gray-900/60', 'border', 'border-gray-700', 'rounded-lg', 'p-4',
-          'flex', 'flex-col', 'justify-between',
-          'transition-transform', 'transform', 'hover:-translate-y-1', 'hover:shadow-xl',
-          'transition-colors', 'duration-200', 'hover:border-lime-500',
-          'max-w-sm', 'w-full'
-        ].join(' ');
-
-        card.innerHTML = `
-          <div>
-            <h2 class="text-lg sm:text-xl font-bold mb-1 sm:mb-2 text-lime-400">${displayDate}</h2>
-            <p class="text-gray-300 mb-3 sm:mb-4 text-sm sm:text-base">Daily Picks & Analysis</p>
-          </div>
-          <div class="flex flex-col space-y-2">
-            ${picks ? `<a class="inline-block bg-lime-500 text-black font-semibold px-3 py-1.5 rounded hover:bg-lime-600 text-center" href="${picks}">Picks Dashboard</a>` : ''}
-            ${ig    ? `<a class="inline-block bg-blue-600 text-white font-semibold px-3 py-1.5 rounded hover:bg-blue-700 text-center" href="${ig}">Infographic</a>`    : ''}
-            ${report? `<a class="inline-block bg-purple-600 text-white font-semibold px-3 py-1.5 rounded hover:bg-purple-700 text-center" href="${report}">Full Analysis</a>`  : ''}
-          </div>
-        `;
-
-        container.appendChild(card);
-      }
-    } catch (err) {
-      console.error("Failed to load reports:", err);
-      container.innerText = '⚠️ Could not load reports. See console for details.';
-    }
-  })();
+    })();
   </script>
 </body>
 </html>
