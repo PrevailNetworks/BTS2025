@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&family=Tilt+Neon&display=swap"
+    href="https://fonts.googleapis.com/css2?family=Expletus+Sans:ital,wght@0,700;1,700&family=Inter:wght@400;500;600;700;900&display=swap"
     rel="stylesheet"
   />
   <style>
@@ -27,8 +27,8 @@
       color: #c9d1d9; /* Light gray text for readability on dark bg */
       overflow-x: hidden;
     }
-    .font-tilt-neon {
-      font-family: 'Tilt Neon', sans-serif;
+    .font-expletus-sans {
+      font-family: 'Expletus Sans', sans-serif;
     }
     .neon-text {
         color: #fff;
@@ -44,7 +44,7 @@
 <body>
   <div class="relative z-10 container mx-auto p-4 sm:p-8">
     <header class="text-center mb-8 sm:mb-12">
-      <h1 class="text-4xl sm:text-6xl font-black tracking-tight uppercase font-tilt-neon neon-text">Beat The Streak</h1>
+      <h1 class="text-4xl sm:text-6xl font-bold tracking-tight uppercase font-expletus-sans neon-text italic">Beat The Streak</h1>
       <p class="text-gray-400 mt-4">
         Daily Analysis Reports
       </p>
@@ -119,9 +119,9 @@
               <p class="text-gray-400 mb-4 text-sm">Daily Analysis & Visuals</p>
             </div>
             <div class="flex flex-col space-y-2.5">
-              ${picks  ? `<a href="${picks}" class="text-center font-semibold rounded-md px-4 py-2 bg-blue-600 text-white hover:bg-blue-500 transition-colors">Picks Dashboard</a>` : ''}
-              ${ig     ? `<a href="${ig}" class="text-center font-semibold rounded-md px-4 py-2 bg-purple-600 text-white hover:bg-purple-500 transition-colors">Infographic</a>` : ''}
-              ${report ? `<a href="${report}" class="text-center font-semibold rounded-md px-4 py-2 bg-gray-600 text-white hover:bg-gray-500 transition-colors">Full Report</a>` : ''}
+              ${picks  ? `<a href="${picks}" class="text-center font-bold rounded-md px-4 py-2 bg-lime-500 text-slate-900 hover:bg-lime-400 transition-colors">Picks Dashboard</a>` : ''}
+              ${ig     ? `<a href="${ig}" class="text-center font-semibold rounded-md px-4 py-2 bg-cyan-600 text-white hover:bg-cyan-500 transition-colors">Infographic</a>` : ''}
+              ${report ? `<a href="${report}" class="text-center font-semibold rounded-md px-4 py-2 bg-slate-600 text-white hover:bg-slate-500 transition-colors">Full Report</a>` : ''}
             </div>
           `;
           container.appendChild(card);

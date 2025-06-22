@@ -8,7 +8,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Expletus+Sans:ital,wght@0,700;1,700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- Chosen Palette: Deep Space (Lime Accent) -->
     <!-- Application Structure Plan: A dashboard-style layout featuring a ranked navigation list on the left and a dynamic main content panel on the right. This structure is chosen to facilitate quick, side-by-side comparison of the top player picks, a primary user task. Clicking a player name instantly updates the main panel with their detailed analysis, including interactive charts and data cards. This non-linear exploration is more efficient and engaging than a static, scrolling document, allowing users to quickly access the most relevant information for their decision-making process. -->
     <!-- Visualization & Content Choices: 
@@ -22,6 +22,17 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
+        }
+        .font-expletus-sans {
+            font-family: 'Expletus Sans', sans-serif;
+        }
+        .neon-text {
+            color: #fff;
+            text-shadow:
+                0 0 5px rgba(163, 230, 53, 0.7),
+                0 0 10px rgba(163, 230, 53, 0.7),
+                0 0 20px rgba(37, 99, 235, 0.5),
+                0 0 40px rgba(37, 99, 235, 0.5);
         }
         .chart-container {
             position: relative;
@@ -67,14 +78,9 @@
     <div id="app" class="flex flex-col md:flex-row min-h-screen">
         
         <nav class="w-full md:w-80 bg-slate-800 border-b md:border-r border-slate-700 p-4 md:p-6 flex-shrink-0">
-            <div class="flex items-center mb-6">
-                 <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center mr-3">
-                    <span class="text-white font-bold text-xl">B</span>
-                </div>
-                <div>
-                    <h1 class="text-xl font-bold text-slate-100">Beat the Streak</h1>
-                    <p class="text-sm text-slate-400">Analysis for June 22, 2025</p>
-                </div>
+            <div class="mb-6">
+                <h1 class="font-expletus-sans neon-text text-2xl font-bold uppercase tracking-wider italic">Beat The Streak</h1>
+                <p class="text-sm text-slate-400">Analysis for June 22, 2025</p>
             </div>
             
             <p class="text-xs text-slate-500 mb-2 uppercase font-semibold">Top Recommendations</p>
