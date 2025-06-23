@@ -3,21 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>STREAKSENSE: Full Intelligence Briefing - June 23, 2025</title>
+    <title>STREAKSENSE - Full Intelligence Briefing</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Expletus+Sans:ital,wght@0,700;1,700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    
+    <!-- Chosen Palette: Deep Space (Custom Neon) -->
+    <!-- Application Structure Plan: A single-page, long-form narrative structure that translates the report into a web-native experience. The design uses a top-down flow: Header (branding), Executive Summary (collapsible for quick access), a dynamically generated section for each of the Top 5 Player Analyses, a Watch List section, and finally a collapsible Appendix. This allows users to either get a quick overview or scroll through the entire deep-dive analysis seamlessly. Player sections feature a two-column layout to present narrative text alongside key data visualizations, enhancing comprehension. -->
+    <!-- Visualization & Content Choices: 
+        1. Composite Probability (Goal: Inform) -> Chart.js Donut chart styled as a gauge provides an immediate, high-impact visual of the primary metric for each player.
+        2. BA vs. xBA (Goal: Compare) -> A Chart.js Horizontal Bar chart offers a clear, direct comparison between performance and expectation.
+        3. Key Data Table (Goal: Organize) -> A styled HTML table is used for the synopsis in the executive summary for dense, scannable data comparison.
+        4. Collapsible Sections (Goal: Organize/Interact) -> JavaScript-powered accordions for the Executive Summary and Appendix manage information density, allowing users to focus on the core analysis while keeping detailed text accessible.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
     <style>
         body {
             font-family: 'Inter', sans-serif;
             background-color: #0f172a;
+            color: #94a3b8;
         }
-       .font-expletus-sans {
+        .font-expletus-sans {
             font-family: 'Expletus Sans', sans-serif;
         }
-       .neon-text {
+        .neon-text {
             color: #f0fdf4;
             text-shadow:
                 0 0 5px rgba(220, 252, 231, 0.7),
@@ -26,371 +36,456 @@
                 0 0 40px rgba(101, 163, 13, 0.3),
                 0 0 80px rgba(77, 124, 15, 0.2);
         }
-       .content-section {
+        .chart-container {
+            position: relative; 
+            width: 100%; 
+            max-width: 600px; 
+            margin-left: auto; 
+            margin-right: auto; 
+        }
+        .report-card {
              background: rgba(30, 41, 59, 0.5);
              border: 1px solid #334155;
              backdrop-filter: blur(10px);
-             padding: 1.5rem 2rem;
-             border-radius: 1rem;
-             margin-bottom: 2.5rem;
         }
-        h2 {
-            font-size: 1.875rem;
-            line-height: 2.25rem;
-            font-weight: 800;
-            color: #f1f5f9;
-            border-bottom: 1px solid #475569;
-            padding-bottom: 0.75rem;
-            margin-bottom: 1.5rem;
-        }
-        h3 {
-            font-size: 1.25rem;
-            line-height: 1.75rem;
-            font-weight: 700;
-            color: #e2e8f0;
-            margin-top: 2rem;
-            margin-bottom: 1rem;
-        }
-        h4 {
-            font-size: 1.125rem;
-            line-height: 1.75rem;
-            font-weight: 600;
-            color: #cbd5e1;
-            margin-top: 1.5rem;
-            margin-bottom: 0.5rem;
-        }
-        p, li {
-            line-height: 1.75;
-            color: #cbd5e1;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 1.5rem;
-            margin-bottom: 1.5rem;
-        }
-        th, td {
-            border: 1px solid #475569;
-            padding: 0.75rem;
-            text-align: left;
-            font-size: 0.875rem;
-        }
-        th {
-            background-color: #1e293b;
-            color: #e2e8f0;
-            font-weight: 600;
-        }
-        td {
-            background-color: #334155;
-        }
-        code {
-            background-color: #1e293b;
-            color: #94a3b8;
-            padding: 0.2rem 0.4rem;
-            border-radius: 0.25rem;
-            font-family: monospace;
-        }
-       .formula-block {
-            background-color: #020617;
-            border: 1px solid #1e293b;
-            padding: 1rem;
-            border-radius: 0.5rem;
-            overflow-x: auto;
-            color: #94a3b8;
-            font-family: monospace;
-            text-align: center;
-            margin: 1.5rem 0;
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-in-out;
         }
     </style>
 </head>
-<body class="text-slate-300 antialiased">
+<body class="antialiased">
 
-    <div class="container mx-auto p-4 md:p-8">
+    <div class="container mx-auto p-4 md:p-8 max-w-7xl">
         
         <header class="text-center mb-12">
             <h1 class="font-expletus-sans neon-text text-5xl md:text-6xl font-bold uppercase tracking-wider italic">STREAKSENSE</h1>
-            <p class="text-slate-400 mt-2 text-lg italic">The Beat the Streak Analytics Hub</p>
+            <p class="text-slate-400 mt-2 text-lg italic">Intelligence Briefing: Top Hit Probability Targets for June 23, 2025</p>
         </header>
 
-        <main>
-            <div class="content-section">
-                <h2>I. Executive Summary &amp; Top Recommendations</h2>
-                <h3>Situational Overview</h3>
-                <p>This intelligence briefing provides a comprehensive statistical and contextual analysis of the Major League Baseball slate for Monday, June 23, 2025, with the singular objective of identifying the players possessing the highest probability of recording at least one base hit for the Beat the Streak contest. All data is current through games completed on June 22, 2025.</p>
-                <p>The day's schedule presents a concentrated set of opportunities, with nine games on the docket.[1] A critical initial finding is that two teams with several high-probability hitters, the Tampa Bay Rays and Cleveland Guardians, have a scheduled off-day and are therefore ineligible for selection.[2, 3, 4, 5, 6] This removes perennial high-contact players like Yandy Diaz, who is currently on a 13-game hitting streak, from consideration.[7]</p>
-                <p>The analytical focus converges heavily on the contest between the Atlanta Braves and the New York Mets at Citi Field.[8] This game features a matchup between one of the league's most potent offenses and a starting pitcher, Paul Blackburn, who has demonstrated significant vulnerabilities throughout the 2025 season. This specific game environment is the source of our premier recommendation. Additional high-probability scenarios have been identified in the New York Yankees at Cincinnati Reds and Arizona Diamondbacks at Chicago White Sox matchups, which feature elite hitters in favorable park and platoon situations.</p>
-                <p>The following report will provide an exhaustive, multi-layered analysis for each of the top five recommended players, moving from core performance metrics to advanced Statcast data, pitcher-specific vulnerabilities, and probabilistic modeling to arrive at a definitive, rank-ordered list of selections.</p>
-                
-                <h3>Top-Line Recommendations</h3>
-                <p>Based on a rigorous evaluation of all available quantitative and qualitative data, the following five players are recommended as the highest-probability selections for securing at least one base hit on June 23, 2025.</p>
-                <ol class="list-decimal list-inside space-y-1 pl-4">
-                    <li><strong>Ronald Acuña Jr.</strong> (OF, Atlanta Braves)</li>
-                    <li><strong>Aaron Judge</strong> (OF, New York Yankees)</li>
-                    <li><strong>Josh Naylor</strong> (1B, Arizona Diamondbacks)</li>
-                    <li><strong>Luis Arraez</strong> (2B, San Diego Padres)</li>
-                    <li><strong>Christian Yelich</strong> (OF, Milwaukee Brewers)</li>
-                </ol>
+        <main id="report-content" class="space-y-12">
 
-                <h3>Key Table: Top 5 Recommendations Synopsis</h3>
-                <p>The table below provides a consolidated view of the most critical metrics for each of the top five recommended players, facilitating a direct comparison of their statistical profiles and estimated hit probabilities for June 23, 2025.</p>
-                <div class="overflow-x-auto">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Rank</th>
-                                <th>Player (Team)</th>
-                                <th>Opposing Pitcher (Team)</th>
-                                <th>Active Streak</th>
-                                <th>2025 BA / xBA</th>
-                                <th>BvP History</th>
-                                <th>NN Prob.</th>
-                                <th>Log5 Prob.</th>
-                                <th>Composite Prob.</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>1</td>
-                                <td>Ronald Acuña Jr. (ATL)</td>
-                                <td>Paul Blackburn (NYM)</td>
-                                <td>8 Games [9]</td>
-                                <td>.396 /.301 [10, 11]</td>
-                                <td>1-for-3, HR [12]</td>
-                                <td>72.9% [13]</td>
-                                <td>67.0%</td>
-                                <td><strong>74%</strong></td>
-                            </tr>
-                            <tr>
-                                <td>2</td>
-                                <td>Aaron Judge (NYY)</td>
-                                <td>Nick Lodolo (CIN)</td>
-                                <td>N/A</td>
-                                <td>.367 /.325* [14, 15]</td>
-                                <td>N/A</td>
-                                <td>70.7% [13]</td>
-                                <td>48.5%</td>
-                                <td><strong>71%</strong></td>
-                            </tr>
-                            <tr>
-                                <td>3</td>
-                                <td>Josh Naylor (ARI)</td>
-                                <td>Shane Smith (CWS)</td>
-                                <td>11 Games [7]</td>
-                                <td>.303 /.299 [16, 17]</td>
-                                <td>N/A</td>
-                                <td>N/A</td>
-                                <td>40.8%</td>
-                                <td><strong>68%</strong> (Conditional)</td>
-                            </tr>
-                            <tr>
-                                <td>4</td>
-                                <td>Luis Arraez (SD)</td>
-                                <td>Mitchell Parker (WSH)</td>
-                                <td>9 Games [7]</td>
-                                <td>.317 / N/A [7]</td>
-                                <td>N/A</td>
-                                <td>71.7% [13]</td>
-                                <td>N/A</td>
-                                <td><strong>67%</strong></td>
-                            </tr>
-                            <tr>
-                                <td>5</td>
-                                <td>Christian Yelich (MIL)</td>
-                                <td>Chad Patrick (MIL)</td>
-                                <td>6 Games [7]</td>
-                                <td>.385** / N/A [18]</td>
-                                <td>N/A</td>
-                                <td>N/A</td>
-                                <td>N/A</td>
-                                <td><strong>66%</strong></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <p class="text-xs text-slate-400 mt-2"><em>*Note: Judge's xBA is from a separate source [15]; his primary player card did not list it. Naylor's probability is conditional on health. Yelich's BA is from the last 30 days.</em></p>
-            </div>
-
-            <div class="content-section">
-                <h2>II. Premier Recommendation: Ronald Acuña Jr. (OF, Atlanta Braves)</h2>
-                <h3>A. Core Performance & Overwhelming Momentum</h3>
-                <p>The primary candidate for June 23, 2025, is Atlanta Braves outfielder Ronald Acuña Jr., who presents a rare and powerful convergence of elite baseline talent, an extraordinary period of peak performance, and a uniquely favorable opponent. His selection is underpinned by a statistical profile that is not merely strong but overwhelmingly dominant across nearly every relevant metric.</p>
-                <p>For the 2025 season, Acuña has compiled a staggering slash line of $.396/.504/.698$, with an OPS of $1.202$ and an OPS+ of 231, indicating he has been 131% better than a league-average hitter after adjusting for park effects.[10] This level of production places him at the zenith of the sport's offensive performers.</p>
-                <p>Crucially, this performance is not a relic of a hot start to the season; his production has accelerated in recent weeks. An analysis of his performance over various timeframes reveals a player operating at the absolute height of his abilities:</p>
-                <ul class="list-disc list-inside pl-4 space-y-2">
-                    <li><strong>Last 30 Games:</strong> $.391$ BA, $.504$ OBP, $.696$ SLG [19]</li>
-                    <li><strong>Last 15 Games:</strong> $.451$ BA, $.576$ OBP, $.745$ SLG [20]</li>
-                    <li><strong>Last 7 Games:</strong> $.429$ BA, $.600$ OBP, $.667$ SLG [20]</li>
-                </ul>
-                <p>This sustained excellence is further demonstrated by his active eight-game hitting streak. During this streak, he is batting an astonishing $.577$ (15-for-26) with four home runs.[9] This combination of long-term season dominance and an acute short-term hot streak establishes an exceptionally high floor for his daily performance. The central analytical conclusion is that an MVP-caliber hitter, performing at a historic level, is scheduled to face one of the most vulnerable starting pitchers on the day's slate. This is not just a favorable matchup; it is a statistical outlier that maximizes the probability of success.</p>
-
-                <h3>B. Statcast Validation: The Underlying Process</h3>
-                <p>While traditional statistics illustrate the results of Acuña's performance, Statcast data illuminates the underlying process, confirming that his success is a direct result of superior contact quality rather than fortune. An examination of his batted ball events reveals a hitter who consistently produces elite metrics that are the foundation of sustainable production.[21]</p>
-                <p>In 2025, Acuña's key Statcast indicators are among the best in Major League Baseball [11]:</p>
-                <ul class="list-disc list-inside pl-4 space-y-2">
-                    <li><strong>Average Exit Velocity (EV):</strong> $93.6$ mph. This is significantly above the MLB average of 88.5 mph and places him in the upper echelon of hitters.</li>
-                    <li><strong>Hard-Hit Percentage:</strong> $57.7\%$. This measures the percentage of batted balls with an exit velocity of 95 mph or higher. Acuña's rate is in the 98th percentile of the league, demonstrating his consistent ability to strike the ball with authority.[11] His career high of 57.0% in 2020 underscores that this is a repeatable, elite skill.[20]</li>
-                    <li><strong>Barrel Percentage:</strong> $18.3\%$. A "barrel" is a batted ball with the optimal combination of exit velocity and launch angle, leading to the highest probability of extra-base hits and home runs.[15] Acuña's rate is in the 99th percentile, confirming he not only hits the ball hard but also at ideal trajectories.</li>
-                </ul>
-                <p>These process-based metrics translate directly into elite expected outcomes, which strip out the effects of defense and luck. His <strong>Expected Batting Average (xBA) of.301</strong> and <strong>Expected Weighted On-Base Average (xwOBA) of.441</strong> are both in the 95th percentile or higher.[11] While his actual batting average of.396 is significantly higher than his xBA, suggesting some positive luck on balls in play, the xBA itself remains at an elite level. This indicates that even with expected statistical regression, his baseline performance is that of a top-tier hitter. The high quality of contact provides confidence that even a statistically "unlucky" day for Acuña is highly likely to involve multiple hard-hit balls, thereby increasing the probability of at least one finding a hole for a base hit.</p>
-
-                <h3>C. The Matchup: Exploiting Paul Blackburn</h3>
-                <p>The case for selecting Ronald Acuña Jr. is dramatically amplified by his opponent, New York Mets right-handed pitcher Paul Blackburn. Blackburn's 2025 performance profile makes him one of the most attractive pitchers to target on the slate. His top-line statistics are alarming: in 13.0 innings pitched across four appearances (two starts), he holds a $6.92$ ERA and a $1.69$ WHIP.[8, 22, 23, 24, 25] Opposing hitters have posted a staggering <strong>.327 batting average against (BAA)</strong> him this season, a direct measure of his extreme hittability.[23, 25] The underlying reasons for this are clear in his peripheral stats. Blackburn's strikeout percentage (K%) is a mere $13.3\%$, while his walk percentage (BB%) is a low $6.7\%$.[22] This combination reveals a pitcher who does not miss bats and consistently pitches to contact. This strategic approach is a significant liability when facing a hitter like Acuña, who generates elite exit velocities. The probability of the ball being put in play is high, and the probability of it being hit hard is also high—a recipe for offensive success.</p>
-                <p>Furthermore, Blackburn exhibits a pronounced platoon vulnerability. Since the start of the 2024 season, he has allowed a concerning <strong>.242 Isolated Power (ISO)</strong> to right-handed batters, a demographic to which Acuña belongs.[26] This indicates that right-handed hitters have been particularly successful at hitting for extra bases against him. This vulnerability was on full display in his most recent outing on June 18, when he faced this same Atlanta Braves lineup and surrendered three runs on four hits and two walks in just 3.2 innings.[8, 22] The fact that he struggled against this very lineup less than a week ago suggests a high probability of continued success for the Braves' hitters. Blackburn's profile is almost perfectly tailored to be exploited by a hitter with Acuña's specific skill set.</p>
-
-                <h3>D. Synthesis: BvP, Park, Weather, and Predictive Models</h3>
-                <ul class="list-disc list-inside pl-4 space-y-2">
-                    <li><strong>Batter vs. Pitcher (BvP) History:</strong> The direct historical data between Acuña and Blackburn is limited and presents some conflict across sources. One report notes Acuña has a home run in three career at-bats against Blackburn [12], while another states he is 0-for-2.[27] However, multiple sources confirm that in their most recent meeting on June 18, Acuña hit a leadoff home run on Blackburn's first pitch of the game.[9, 28] Given the recency and impact of this event, the BvP data, though based on a small sample, trends positively.</li>
-                    <li><strong>Park Factors:</strong> The game will be played at Citi Field, which is historically a pitcher-friendly venue. Statcast's three-year rolling park factors (2023-2025) assign it a Weighted On-Base Average (wOBA) factor of 97 (where 100 is average).[29] For 2025 specifically, it suppresses singles (94 index) and doubles (81 index) while being neutral for home runs (98 index).[29] Hashtag Baseball ranks it as the 26th-best park for hitters overall.[30] This represents the most significant risk factor in this selection.</li>
-                    <li><strong>Weather Conditions:</strong> The environmental conditions in Queens, New York, are forecast to be favorable for hitters, which may help mitigate the park's tendencies. The forecast calls for a high temperature of 97°F with a "feels like" temperature of 109°F due to humidity.[31] Hot, humid air is less dense, allowing batted balls to travel farther. A modest 6-mph wind is expected to be blowing from the southwest, which, depending on the stadium's orientation, could provide a slight boost to balls hit to right or center field.</li>
-                    <li><strong>Predictive Models:</strong>
-                        <ul class="list-circle list-inside pl-6 mt-2 space-y-1">
-                            <li><strong>Baseball Musings Neural Network:</strong> This proprietary model, which incorporates park factors and other variables, gives Ronald Acuña Jr. a <strong>72.9% probability</strong> of recording at least one hit, the highest projection for any player on the June 23 slate.[13]</li>
-                            <li><strong>Log5 Formula:</strong> This method estimates the probability of an outcome based on the individual probabilities of the participants against a league average. The formula for a single at-bat is: $P(Hit) = \frac{(H_{BA} \times P_{BAA})}{(H_{BA} \times P_{BAA}) + ((1 - H_{BA}) \times (1 - P_{BAA}))}$. Using 2025 statistics (Acuña BA:.396; Blackburn BAA:.327), the probability of a hit in a single at-bat is approximately $24.2\%$. Extrapolating this over an assumed four plate appearances per game yields a probability of at least one hit of approximately <strong>67.0%</strong>. (Calculation: $1 - (1 - 0.242)^4$).</li>
-                        </ul>
-                    </li>
-                </ul>
-
-                <h3>E. Final Verdict & Risk Assessment</h3>
-                <p><strong>Verdict:</strong> Ronald Acuña Jr. is the unequivocal premier recommendation for June 23, 2025. The confluence of his own historic offensive season, an acute hot streak, elite underlying Statcast metrics, and an exceedingly favorable pitching matchup creates the highest-probability scenario on the board. This conclusion is further validated by external predictive models, which also identify him as the top choice.</p>
-                <p><strong>Risk Assessment:</strong> The primary risk is the venue. Citi Field is a documented pitcher's park that suppresses base hits, particularly singles and doubles.[29, 30] This factor cannot be dismissed. However, the sheer magnitude of the mismatch between Acuña's ability and Blackburn's vulnerability is significant enough to largely mitigate this environmental risk. A secondary risk is the inherent variance of baseball; even the most probable outcomes can fail. No current injury concerns have been reported for Acuña.[10]</p>
-                <p><strong>Composite Hit Probability:</strong> <strong class="text-lime-400 text-lg">74%</strong></p>
-            </div>
+            <!-- Section for Executive Summary -->
+            <section id="executive-summary" class="report-card rounded-2xl"></section>
             
-            <div class="content-section">
-                <h2>III. Secondary Recommendation: Aaron Judge (OF, New York Yankees)</h2>
-                <h3>A. Core Performance & Platoon Dominance</h3>
-                <p>The second-ranked selection for this slate is New York Yankees outfielder Aaron Judge. While Acuña’s case is built on a combination of his own excellence and his opponent’s weakness, Judge’s case is founded on his own historic power, a profound platoon advantage, and a highly favorable ballpark environment. Judge is in the midst of another MVP-caliber season, leading Major League Baseball in batting average ($.367$), on-base percentage ($.468$), slugging percentage ($.727$), and OPS ($1.195$).[14, 32]</p>
-                <p>The critical factor in this matchup is Judge’s profound dominance against left-handed pitching. In 2025, he has posted a remarkable <strong>1.388 OPS</strong> against southpaws, hitting nine of his 27 home runs in just 59 at-bats against them.[33] Tonight, he faces Cincinnati Reds left-hander Nick Lodolo.[34, 35] This presents a classic power-versus-platoon scenario where Judge's established ability to punish left-handed pitching is the central thesis. The analysis here focuses on the powerful synergy created when this extreme platoon advantage is combined with the hitter-friendly confines of Great American Ball Park. This elevates the probability of any given hit, as many of those hits are likely to be for extra bases, which inherently satisfy the contest's requirement.</p>
+            <!-- Sections for Player Analysis will be injected here -->
+            
+            <!-- Section for Watch List & Notes -->
+            <section id="watch-list" class="report-card rounded-2xl p-6 md:p-8"></section>
 
-                <h3>B. Statcast Validation: Unmatched Power</h3>
-                <p>Aaron Judge's Statcast profile is a testament to his status as the premier power hitter in the sport. His player page on Baseball Savant is saturated with red, indicating performance in the 98th to 100th percentile across nearly every meaningful category of power and contact quality.[36]</p>
-                <p>Key 2025 Statcast metrics for Judge include [15, 37]:</p>
-                <ul class="list-disc list-inside pl-4 space-y-2">
-                    <li><strong>xwOBA:</strong> $.457$ (1st in MLB)</li>
-                    <li><strong>Average Exit Velocity:</strong> $95.3$ mph (3rd in MLB)</li>
-                    <li><strong>Barrel Percentage:</strong> $24.6\%$ (1st in MLB)</li>
-                    <li><strong>Hard-Hit Percentage:</strong> $55.3\%$ (1st in MLB)</li>
-                </ul>
-                <p>These metrics provide empirical evidence that Judge is not just hitting for power, but is producing a quality of contact that is unmatched by any other player. His batting average on balls in play (BABIP) of.467 is historically high, but it is substantially supported by his unique ability to hit the ball harder than anyone else and force defensive miscues.[38] Statcast analysis reveals that fielders are positioned deeper against Judge than any other hitter, yet he still leads the league in batting average on ground balls because he hits them with such high velocity that infielders have less time to react.[38] This combination of raw power and its tangible effect on opposing defenses confirms that his high batting average is not merely a fluke but a direct consequence of his elite skills.</p>
+            <!-- Section for Appendix -->
+            <section id="appendix" class="report-card rounded-2xl"></section>
 
-                <h3>C. The Matchup: A Worthy but Vulnerable Adversary</h3>
-                <p>The opposing pitcher, Nick Lodolo, is a capable major league starter and presents a more formidable challenge than Paul Blackburn. Lodolo owns a respectable $3.71$ ERA and a $1.11$ WHIP on the season.[34, 39] He is not a pitcher to be taken lightly.</p>
-                <p>However, the matchup dynamics heavily favor Judge. First and foremost, Lodolo is a left-hander, which, as established, is Judge's most favorable platoon split. While there is no direct BvP history between the two players, Judge's career-long success against left-handed pitching provides a strong predictive basis. In 2023, Judge had a home run, five hits, and four RBI in his last two games played in Cincinnati, demonstrating comfort in this specific park.[33]</p>
-                <p>The environmental factors further amplify Judge's potential for success:</p>
-                <ul class="list-disc list-inside pl-4 space-y-2">
-                    <li><strong>Park Factors:</strong> Great American Ball Park is renowned as one of the most hitter-friendly venues in baseball, particularly for home runs. The 3-year rolling park factor for home runs is 128, ranking 5th in MLB, meaning it increases home run production by 28% compared to an average park.[40] The overall runs factor is also positive at 106.[40] This environment significantly increases the likelihood that a hard-hit ball from Judge will leave the park or find extra bases.</li>
-                    <li><strong>Weather Conditions:</strong> The forecast for Cincinnati calls for a hot and sunny day, with a high of 94°F and a "feels like" temperature of 101°F.[31] As with the game in New York, these warm and humid conditions will further reduce air density and aid batted ball flight, compounding the park's inherent advantages for hitters.</li>
-                </ul>
-
-                <h3>D. Models & Final Verdict</h3>
-                <ul class="list-disc list-inside pl-4 space-y-2">
-                    <li><strong>Predictive Models:</strong>
-                        <ul class="list-circle list-inside pl-6 mt-2 space-y-1">
-                            <li><strong>Baseball Musings Neural Network:</strong> The model projects a <strong>70.7% probability</strong> for Judge to record a hit against Lodolo, a strong endorsement that accounts for the park and platoon factors.[13]</li>
-                            <li><strong>Log5 Formula:</strong> Using Judge's BA ($.367$) and Lodolo's BAA ($.238$ for the season [41]), the single-PA hit probability is approximately $15.3\%$. Extrapolated over four plate appearances, this yields a game probability of <strong>48.5%</strong>. The significant discrepancy between the Log5 result and the Neural Network output suggests that the simple Log5 formula may be undervaluing the powerful influence of the extreme platoon advantage and the highly favorable park factors, which the more sophisticated NN model likely weights more heavily.</li>
-                        </ul>
-                    </li>
-                    <li><strong>Verdict:</strong> Aaron Judge is an elite selection for June 23. The combination of his immense power, a significant platoon advantage against a left-handed pitcher, and playing in one of the league's best hitter's parks creates a scenario with an exceptionally high ceiling for offensive production.</li>
-                    <li><strong>Risk Assessment:</strong> The primary risk factor is the quality of the opposing pitcher. Nick Lodolo is a legitimate major league starter with a solid track record, not a struggling replacement-level arm. He possesses the ability to challenge even the best hitters. However, the confluence of other factors in Judge's favor is strong enough to make this a calculated and highly recommended risk.</li>
-                </ul>
-                <p><strong>Composite Hit Probability:</strong> <strong class="text-lime-400 text-lg">71%</strong></p>
-            </div>
-
-            <div class="content-section">
-                <h2>IV. Secondary Recommendation: Josh Naylor (1B, Arizona Diamondbacks)</h2>
-                <h3>A. Core Performance & Recent Form</h3>
-                <p>Arizona Diamondbacks first baseman Josh Naylor presents a compelling, albeit more complex, case for selection. On the surface, his statistical profile is excellent. For the 2025 season, he is batting $.303$ with a $.358$ OBP and a $.465$ SLG, resulting in an impressive $.823$ OPS and a 128 OPS+.[16] He is currently in the midst of an <strong>11-game hitting streak</strong>, during which he has been one of the hottest hitters in baseball.[7] Over this streak, he is batting $.409$.[7]</p>
-                <p>However, the most critical piece of intelligence regarding Naylor is qualitative and serves as a significant caveat to his quantitative excellence. Recent reports indicate that he has been dealing with nagging shoulder and hand injuries.[42] He was even removed for a pinch-hitter in the sixth inning of a recent game due to these issues. This information fundamentally changes the risk profile of this selection. For a hitter, even minor ailments in the hands, wrists, or shoulders can have a profound impact on swing mechanics, bat speed, and the ability to make consistent, solid contact. This makes his stellar recent performance data potentially less reliable as a predictor of immediate future success.</p>
-                <p>Therefore, this recommendation must be viewed as conditional. If Naylor is confirmed to be in the starting lineup and there are no pre-game reports of lingering issues, he represents a very strong choice. However, the presence of this injury news elevates him into a higher-risk, higher-reward category compared to the top two selections.</p>
-
-                <h3>B. Statcast Validation & Batted Ball Profile</h3>
-                <p>Assuming full health, Naylor's underlying Statcast data supports his strong surface-level numbers. In 2025, he has produced a solid <strong>.354 xwOBA</strong> and a <strong>.299 xBA</strong>.[17] The proximity of his xBA to his actual BA (.303) suggests that his performance has been earned through legitimate skill and is not the product of significant luck. His Hard Hit percentage of $43.7\%$ is also well above the league average, confirming his ability to generate quality contact.[17]</p>
-                <p>As a left-handed batter, Naylor will hold the platoon advantage against the opposing right-handed pitcher, Shane Smith. This is a crucial tactical advantage. Throughout his career, Naylor has demonstrated the ability to hit for both average and power, and his batted ball profile typically features a healthy mix of line drives and fly balls, which are conducive to securing base hits.</p>
-
-                <h3>C. The Matchup: Favorable Pitcher and Park</h3>
-                <p>Naylor and the Diamondbacks are facing Chicago White Sox right-hander Shane Smith.[43] Smith's season numbers include a respectable $2.85$ ERA, but his underlying metrics suggest he has been the beneficiary of some good fortune.[44] His Fielder Independent Pitching (FIP) is a less impressive $3.53$, and his Expected FIP (xFIP) is a concerning $4.31$.[45] The significant gap between his ERA and his FIP/xFIP indicates that his run prevention has been better than his core skills (strikeouts, walks, home runs allowed) would predict, making him a prime candidate for negative regression.</p>
-                <p>Furthermore, Smith's K-BB% (the difference between his strikeout and walk rates) is a modest $12\%$.[44] This suggests he is not an overpowering pitcher and will allow hitters to put the ball in play, a favorable scenario for a high-contact hitter like Naylor.</p>
-                <p>The game will be played at Rate Field in Chicago. The park factors for this venue are generally considered neutral to slightly hitter-friendly, presenting no significant impediment to offense.[40]</p>
-
-                <h3>D. Models & Final Verdict</h3>
-                <ul class="list-disc list-inside pl-4 space-y-2">
-                    <li><strong>Predictive Models:</strong> There is no specific output from the Baseball Musings Neural Network for this particular matchup available in the provided data. A Log5 calculation, which relies on batting averages, would be favorable but must be heavily caveated by the injury news. Using Naylor's BA ($.303$) and an estimated pitcher BAA for Smith around the league average ($.245$), the per-PA hit probability is approximately $12.3\%$, yielding a four-PA game probability of only <strong>40.8%</strong>. This calculation likely underestimates Naylor's true probability due to the platoon advantage and the pitcher's regression indicators, which are not captured in the simple formula.</li>
-                    <li><strong>Verdict:</strong> Josh Naylor is a high-upside pick with a significant and clearly identifiable risk. The statistical case is strong: he is on a long hitting streak, his underlying metrics are solid, and he has a favorable platoon matchup against a pitcher due to for regression. However, the reports of nagging injuries cannot be ignored and introduce a major element of uncertainty.</li>
-                    <li><strong>Risk Assessment:</strong> The primary risk is Naylor's health.[42] He could be a late scratch from the lineup, or he could play through the injuries at a diminished capacity, rendering his past performance data less predictive. This is a pick that requires diligent monitoring of lineup news and team reports right up until game time.</li>
-                </ul>
-                <p><strong>Composite Hit Probability (Conditional on Health):</strong> <strong class="text-lime-400 text-lg">68%</strong></p>
-            </div>
-
-            <div class="content-section">
-                <h2>V. High-Value & Contrarian Picks</h2>
-                <h3>4. Luis Arraez (2B, San Diego Padres)</h3>
-                <p>Luis Arraez represents a different archetype of a high-probability hitter. While selections like Judge and Acuña rely on overwhelming power and favorable matchups, Arraez's value is derived from an elite, outlier skill: his historic ability to make contact. He is the quintessential "get a hit" player, whose approach is perfectly suited to the demands of the Beat the Streak contest.</p>
-                <p>For the season, Arraez is batting.317 and is in the midst of a nine-game hitting streak.[7] His value, however, is best understood through Statcast's bat tracking metrics. Arraez leads all of Major League Baseball with a <strong>43.0% Squared-Up Rate</strong>.[15] This metric measures how efficiently a batter transfers bat speed into exit velocity, essentially quantifying how often a player hits the ball on the "sweet spot." His ability to consistently square up the baseball is the foundation of his high batting averages. This is coupled with an exceptionally low strikeout rate, meaning he almost always puts the ball in play, giving himself the maximum number of opportunities for a batted ball to become a hit.</p>
-                <p>Tonight, he faces Washington Nationals left-hander Mitchell Parker.[46] On the surface, a lefty-on-lefty matchup is a disadvantage. However, Arraez's unique skill set often transcends traditional platoon splits. This is reflected in the Baseball Musings Neural Network model, which gives Arraez a <strong>71.7% probability of getting a hit</strong>.[13] This is one of the highest probabilities on the entire slate and suggests the model heavily weights his unique bat-to-ball skills over the conventional platoon disadvantage. This makes Arraez a data-driven contrarian pick, trusting the underlying process metrics over the surface-level context.</p>
-                <p><strong>Risk Assessment:</strong> The primary risk is the lefty-on-lefty matchup against a capable pitcher in Mitchell Parker. Parker has been a solid arm for the Nationals, and same-sided matchups are statistically more difficult for hitters.</p>
-                <p><strong>Composite Hit Probability:</strong> <strong class="text-lime-400 text-lg">67%</strong></p>
-
-                <h3>5. Christian Yelich (OF, Milwaukee Brewers)</h3>
-                <p>The selection of Christian Yelich is a clear case of identifying and leveraging an extreme short-term performance peak, commonly known as "riding the hot hand." While his season-long numbers are solid, his performance over the past week has been nothing short of extraordinary.</p>
-                <p>In his last seven days (five games), Yelich is batting an incredible <strong>.545</strong> (12-for-22) with five extra-base hits (four doubles, one home run) and 11 RBI.[47] He is currently on a six-game hitting streak.[7] This is not just a hot streak; it is a period of absolute dominance that suggests he is seeing the ball exceptionally well.</p>
-                <p>Tonight, Yelich and the Brewers face Pittsburgh Pirates right-hander Chad Patrick.[46, 48, 49] Patrick has a respectable $3.50$ ERA on the season, but his underlying peripherals are not imposing. His K-BB% of $15\%$ is average, and he has shown a tendency to curb regression by increasing his strikeout rate in recent starts.[44] Nonetheless, he does not represent an insurmountable obstacle for a hitter of Yelich's caliber, especially one who is performing at such a high level. This pick is an acknowledgment of extreme short-term variance. While a.545 average is obviously unsustainable, it provides a strong signal of a player in a deep offensive groove, making him a high-value pick for a single-day contest.</p>
-                <p><strong>Risk Assessment:</strong> The main risk is regression. A player on such an extreme hot streak is, by definition, performing above their true talent level. There is always a chance that this is the day the streak ends and his performance reverts to the mean.</p>
-                <p><strong>Composite Hit Probability:</strong> <strong class="text-lime-400 text-lg">66%</strong></p>
-            </div>
-
-            <div class="content-section">
-                <h2>VI. The Watch List & Cautionary Notes</h2>
-                <h3>Honorable Mentions</h3>
-                <p>Beyond the top five, several other players warrant consideration and should be monitored as game time approaches, particularly once official lineups are confirmed.</p>
-                <ul class="list-disc list-inside pl-4 space-y-2">
-                    <li><strong>Brendan Donovan (2B, St. Louis Cardinals):</strong> A high-contact hitter with a season-long batting average of.308 [32], Donovan is a consistent threat to get a hit. He faces Chicago Cubs right-hander Ben Brown, against whom the Baseball Musings Neural Network gives him a strong <strong>70.0% hit probability</strong>.[13] His profile is similar to Arraez's, relying on contact over power.</li>
-                    <li><strong>Jeremy Peña (SS, Houston Astros):</strong> Peña ranks among the top ten hitters in MLB with a.326 batting average.[32, 50] His combination of contact ability and solid power makes him a viable BTS candidate on almost any given day. His opponent for June 23 was not listed in the available schedule data, but he is a player to check on once lineups are posted.</li>
-                </ul>
-
-                <h3>Ineligible Players to Note</h3>
-                <p>It is important to acknowledge strong candidates who are unavailable due to their teams having a scheduled off-day. This prevents wasted analysis on players who cannot be selected.</p>
-                <ul class="list-disc list-inside pl-4 space-y-2">
-                    <li><strong>Yandy Diaz (1B, Tampa Bay Rays):</strong> Diaz is one of the hottest hitters in baseball, riding a <strong>13-game hitting streak</strong> into the off-day.[7] Over his last 7 games, he is batting.452 with two home runs.[51] The Rays are not scheduled to play on June 23, making him ineligible.[2]</li>
-                </ul>
-
-                <h3>Regression Candidates (Cautionary Tales)</h3>
-                <p>A key component of successful BTS selection is avoiding players who may appear to be good choices but whose performance is likely unsustainable. This often involves identifying hitters with a large, negative gap between their batting average (BA) and their expected batting average (xBA). A player significantly outperforming their xBA is likely benefiting from good luck on balls in play (a high BABIP) and is a candidate for negative regression, making them a risky choice for a contest that demands high probability. While no specific players on today's slate stand out as extreme cautionary tales among the elite options, this principle should always be applied as part of the daily evaluation process.</p>
-            </div>
-
-            <div class="content-section">
-                <h2>VII. Appendix: Data Sources & Methodological Notes</h2>
-                <h3>Data Sources</h3>
-                <p>This report was compiled using data from the following industry-leading sources. All statistics are current through games of June 22, 2025, unless otherwise noted.</p>
-                <ul class="list-disc list-inside pl-4 space-y-2 text-sm">
-                    <li><strong>Statcast (via Baseball Savant):</strong> [11, 15, 17, 21, 29, 36, 37, 52, 53, 54]</li>
-                    <li><strong>Baseball-Reference:</strong> [10, 14, 16, 25, 32, 39, 49, 55, 56]</li>
-                    <li><strong>FanGraphs:</strong> [22, 44, 45, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73]</li>
-                    <li><strong>Baseball Musings:</strong> [7, 13, 74, 75, 76]</li>
-                    <li><strong>Official MLB Sources:</strong> [1, 24, 77, 78, 79, 80]</li>
-                    <li><strong>Other Sports Information Providers (CBS Sports, FOX Sports, Statmuse, etc.):</strong> [8, 12, 26, 33, 34, 43, 47, 81]</li>
-                </ul>
-
-                <h3>Methodological Notes</h3>
-                <ul class="list-disc list-inside pl-4 space-y-2">
-                    <li><strong>Log5 Formula:</strong> The Log5 method is a probabilistic formula used to estimate the outcome of a matchup between two entities based on their individual success rates.[82, 83] For a batter-pitcher confrontation, the probability of a hit in a single at-bat ($P_{AB}$) is calculated as:
-                        <div class="formula-block">
-                            $$P_{AB} = \frac{(H_{BA} \times P_{BAA})}{(H_{BA} \times P_{BAA}) + ((1 - H_{BA}) \times (1 - P_{BAA}))}$$
-                        </div>
-                        Where $H_{BA}$ is the hitter's batting average and $P_{BAA}$ is the pitcher's batting average against. To estimate the probability of at least one hit in a game, this per-at-bat probability is extrapolated across an assumed number of plate appearances (typically four). The formula used is: $P_{Game} = 1 - (1 - P_{AB})^N$, where $N$ is the number of plate appearances. The 2025 MLB league-wide batting average of.245 is used as a contextual baseline.[55]
-                    </li>
-                    <li><strong>Baseball Musings Neural Network (NN):</strong> The probability figures cited from Baseball Musings are the output of a proprietary neural network model.[13] This model incorporates a wide range of variables, including historical performance, pitcher-batter matchups, and park factors, to generate a holistic probability of a player achieving at least one hit in a game. It is used in this report as a valuable external validation tool that often captures nuances missed by simpler formulas like Log5.</li>
-                </ul>
-
-                <h3>Final Disclaimer</h3>
-                <p>The analysis and recommendations provided in this report are based on the most current data available as of the morning of June 23, 2025, including probable starting pitchers. However, last-minute changes to starting lineups and pitching assignments are common. It is imperative to <strong>verify that all selected players are in their team's official starting lineup</strong> by consulting MLB.com or other official sources prior to the first pitch of their respective games.</p>
-            </div>
         </main>
 
-        <footer class="text-center mt-8 pb-8">
+        <footer class="text-center mt-16">
             <p class="text-xs text-slate-600">
-                STREAKSENSE Analytics Hub &copy; 2025. For entertainment purposes only.
+                Analysis based on data from Statcast, Baseball-Reference, FanGraphs, and Baseball Musings.
+                <br>Always confirm players are in the final starting lineup on MLB.com.
             </p>
         </footer>
     </div>
+
+    <script>
+        const reportData = {
+            executiveSummary: {
+                title: "I. Executive Summary & Top Recommendations",
+                situationalOverview: `This intelligence briefing provides a comprehensive statistical and contextual analysis of the Major League Baseball slate for Monday, June 23, 2025, with the singular objective of identifying the players possessing the highest probability of recording at least one base hit for the Beat the Streak contest. All data is current through games completed on June 22, 2025.\n\nThe day's schedule presents a concentrated set of opportunities, with nine games on the docket. A critical initial finding is that two teams with several high-probability hitters, the Tampa Bay Rays and Cleveland Guardians, have a scheduled off-day and are therefore ineligible for selection. This removes perennial high-contact players like Yandy Diaz, who is currently on a 13-game hitting streak, from consideration.\n\nThe analytical focus converges heavily on the contest between the Atlanta Braves and the New York Mets at Citi Field. This game features a matchup between one of the league's most potent offenses and a starting pitcher, Paul Blackburn, who has demonstrated significant vulnerabilities throughout the 2025 season. This specific game environment is the source of our premier recommendation. Additional high-probability scenarios have been identified in the New York Yankees at Cincinnati Reds and Arizona Diamondbacks at Chicago White Sox matchups, which feature elite hitters in favorable park and platoon situations.\n\nThe following report will provide an exhaustive, multi-layered analysis for each of the top five recommended players, moving from core performance metrics to advanced Statcast data, pitcher-specific vulnerabilities, and probabilistic modeling to arrive at a definitive, rank-ordered list of selections.`,
+                topRecommendations: [
+                    "Ronald Acuña Jr. (OF, Atlanta Braves)",
+                    "Aaron Judge (OF, New York Yankees)",
+                    "Josh Naylor (1B, Arizona Diamondbacks)",
+                    "Luis Arraez (2B, San Diego Padres)",
+                    "Christian Yelich (OF, Milwaukee Brewers)"
+                ],
+                synopsisTable: `
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm text-left text-slate-400">
+                            <thead class="text-xs text-slate-300 uppercase bg-slate-700/50">
+                                <tr>
+                                    <th scope="col" class="px-4 py-3">Rank</th>
+                                    <th scope="col" class="px-4 py-3">Player (Team)</th>
+                                    <th scope="col" class="px-4 py-3">Opposing Pitcher (Team)</th>
+                                    <th scope="col" class="px-4 py-3">Active Streak</th>
+                                    <th scope="col" class="px-4 py-3">2025 BA / xBA</th>
+                                    <th scope="col" class="px-4 py-3">Composite Prob.</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="border-b border-slate-700">
+                                    <td class="px-4 py-3 font-medium text-white">1</td>
+                                    <td class="px-4 py-3 font-medium text-white">Ronald Acuña Jr. (ATL)</td>
+                                    <td class="px-4 py-3">Paul Blackburn (NYM)</td>
+                                    <td class="px-4 py-3">8 Games</td>
+                                    <td class="px-4 py-3">.396 / .301</td>
+                                    <td class="px-4 py-3 font-bold text-lime-400">74%</td>
+                                </tr>
+                                <tr class="border-b border-slate-700">
+                                    <td class="px-4 py-3 font-medium text-white">2</td>
+                                    <td class="px-4 py-3 font-medium text-white">Aaron Judge (NYY)</td>
+                                    <td class="px-4 py-3">Nick Lodolo (CIN)</td>
+                                    <td class="px-4 py-3">N/A</td>
+                                    <td class="px-4 py-3">.367 / .325*</td>
+                                    <td class="px-4 py-3 font-bold text-lime-400">71%</td>
+                                </tr>
+                                <tr class="border-b border-slate-700">
+                                    <td class="px-4 py-3 font-medium text-white">3</td>
+                                    <td class="px-4 py-3 font-medium text-white">Josh Naylor (ARI)</td>
+                                    <td class="px-4 py-3">Shane Smith (CWS)</td>
+                                    <td class="px-4 py-3">11 Games</td>
+                                    <td class="px-4 py-3">.303 / .299</td>
+                                    <td class="px-4 py-3 font-bold text-lime-400">68% (Conditional)</td>
+                                </tr>
+                                <tr class="border-b border-slate-700">
+                                    <td class="px-4 py-3 font-medium text-white">4</td>
+                                    <td class="px-4 py-3 font-medium text-white">Luis Arraez (SD)</td>
+                                    <td class="px-4 py-3">Mitchell Parker (WSH)</td>
+                                    <td class="px-4 py-3">9 Games</td>
+                                    <td class="px-4 py-3">.317 / N/A</td>
+                                    <td class="px-4 py-3 font-bold text-lime-400">67%</td>
+                                </tr>
+                                <tr>
+                                    <td class="px-4 py-3 font-medium text-white">5</td>
+                                    <td class="px-4 py-3 font-medium text-white">Christian Yelich (MIL)</td>
+                                    <td class="px-4 py-3">Chad Patrick (MIL)</td>
+                                    <td class="px-4 py-3">6 Games</td>
+                                    <td class="px-4 py-3">.385** / N/A</td>
+                                    <td class="px-4 py-3 font-bold text-lime-400">66%</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <p class="text-xs text-slate-500 mt-2">*Note: Judge's xBA is from a separate source; his primary player card did not list it. Naylor's probability is conditional on health. Yelich's BA is from the last 30 days.</p>
+                `
+            },
+            players: [
+                {
+                    rank: 1,
+                    name: "Ronald Acuña Jr.",
+                    team: "OF, Atlanta Braves",
+                    title: "II. Premier Recommendation: Ronald Acuña Jr.",
+                    probability: 74,
+                    stats: { ba: .396, xba: .301 },
+                    sections: {
+                        "A. Core Performance & Overwhelming Momentum": `The primary candidate for June 23, 2025, is Atlanta Braves outfielder Ronald Acuña Jr., who presents a rare and powerful convergence of elite baseline talent, an extraordinary period of peak performance, and a uniquely favorable opponent. His selection is underpinned by a statistical profile that is not merely strong but overwhelmingly dominant across nearly every relevant metric.\n\nFor the 2025 season, Acuña has compiled a staggering slash line of $.396/.504/.698$, with an OPS of $1.202$ and an OPS+ of 231, indicating he has been 131% better than a league-average hitter after adjusting for park effects. This level of production places him at the zenith of the sport's offensive performers.\n\nCrucially, this performance is not a relic of a hot start to the season; his production has accelerated in recent weeks. An analysis of his performance over various timeframes reveals a player operating at the absolute height of his abilities:\n\n- **Last 30 Games:** $.391$ BA, $.504$ OBP, $.696$ SLG\n- **Last 15 Games:** $.451$ BA, $.576$ OBP, $.745$ SLG\n- **Last 7 Games:** $.429$ BA, $.600$ OBP, $.667$ SLG\n\nThis sustained excellence is further demonstrated by his active eight-game hitting streak. During this streak, he is batting an astonishing $.577$ (15-for-26) with four home runs. This combination of long-term season dominance and an acute short-term hot streak establishes an exceptionally high floor for his daily performance. The central analytical conclusion is that an MVP-caliber hitter, performing at a historic level, is scheduled to face one of the most vulnerable starting pitchers on the day's slate. This is not just a favorable matchup; it is a statistical outlier that maximizes the probability of success.`,
+                        "B. Statcast Validation: The Underlying Process": `While traditional statistics illustrate the results of Acuña's performance, Statcast data illuminates the underlying process, confirming that his success is a direct result of superior contact quality rather than fortune. An examination of his batted ball events reveals a hitter who consistently produces elite metrics that are the foundation of sustainable production.\n\nIn 2025, Acuña's key Statcast indicators are among the best in Major League Baseball:\n\n- **Average Exit Velocity (EV):** $93.6$ mph. This is significantly above the MLB average of 88.5 mph and places him in the upper echelon of hitters.\n- **Hard-Hit Percentage:** $57.7\\%$. This measures the percentage of batted balls with an exit velocity of 95 mph or higher. Acuña's rate is in the 98th percentile of the league, demonstrating his consistent ability to strike the ball with authority. His career high of 57.0% in 2020 underscores that this is a repeatable, elite skill.\n- **Barrel Percentage:** $18.3\\%$. A "barrel" is a batted ball with the optimal combination of exit velocity and launch angle, leading to the highest probability of extra-base hits and home runs. Acuña's rate is in the 99th percentile, confirming he not only hits the ball hard but also at ideal trajectories.\n\nThese process-based metrics translate directly into elite expected outcomes, which strip out the effects of defense and luck. His **Expected Batting Average (xBA) of.301** and **Expected Weighted On-Base Average (xwOBA) of.441** are both in the 95th percentile or higher. While his actual batting average of.396 is significantly higher than his xBA, suggesting some positive luck on balls in play, the xBA itself remains at an elite level. This indicates that even with expected statistical regression, his baseline performance is that of a top-tier hitter. The high quality of contact provides confidence that even a statistically "unlucky" day for Acuña is highly likely to involve multiple hard-hit balls, thereby increasing the probability of at least one finding a hole for a base hit.`,
+                        "C. The Matchup: Exploiting Paul Blackburn": `The case for selecting Ronald Acuña Jr. is dramatically amplified by his opponent, New York Mets right-handed pitcher Paul Blackburn. Blackburn's 2025 performance profile makes him one of the most attractive pitchers to target on the slate. His top-line statistics are alarming: in 13.0 innings pitched across four appearances (two starts), he holds a $6.92$ ERA and a $1.69$ WHIP.\n\nOpposing hitters have posted a staggering **.327 batting average against (BAA)** him this season, a direct measure of his extreme hittability. The underlying reasons for this are clear in his peripheral stats. Blackburn's strikeout percentage (K%) is a mere $13.3\\%$, while his walk percentage (BB%) is a low $6.7\\%$. This combination reveals a pitcher who does not miss bats and consistently pitches to contact. This strategic approach is a significant liability when facing a hitter like Acuña, who generates elite exit velocities. The probability of the ball being put in play is high, and the probability of it being hit hard is also high—a recipe for offensive success.\n\nFurthermore, Blackburn exhibits a pronounced platoon vulnerability. Since the start of the 2024 season, he has allowed a concerning **.242 Isolated Power (ISO)** to right-handed batters, a demographic to which Acuña belongs. This indicates that right-handed hitters have been particularly successful at hitting for extra bases against him. This vulnerability was on full display in his most recent outing on June 18, when he faced this same Atlanta Braves lineup and surrendered three runs on four hits and two walks in just 3.2 innings. The fact that he struggled against this very lineup less than a week ago suggests a high probability of continued success for the Braves' hitters. Blackburn's profile is almost perfectly tailored to be exploited by a hitter with Acuña's specific skill set.`,
+                        "D. Synthesis: BvP, Park, Weather, and Predictive Models": `A comprehensive analysis requires synthesizing the direct matchup history, environmental factors, and outputs from predictive models.\n\n- **Batter vs. Pitcher (BvP) History:** The direct historical data between Acuña and Blackburn is limited and presents some conflict across sources. One report notes Acuña has a home run in three career at-bats against Blackburn, while another states he is 0-for-2. However, multiple sources confirm that in their most recent meeting on June 18, Acuña hit a leadoff home run on Blackburn's first pitch of the game. Given the recency and impact of this event, the BvP data, though based on a small sample, trends positively.\n\n- **Park Factors:** The game will be played at Citi Field, which is historically a pitcher-friendly venue. Statcast's three-year rolling park factors (2023-2025) assign it a Weighted On-Base Average (wOBA) factor of 97 (where 100 is average). For 2025 specifically, it suppresses singles (94 index) and doubles (81 index) while being neutral for home runs (98 index). Hashtag Baseball ranks it as the 26th-best park for hitters overall. This represents the most significant risk factor in this selection.\n\n- **Weather Conditions:** The environmental conditions in Queens, New York, are forecast to be favorable for hitters, which may help mitigate the park's tendencies. The forecast calls for a high temperature of 97°F with a "feels like" temperature of 109°F due to humidity. Hot, humid air is less dense, allowing batted balls to travel farther. A modest 6-mph wind is expected to be blowing from the southwest, which, depending on the stadium's orientation, could provide a slight boost to balls hit to right or center field.\n\n- **Predictive Models:**\n    - **Baseball Musings Neural Network:** This proprietary model, which incorporates park factors and other variables, gives Ronald Acuña Jr. a **72.9% probability** of recording at least one hit, the highest projection for any player on the June 23 slate.\n    - **Log5 Formula:** This method estimates the probability of an outcome based on the individual probabilities of the participants against a league average. The formula for a single at-bat is: $P(Hit) = \\frac{(H_{BA} \\times P_{BAA})}{(H_{BA} \\times P_{BAA}) + ((1 - H_{BA}) \\times (1 - P_{BAA}))}$. Using 2025 statistics (Acuña BA:.396; Blackburn BAA:.327), the probability of a hit in a single at-bat is approximately $24.2\\%$. Extrapolating this over an assumed four plate appearances per game yields a probability of at least one hit of approximately **67.0%**. (Calculation: $1 - (1 - 0.242)^4$).`,
+                        "E. Final Verdict & Risk Assessment": `**Verdict:** Ronald Acuña Jr. is the unequivocal premier recommendation for June 23, 2025. The confluence of his own historic offensive season, an acute hot streak, elite underlying Statcast metrics, and an exceedingly favorable pitching matchup creates the highest-probability scenario on the board. This conclusion is further validated by external predictive models, which also identify him as the top choice.\n\n**Risk Assessment:** The primary risk is the venue. Citi Field is a documented pitcher's park that suppresses base hits, particularly singles and doubles. This factor cannot be dismissed. However, the sheer magnitude of the mismatch between Acuña's ability and Blackburn's vulnerability is significant enough to largely mitigate this environmental risk. A secondary risk is the inherent variance of baseball; even the most probable outcomes can fail. No current injury concerns have been reported for Acuña.`
+                    }
+                },
+                {
+                    rank: 2,
+                    name: "Aaron Judge",
+                    team: "OF, New York Yankees",
+                    title: "III. Secondary Recommendation: Aaron Judge",
+                    probability: 71,
+                    stats: { ba: .367, xba: .325 },
+                    sections: {
+                        "A. Core Performance & Platoon Dominance": `The second-ranked selection for this slate is New York Yankees outfielder Aaron Judge. While Acuña’s case is built on a combination of his own excellence and his opponent’s weakness, Judge’s case is founded on his own historic power, a profound platoon advantage, and a highly favorable ballpark environment. Judge is in the midst of another MVP-caliber season, leading Major League Baseball in batting average ($.367$), on-base percentage ($.468$), slugging percentage ($.727$), and OPS ($1.195$).\n\nThe critical factor in this matchup is Judge’s profound dominance against left-handed pitching. In 2025, he has posted a remarkable **1.388 OPS** against southpaws, hitting nine of his 27 home runs in just 59 at-bats against them. Tonight, he faces Cincinnati Reds left-hander Nick Lodolo. This presents a classic power-versus-platoon scenario where Judge's established ability to punish left-handed pitching is the central thesis. The analysis here focuses on the powerful synergy created when this extreme platoon advantage is combined with the hitter-friendly confines of Great American Ball Park. This elevates the probability of any given hit, as many of those hits are likely to be for extra bases, which inherently satisfy the contest's requirement.`,
+                        "B. Statcast Validation: Unmatched Power": `Aaron Judge's Statcast profile is a testament to his status as the premier power hitter in the sport. His player page on Baseball Savant is saturated with red, indicating performance in the 98th to 100th percentile across nearly every meaningful category of power and contact quality.\n\nKey 2025 Statcast metrics for Judge include:\n\n- **xwOBA:** $.457$ (1st in MLB)\n- **Average Exit Velocity:** $95.3$ mph (3rd in MLB)\n- **Barrel Percentage:** $24.6\\%$ (1st in MLB)\n- **Hard-Hit Percentage:** $55.3\\%$ (1st in MLB)\n\nThese metrics provide empirical evidence that Judge is not just hitting for power, but is producing a quality of contact that is unmatched by any other player. His batting average on balls in play (BABIP) of.467 is historically high, but it is substantially supported by his unique ability to hit the ball harder than anyone else and force defensive miscues. Statcast analysis reveals that fielders are positioned deeper against Judge than any other hitter, yet he still leads the league in batting average on ground balls because he hits them with such high velocity that infielders have less time to react. This combination of raw power and its tangible effect on opposing defenses confirms that his high batting average is not merely a fluke but a direct consequence of his elite skills.`,
+                        "C. The Matchup: A Worthy but Vulnerable Adversary": `The opposing pitcher, Nick Lodolo, is a capable major league starter and presents a more formidable challenge than Paul Blackburn. Lodolo owns a respectable $3.71$ ERA and a $1.11$ WHIP on the season. He is not a pitcher to be taken lightly.\n\nHowever, the matchup dynamics heavily favor Judge. First and foremost, Lodolo is a left-hander, which, as established, is Judge's most favorable platoon split. While there is no direct BvP history between the two players, Judge's career-long success against left-handed pitching provides a strong predictive basis. In 2023, Judge had a home run, five hits, and four RBI in his last two games played in Cincinnati, demonstrating comfort in this specific park.\n\nThe environmental factors further amplify Judge's potential for success:\n\n- **Park Factors:** Great American Ball Park is renowned as one of the most hitter-friendly venues in baseball, particularly for home runs. The 3-year rolling park factor for home runs is 128, ranking 5th in MLB, meaning it increases home run production by 28% compared to an average park. The overall runs factor is also positive at 106. This environment significantly increases the likelihood that a hard-hit ball from Judge will leave the park or find extra bases.\n- **Weather Conditions:** The forecast for Cincinnati calls for a hot and sunny day, with a high of 94°F and a "feels like" temperature of 101°F. As with the game in New York, these warm and humid conditions will further reduce air density and aid batted ball flight, compounding the park's inherent advantages for hitters.`,
+                        "D. Models & Final Verdict": `* **Predictive Models:**\n    * **Baseball Musings Neural Network:** The model projects a **70.7% probability** for Judge to record a hit against Lodolo, a strong endorsement that accounts for the park and platoon factors.\n    * **Log5 Formula:** Using Judge's BA ($.367$) and Lodolo's BAA ($.238$ for the season), the single-PA hit probability is approximately $15.3\\%$. Extrapolated over four plate appearances, this yields a game probability of **48.5%**. The significant discrepancy between the Log5 result and the Neural Network output suggests that the simple Log5 formula may be undervaluing the powerful influence of the extreme platoon advantage and the highly favorable park factors, which the more sophisticated NN model likely weights more heavily.\n\n* **Verdict:** Aaron Judge is an elite selection for June 23. The combination of his immense power, a significant platoon advantage against a left-handed pitcher, and playing in one of the league's best hitter's parks creates a scenario with an exceptionally high ceiling for offensive production.\n\n* **Risk Assessment:** The primary risk factor is the quality of the opposing pitcher. Nick Lodolo is a legitimate major league starter with a solid track record, not a struggling replacement-level arm. He possesses the ability to challenge even the best hitters. However, the confluence of other factors in Judge's favor is strong enough to make this a calculated and highly recommended risk.`
+                    }
+                },
+                {
+                    rank: 3,
+                    name: "Josh Naylor",
+                    team: "1B, Arizona Diamondbacks",
+                    title: "IV. Secondary Recommendation: Josh Naylor",
+                    probability: 68,
+                    stats: { ba: .303, xba: .299 },
+                    sections: {
+                        "A. Core Performance & Recent Form": `Arizona Diamondbacks first baseman Josh Naylor presents a compelling, albeit more complex, case for selection. On the surface, his statistical profile is excellent. For the 2025 season, he is batting $.303$ with a $.358$ OBP and a $.465$ SLG, resulting in an impressive $.823$ OPS and a 128 OPS+. He is currently in the midst of an **11-game hitting streak**, during which he has been one of the hottest hitters in baseball. Over this streak, he is batting $.409$.\n\nHowever, the most critical piece of intelligence regarding Naylor is qualitative and serves as a significant caveat to his quantitative excellence. Recent reports indicate that he has been dealing with nagging shoulder and hand injuries. He was even removed for a pinch-hitter in the sixth inning of a recent game due to these issues. This information fundamentally changes the risk profile of this selection. For a hitter, even minor ailments in the hands, wrists, or shoulders can have a profound impact on swing mechanics, bat speed, and the ability to make consistent, solid contact. This makes his stellar recent performance data potentially less reliable as a predictor of immediate future success.\n\nTherefore, this recommendation must be viewed as conditional. If Naylor is confirmed to be in the starting lineup and there are no pre-game reports of lingering issues, he represents a very strong choice. However, the presence of this injury news elevates him into a higher-risk, higher-reward category compared to the top two selections.`,
+                        "B. Statcast Validation & Batted Ball Profile": `Assuming full health, Naylor's underlying Statcast data supports his strong surface-level numbers. In 2025, he has produced a solid **.354 xwOBA** and a **.299 xBA**. The proximity of his xBA to his actual BA (.303) suggests that his performance has been earned through legitimate skill and is not the product of significant luck. His Hard Hit percentage of $43.7\\%$ is also well above the league average, confirming his ability to generate quality contact.\n\nAs a left-handed batter, Naylor will hold the platoon advantage against the opposing right-handed pitcher, Shane Smith. This is a crucial tactical advantage. Throughout his career, Naylor has demonstrated the ability to hit for both average and power, and his batted ball profile typically features a healthy mix of line drives and fly balls, which are conducive to securing base hits.`,
+                        "C. The Matchup: Favorable Pitcher and Park": `Naylor and the Diamondbacks are facing Chicago White Sox right-hander Shane Smith. Smith's season numbers include a respectable $2.85$ ERA, but his underlying metrics suggest he has been the beneficiary of some good fortune. His Fielder Independent Pitching (FIP) is a less impressive $3.53$, and his Expected FIP (xFIP) is a concerning $4.31$. The significant gap between his ERA and his FIP/xFIP indicates that his run prevention has been better than his core skills (strikeouts, walks, home runs allowed) would predict, making him a prime candidate for negative regression.\n\nFurthermore, Smith's K-BB% (the difference between his strikeout and walk rates) is a modest $12\\%$. This suggests he is not an overpowering pitcher and will allow hitters to put the ball in play, a favorable scenario for a high-contact hitter like Naylor.\n\nThe game will be played at Rate Field in Chicago. The park factors for this venue are generally considered neutral to slightly hitter-friendly, presenting no significant impediment to offense.`,
+                        "D. Models & Final Verdict": `* **Predictive Models:** There is no specific output from the Baseball Musings Neural Network for this particular matchup available in the provided data. A Log5 calculation, which relies on batting averages, would be favorable but must be heavily caveated by the injury news. Using Naylor's BA ($.303$) and an estimated pitcher BAA for Smith around the league average ($.245$), the per-PA hit probability is approximately $12.3\\%$, yielding a four-PA game probability of only **40.8%**. This calculation likely underestimates Naylor's true probability due to the platoon advantage and the pitcher's regression indicators, which are not captured in the simple formula.\n\n* **Verdict:** Josh Naylor is a high-upside pick with a significant and clearly identifiable risk. The statistical case is strong: he is on a long hitting streak, his underlying metrics are solid, and he has a favorable platoon matchup against a pitcher due to for regression. However, the reports of nagging injuries cannot be ignored and introduce a major element of uncertainty.\n\n* **Risk Assessment:** The primary risk is Naylor's health. He could be a late scratch from the lineup, or he could play through the injuries at a diminished capacity, rendering his past performance data less predictive. This is a pick that requires diligent monitoring of lineup news and team reports right up until game time.`
+                    }
+                },
+                {
+                    rank: 4,
+                    name: "Luis Arraez",
+                    team: "2B, San Diego Padres",
+                    title: "V. High-Value & Contrarian Picks",
+                    probability: 67,
+                    stats: { ba: .317, xba: null },
+                    sections: {
+                        "4. Luis Arraez (2B, San Diego Padres)": `Luis Arraez represents a different archetype of a high-probability hitter. While selections like Judge and Acuña rely on overwhelming power and favorable matchups, Arraez's value is derived from an elite, outlier skill: his historic ability to make contact. He is the quintessential "get a hit" player, whose approach is perfectly suited to the demands of the Beat the Streak contest.\n\nFor the season, Arraez is batting.317 and is in the midst of a nine-game hitting streak. His value, however, is best understood through Statcast's bat tracking metrics. Arraez leads all of Major League Baseball with a **43.0% Squared-Up Rate**. This metric measures how efficiently a batter transfers bat speed into exit velocity, essentially quantifying how often a player hits the ball on the "sweet spot." His ability to consistently square up the baseball is the foundation of his high batting averages. This is coupled with an exceptionally low strikeout rate, meaning he almost always puts the ball in play, giving himself the maximum number of opportunities for a batted ball to become a hit.\n\nTonight, he faces Washington Nationals left-hander Mitchell Parker. On the surface, a lefty-on-lefty matchup is a disadvantage. However, Arraez's unique skill set often transcends traditional platoon splits. This is reflected in the Baseball Musings Neural Network model, which gives Arraez a **71.7% probability of getting a hit**. This is one of the highest probabilities on the entire slate and suggests the model heavily weights his unique bat-to-ball skills over the conventional platoon disadvantage. This makes Arraez a data-driven contrarian pick, trusting the underlying process metrics over the surface-level context.\n\n**Risk Assessment:** The primary risk is the lefty-on-lefty matchup against a capable pitcher in Mitchell Parker. Parker has been a solid arm for the Nationals, and same-sided matchups are statistically more difficult for hitters.`
+                    }
+                },
+                {
+                    rank: 5,
+                    name: "Christian Yelich",
+                    team: "OF, Milwaukee Brewers",
+                    title: null, // No new title for the second part of section V
+                    probability: 66,
+                    stats: { ba: .385, xba: null },
+                     sections: {
+                        "5. Christian Yelich (OF, Milwaukee Brewers)": `The selection of Christian Yelich is a clear case of identifying and leveraging an extreme short-term performance peak, commonly known as "riding the hot hand." While his season-long numbers are solid, his performance over the past week has been nothing short of extraordinary.\n\nIn his last seven days (five games), Yelich is batting an incredible **.545** (12-for-22) with five extra-base hits (four doubles, one home run) and 11 RBI. He is currently on a six-game hitting streak. This is not just a hot streak; it is a period of absolute dominance that suggests he is seeing the ball exceptionally well.\n\nTonight, Yelich and the Brewers face Pittsburgh Pirates right-hander Chad Patrick. Patrick has a respectable $3.50$ ERA on the season, but his underlying peripherals are not imposing. His K-BB% of $15\\%$ is average, and he has shown a tendency to curb regression by increasing his strikeout rate in recent starts. Nonetheless, he does not represent an insurmountable obstacle for a hitter of Yelich's caliber, especially one who is performing at such a high level. This pick is an acknowledgment of extreme short-term variance. While a.545 average is obviously unsustainable, it provides a strong signal of a player in a deep offensive groove, making him a high-value pick for a single-day contest.\n\n**Risk Assessment:** The main risk is regression. A player on such an extreme hot streak is, by definition, performing above their true talent level. There is always a chance that this is the day the streak ends and his performance reverts to the mean.`
+                    }
+                }
+            ],
+            watchList: {
+                title: "VI. The Watch List & Cautionary Notes",
+                honorableMentions: `Beyond the top five, several other players warrant consideration and should be monitored as game time approaches, particularly once official lineups are confirmed.\n\n- **Brendan Donovan (2B, St. Louis Cardinals):** A high-contact hitter with a season-long batting average of.308, Donovan is a consistent threat to get a hit. He faces Chicago Cubs right-hander Ben Brown, against whom the Baseball Musings Neural Network gives him a strong **70.0% hit probability**. His profile is similar to Arraez's, relying on contact over power.\n- **Jeremy Peña (SS, Houston Astros):** Peña ranks among the top ten hitters in MLB with a.326 batting average. His combination of contact ability and solid power makes him a viable BTS candidate on almost any given day. His opponent for June 23 was not listed in the available schedule data, but he is a player to check on once lineups are posted.`,
+                ineligiblePlayers: `It is important to acknowledge strong candidates who are unavailable due to their teams having a scheduled off-day. This prevents wasted analysis on players who cannot be selected.\n\n- **Yandy Diaz (1B, Tampa Bay Rays):** Diaz is one of the hottest hitters in baseball, riding a **13-game hitting streak** into the off-day. Over his last 7 games, he is batting.452 with two home runs. The Rays are not scheduled to play on June 23, making him ineligible.`,
+                regressionCandidates: `A key component of successful BTS selection is avoiding players who may appear to be good choices but whose performance is likely unsustainable. This often involves identifying hitters with a large, negative gap between their batting average (BA) and their expected batting average (xBA). A player significantly outperforming their xBA is likely benefiting from good luck on balls in play (a high BABIP) and is a candidate for negative regression, making them a risky choice for a contest that demands high probability. While no specific players on today's slate stand out as extreme cautionary tales among the elite options, this principle should always be applied as part of the daily evaluation process.`
+            },
+            appendix: {
+                title: "VII. Appendix: Data Sources & Methodological Notes",
+                dataSources: `This report was compiled using data from the following industry-leading sources. All statistics are current through games of June 22, 2025, unless otherwise noted.\n\n- **Statcast (via Baseball Savant)**\n- **Baseball-Reference**\n- **FanGraphs**\n- **Baseball Musings**\n- **Official MLB Sources**\n- **Other Sports Information Providers (CBS Sports, FOX Sports, Statmuse, etc.)**`,
+                methodologicalNotes: `* **Log5 Formula:** The Log5 method is a probabilistic formula used to estimate the outcome of a matchup between two entities based on their individual success rates. For a batter-pitcher confrontation, the probability of a hit in a single at-bat ($P_{AB}$) is calculated as:\n    $$P_{AB} = \\frac{(H_{BA} \\times P_{BAA})}{(H_{BA} \\times P_{BAA}) + ((1 - H_{BA}) \\times (1 - P_{BAA}))}$$\n    Where $H_{BA}$ is the hitter's batting average and $P_{BAA}$ is the pitcher's batting average against. To estimate the probability of at least one hit in a game, this per-at-bat probability is extrapolated across an assumed number of plate appearances (typically four). The formula used is: $P_{Game} = 1 - (1 - P_{AB})^N$, where $N$ is the number of plate appearances. The 2025 MLB league-wide batting average of.245 is used as a contextual baseline.\n\n* **Baseball Musings Neural Network (NN):** The probability figures cited from Baseball Musings are the output of a proprietary neural network model. This model incorporates a wide range of variables, including historical performance, pitcher-batter matchups, and park factors, to generate a holistic probability of a player achieving at least one hit in a game. It is used in this report as a valuable external validation tool that often captures nuances missed by simpler formulas like Log5.`
+            }
+        };
+
+        const chartTooltipConfig = {
+            plugins: {
+                tooltip: {
+                    enabled: true,
+                    backgroundColor: 'rgba(15, 23, 42, 0.8)',
+                    titleFont: { size: 14, weight: 'bold' },
+                    bodyFont: { size: 12 },
+                    padding: 10,
+                    cornerRadius: 6,
+                    displayColors: false,
+                    callbacks: {
+                        title: function(tooltipItems) {
+                            const item = tooltipItems[0];
+                            let label = item.chart.data.labels[item.dataIndex];
+                            if (Array.isArray(label)) {
+                              return label.join(' ');
+                            }
+                            return label;
+                        }
+                    }
+                }
+            }
+        };
+
+        const createProbabilityGauge = (canvasId, probability) => {
+            const ctx = document.getElementById(canvasId).getContext('2d');
+            const probabilityText = document.getElementById(`prob-text-${canvasId.split('-')[1]}`);
+            
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    datasets: [{
+                        data: [probability, 100 - probability],
+                        backgroundColor: ['#a3e635', '#334155'],
+                        borderColor: ['#1f2937', '#1f2937'],
+                        borderWidth: 2,
+                        circumference: 360,
+                        rotation: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '80%',
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { enabled: false }
+                    }
+                }
+            });
+            if (probabilityText) {
+                probabilityText.textContent = `${probability}%`;
+            }
+        };
+        
+        const createBaVsXbaChart = (canvasId, ba, xba) => {
+             const ctx = document.getElementById(canvasId).getContext('2d');
+             new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Batting Avg (BA)', 'Expected BA (xBA)'],
+                    datasets: [{
+                        label: 'Value',
+                        data: [ba || 0, xba || 0],
+                        backgroundColor: ['#a3e635', 'rgba(163, 230, 53, 0.4)'],
+                        borderColor: ['#d9f99d', '#a3e635'],
+                        borderWidth: 1,
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                            ticks: { 
+                                font: { size: 10 }, 
+                                color: '#94a3b8',
+                                callback: function(value) { return '.' + (value * 1000).toFixed(0); }
+                             }
+                        },
+                        y: {
+                            grid: { display: false },
+                            ticks: { font: { size: 12, weight: '600' }, color: '#cbd5e1' }
+                        }
+                    },
+                    ...chartTooltipConfig
+                }
+            });
+        };
+
+        const renderAccordion = (container, title, content, isOpen = false) => {
+            const accordionId = title.replace(/\s+/g, '-').toLowerCase();
+            container.innerHTML = `
+                <div class="p-6 md:p-8">
+                    <button id="accordion-button-${accordionId}" class="flex justify-between items-center w-full text-left">
+                        <h2 class="text-2xl md:text-3xl font-bold text-slate-100">${title}</h2>
+                        <span class="transform transition-transform duration-300 text-lime-400 text-3xl">${isOpen ? '-' : '+'}</span>
+                    </button>
+                    <div id="accordion-content-${accordionId}" class="accordion-content ${isOpen ? 'show' : ''}">
+                        <div class="pt-6">
+                            ${content}
+                        </div>
+                    </div>
+                </div>`;
+
+            const button = document.getElementById(`accordion-button-${accordionId}`);
+            const contentEl = document.getElementById(`accordion-content-${accordionId}`);
+            const icon = button.querySelector('span');
+            
+            if (isOpen) {
+                contentEl.style.maxHeight = contentEl.scrollHeight + "px";
+            }
+
+            button.addEventListener('click', () => {
+                const isVisible = contentEl.style.maxHeight !== '0px';
+                if (isVisible) {
+                    contentEl.style.maxHeight = '0px';
+                    icon.textContent = '+';
+                    icon.classList.remove('rotate-180');
+                } else {
+                    contentEl.style.maxHeight = contentEl.scrollHeight + "px";
+                    icon.textContent = '-';
+                    icon.classList.add('rotate-180');
+                }
+            });
+        };
+        
+        const formatText = (text) => {
+            return text.replace(/\n\n/g, '</p><p class="mb-4">').replace(/\n- /g, '<br>- ').replace(/\n\* /g, '<br>* ');
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const mainContainer = document.getElementById('report-content');
+            
+            const execSummaryContainer = document.getElementById('executive-summary');
+            const summaryContent = `
+                <h3 class="text-xl font-bold text-slate-200 mb-4">Situational Overview</h3>
+                <p class="mb-4 text-slate-400 leading-relaxed">${formatText(reportData.executiveSummary.situationalOverview)}</p>
+                <h3 class="text-xl font-bold text-slate-200 mt-6 mb-4">Top-Line Recommendations</h3>
+                <ol class="list-decimal list-inside space-y-2 mb-6 text-slate-300">
+                    ${reportData.executiveSummary.topRecommendations.map(p => `<li>${p}</li>`).join('')}
+                </ol>
+                <h3 class="text-xl font-bold text-slate-200 mt-6 mb-4">Key Table: Top 5 Recommendations Synopsis</h3>
+                ${reportData.executiveSummary.synopsisTable}
+            `;
+            renderAccordion(execSummaryContainer, reportData.executiveSummary.title, summaryContent, true);
+
+            let currentSectionTitle = "";
+            reportData.players.forEach(player => {
+                let sectionHTML = '';
+                if (player.title && player.title !== currentSectionTitle) {
+                    currentSectionTitle = player.title;
+                    sectionHTML += `<h2 class="text-3xl md:text-4xl font-bold text-slate-100 mb-8 mt-12 text-center">${currentSectionTitle}</h2>`;
+                }
+
+                sectionHTML += `
+                    <div class="report-card rounded-2xl p-6 md:p-8 mb-12">
+                        <div class="grid grid-cols-1 lg:grid-cols-5 gap-8">
+                            <div class="lg:col-span-3">
+                                ${Object.entries(player.sections).map(([subtitle, content]) => `
+                                    <div class="mb-8">
+                                        <h4 class="text-xl font-bold text-lime-300 mb-3">${subtitle}</h4>
+                                        <div class="text-slate-400 leading-relaxed space-y-4">
+                                            <p>${formatText(content)}</p>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                            <div class="lg:col-span-2 lg:sticky top-8 self-start">
+                                <div class="bg-slate-800/50 rounded-lg p-6 space-y-6">
+                                    <div>
+                                        <p class="text-lime-400 font-bold text-sm">RANK #${player.rank}</p>
+                                        <h3 class="text-3xl font-extrabold tracking-tight text-white">${player.name}</h3>
+                                        <p class="text-slate-400">${player.team}</p>
+                                    </div>
+                                    <div class="text-center">
+                                        <h4 class="text-sm font-semibold uppercase text-slate-400 tracking-wider">Composite Hit Probability</h4>
+                                        <div class="relative h-40 w-40 mx-auto mt-2 chart-container">
+                                            <canvas id="prob-${player.rank}"></canvas>
+                                            <div id="prob-text-${player.rank}" class="absolute inset-0 flex items-center justify-center text-4xl font-extrabold text-white"></div>
+                                        </div>
+                                    </div>
+                                    ${player.stats.ba && player.stats.xba ? `
+                                    <div class="text-center">
+                                        <h4 class="text-sm font-semibold uppercase text-slate-400 tracking-wider mb-2">Performance vs. Expectation</h4>
+                                        <div class="chart-container h-32 max-h-[150px]">
+                                            <canvas id="baxba-${player.rank}"></canvas>
+                                        </div>
+                                    </div>
+                                    ` : ''}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                mainContainer.insertAdjacentHTML('beforeend', sectionHTML);
+            });
+            
+            const watchListContainer = document.getElementById('watch-list');
+            watchListContainer.innerHTML = `
+                <div class="p-6 md:p-8">
+                    <h2 class="text-2xl md:text-3xl font-bold text-slate-100 mb-6">${reportData.watchList.title}</h2>
+                    <div class="space-y-6">
+                        <div>
+                            <h4 class="text-xl font-bold text-lime-300 mb-3">Honorable Mentions</h4>
+                            <p class="text-slate-400 leading-relaxed">${formatText(reportData.watchList.honorableMentions)}</p>
+                        </div>
+                        <div>
+                            <h4 class="text-xl font-bold text-lime-300 mb-3">Ineligible Players to Note</h4>
+                            <p class="text-slate-400 leading-relaxed">${formatText(reportData.watchList.ineligiblePlayers)}</p>
+                        </div>
+                        <div>
+                            <h4 class="text-xl font-bold text-lime-300 mb-3">Regression Candidates (Cautionary Tales)</h4>
+                            <p class="text-slate-400 leading-relaxed">${formatText(reportData.watchList.regressionCandidates)}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            const appendixContainer = document.getElementById('appendix');
+            const appendixContent = `
+                <div class="space-y-6">
+                    <div>
+                        <h4 class="text-xl font-bold text-lime-300 mb-3">Data Sources</h4>
+                        <p class="text-slate-400 leading-relaxed">${formatText(reportData.appendix.dataSources)}</p>
+                    </div>
+                    <div>
+                        <h4 class="text-xl font-bold text-lime-300 mb-3">Methodological Notes</h4>
+                        <div class="text-slate-400 leading-relaxed space-y-4">
+                           <p>${formatText(reportData.appendix.methodologicalNotes)}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+            renderAccordion(appendixContainer, reportData.appendix.title, appendixContent);
+
+            reportData.players.forEach(player => {
+                createProbabilityGauge(`prob-${player.rank}`, player.probability);
+                if (player.stats.ba && player.stats.xba) {
+                    createBaVsXbaChart(`baxba-${player.rank}`, player.stats.ba, player.stats.xba);
+                }
+            });
+        });
+    </script>
 </body>
 </html>
