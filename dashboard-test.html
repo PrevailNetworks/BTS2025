@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STREAKSENSE - Integrated Player Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Expletus+Sans:ital,wght@0,700;1,700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a; /* bg-slate-900 */
+            color: #94a3b8; /* text-slate-400 */
+        }
+        .font-expletus-sans {
+            font-family: 'Expletus Sans', sans-serif;
+        }
+        .neon-text {
+            color: #f0fdf4;
+            text-shadow:
+                0 0 5px rgba(220, 252, 231, 0.7),
+                0 0 10px rgba(163, 230, 53, 0.6),
+                0 0 20px rgba(132, 204, 22, 0.4),
+                0 0 40px rgba(101, 163, 13, 0.3);
+        }
+        .report-card, .infographic-panel {
+             background: rgba(30, 41, 59, 0.5); /* bg-slate-800/50 */
+             border: 1px solid #334155; /* border-slate-700 */
+             backdrop-filter: blur(10px);
+        }
+        .main-tab-button.active {
+             background-color: #1e293b; /* bg-slate-800 */
+             color: #f8fafc; /* text-slate-50 */
+        }
+        .sub-tab-button.active {
+            border-bottom-color: #a3e635; /* border-lime-400 */
+            color: #f8fafc; /* text-slate-50 */
+        }
+        .nav-item.active {
+            background-color: #334155; /* bg-slate-700 */
+            border-left-color: #a3e635; /* border-lime-400 */
+        }
+        .tab-content, .accordion-content { display: none; }
+        .tab-content.active, .accordion-content.show { display: block; }
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-in-out;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div class="flex flex-col md:flex-row min-h-screen">
+        <!-- ==== LEFT NAVIGATION ==== -->
+        <nav class="w-full md:w-80 bg-slate-800 border-b md:border-r border-slate-700 p-4 md:p-6 flex-shrink-0">
+            <div class="mb-8">
+                <h1 class="font-expletus-sans neon-text text-3xl font-bold uppercase tracking-wider italic">STREAKSENSE</h1>
+                <p class="text-sm text-slate-400">Analysis for June 23, 2025</p>
+            </div>
+            
+            <p class="text-xs text-slate-500 mb-2 uppercase font-semibold">Top Recommendations</p>
+            <ul id="player-nav" class="space-y-1"></ul>
+            
+            <div class="mt-8 p-3 bg-slate-900/70 rounded-lg text-xs text-slate-400 border border-slate-700">
+                <p><span class="font-bold text-lime-400">Critical Note:</span> Always confirm players are in the final starting lineup on MLB.com before making your selection.</p>
+            </div>
+        </nav>
+
+        <!-- ==== MAIN CONTENT ==== -->
+        <main class="flex-1 p-4 md:p-8 lg:p-12 overflow-y-auto">
+            
+            <!-- Main Tabs -->
+            <div class="mb-6 border-b border-slate-700">
+                <button id="main-tab-analysis" class="main-tab-button px-4 py-2 text-sm font-semibold rounded-t-lg">Player Dashboard</button>
+                <button id="main-tab-briefing" class="main-tab-button px-4 py-2 text-sm font-semibold rounded-t-lg">Full Daily Briefing</button>
+            </div>
+
+            <!-- Player Analysis Content -->
+            <div id="player-analysis-content" class="tab-content">
+                <!-- Player Header -->
+                <div class="flex flex-col md:flex-row gap-8 mb-8">
+                    <!-- Player Image Placeholder -->
+                    <div id="player-image-container" class="report-card w-full md:w-1/3 rounded-2xl flex items-center justify-center p-4 bg-cover bg-center" style="min-height: 250px;">
+                       <h3 id="player-image-name" class="text-4xl font-extrabold text-white" style="text-shadow: 2px 2px 8px rgba(0,0,0,0.7);"></h3>
+                    </div>
+                    <!-- Player Info -->
+                    <div class="flex-1">
+                        <p id="player-rank" class="text-lime-400 font-bold"></p>
+                        <h2 id="player-name" class="text-5xl font-extrabold tracking-tight text-slate-100"></h2>
+                        <p id="player-team" class="text-xl text-slate-400 mb-4"></p>
+                        <div id="player-key-strength" class="text-sm font-semibold text-lime-400 bg-lime-900/50 rounded-full px-4 py-2 inline-block"></div>
+                    </div>
+                </div>
+
+                 <!-- Sub Tabs -->
+                <div class="border-b border-slate-700 mb-6 flex space-x-6">
+                    <button data-tab="verdict" class="sub-tab-button py-3 text-sm font-semibold text-slate-400 hover:text-white border-b-2 border-transparent">Verdict</button>
+                    <button data-tab="statcast" class="sub-tab-button py-3 text-sm font-semibold text-slate-400 hover:text-white border-b-2 border-transparent">Statcast Deep Dive</button>
+                    <button data-tab="matchup" class="sub-tab-button py-3 text-sm font-semibold text-slate-400 hover:text-white border-b-2 border-transparent">Matchup Analysis</button>
+                    <button data-tab="full-analysis" class="sub-tab-button py-3 text-sm font-semibold text-slate-400 hover:text-white border-b-2 border-transparent">Full Report</button>
+                </div>
+                
+                <div id="player-dashboard-content">
+                    <div id="verdict-content" class="tab-content space-y-8">
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                             <div class="lg:col-span-2 report-card p-6 rounded-2xl">
+                                <h3 class="text-xl font-bold text-slate-100 mb-3">Final Verdict & Risk Assessment</h3>
+                                <div id="player-summary" class="text-slate-300 leading-relaxed space-y-4 text-sm"></div>
+                             </div>
+                             <div class="space-y-8">
+                                <div class="report-card p-6 rounded-2xl">
+                                    <h3 class="text-lg font-bold text-slate-100 mb-2">Hit Probability</h3>
+                                    <div class="relative h-40 w-40 mx-auto">
+                                        <canvas id="probabilityChart"></canvas>
+                                        <div id="probability-text" class="absolute inset-0 flex items-center justify-center text-4xl font-extrabold text-slate-100"></div>
+                                    </div>
+                                </div>
+                                <div class="report-card p-6 rounded-2xl">
+                                    <h3 class="text-lg font-bold text-slate-100 mb-4">Contextual Factors</h3>
+                                    <div id="context-cards" class="space-y-3"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="statcast-content" class="tab-content grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div class="report-card p-6 rounded-2xl">
+                           <h4 class="text-lg font-bold text-slate-100 mb-2">Performance vs. Expectation</h4>
+                           <p class="text-xs text-slate-500 mb-4">Compares actual Batting Average (BA) to Expected Batting Average (xBA) based on quality of contact, revealing if a player is lucky or genuinely skilled.</p>
+                           <div class="h-64"><canvas id="baVsXbaChart"></canvas></div>
+                        </div>
+                        <div class="space-y-8">
+                           <div class="report-card p-6 rounded-2xl text-center">
+                               <h4 class="text-lg font-bold text-slate-100">Hard Hit %</h4>
+                               <p id="hardhit-rate" class="text-5xl font-extrabold text-lime-400 my-2"></p>
+                               <p class="text-xs text-slate-500">Percentage of batted balls with an exit velocity of 95 mph+. A key indicator of elite contact quality.</p>
+                           </div>
+                           <div class="report-card p-6 rounded-2xl text-center">
+                               <h4 class="text-lg font-bold text-slate-100">Barrel %</h4>
+                               <p id="barrel-rate" class="text-5xl font-extrabold text-lime-400 my-2"></p>
+                               <p class="text-xs text-slate-500">Rate of batted balls with the optimal combination of exit velocity and launch angle, leading to extra-base hits.</p>
+                           </div>
+                           <div class="report-card p-6 rounded-2xl text-center">
+                               <h4 class="text-lg font-bold text-slate-100">Expected wOBA</h4>
+                               <p id="xwoba" class="text-5xl font-extrabold text-lime-400 my-2"></p>
+                               <p class="text-xs text-slate-500">A comprehensive measure of a player's offensive skill, based on quality of contact rather than actual results.</p>
+                           </div>
+                        </div>
+                    </div>
+                    
+                    <div id="matchup-content" class="tab-content">
+                       <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                            <div class="report-card p-6 rounded-2xl">
+                                <h3 class="text-xl font-bold text-slate-100 mb-4">Hitter Tale of the Tape</h3>
+                                <div id="hitter-stats" class="space-y-4"></div>
+                            </div>
+                             <div class="report-card p-6 rounded-2xl">
+                                <h3 class="text-xl font-bold text-slate-100 mb-4 flex justify-between items-center">Opponent: <span id="pitcher-name" class="text-lime-300"></span></h3>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <h4 class="text-lg font-semibold text-slate-200 mb-2">Key Stats</h4>
+                                        <div id="pitcher-stats" class="space-y-2 text-sm"></div>
+                                    </div>
+                                    <div>
+                                       <h4 class="text-lg font-semibold text-slate-200 mb-2">Vulnerability Analysis</h4>
+                                        <div class="h-32"><canvas id="pitcherVulnerabilityChart"></canvas></div>
+                                    </div>
+                                </div>
+                            </div>
+                       </div>
+                    </div>
+
+                    <div id="full-analysis-content" class="tab-content report-card p-6 md:p-8 rounded-2xl">
+                        <div id="player-full-analysis" class="text-slate-300 leading-relaxed space-y-6"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Full Briefing Content -->
+            <div id="full-briefing-content" class="tab-content space-y-8">
+                 <div id="executive-summary" class="report-card rounded-2xl"></div>
+                 <div id="watch-list" class="report-card p-6 md:p-8 rounded-2xl"></div>
+                 <div id="appendix" class="report-card rounded-2xl"></div>
+            </div>
+        </main>
+    </div>
+
+<script>
+    // Data extracted and combined from the two HTML files.
+    const reportData = {
+        executiveSummary: {
+                title: "I. Executive Summary & Top Recommendations",
+                content: `<h3 class="text-xl font-bold text-slate-200 mb-4">Situational Overview</h3><p class="mb-4 text-slate-400 leading-relaxed">This intelligence briefing provides a comprehensive statistical and contextual analysis of the Major League Baseball slate for Monday, June 23, 2025, with the singular objective of identifying the players possessing the highest probability of recording at least one base hit for the Beat the Streak contest. All data is current through games completed on June 22, 2025.<br><br>The day's schedule presents a concentrated set of opportunities, with nine games on the docket. A critical initial finding is that two teams with several high-probability hitters, the Tampa Bay Rays and Cleveland Guardians, have a scheduled off-day and are therefore ineligible for selection. This removes perennial high-contact players like Yandy Diaz, who is currently on a 13-game hitting streak, from consideration.<br><br>The analytical focus converges heavily on the contest between the Atlanta Braves and the New York Mets at Citi Field. This game features a matchup between one of the league's most potent offenses and a starting pitcher, Paul Blackburn, who has demonstrated significant vulnerabilities throughout the 2025 season. This specific game environment is the source of our premier recommendation. Additional high-probability scenarios have been identified in the New York Yankees at Cincinnati Reds and Arizona Diamondbacks at Chicago White Sox matchups, which feature elite hitters in favorable park and platoon situations.<br><br>The following report will provide an exhaustive, multi-layered analysis for each of the top five recommended players, moving from core performance metrics to advanced Statcast data, pitcher-specific vulnerabilities, and probabilistic modeling to arrive at a definitive, rank-ordered list of selections.</p><h3 class="text-xl font-bold text-slate-200 mt-6 mb-4">Top-Line Recommendations</h3><ol class="list-decimal list-inside space-y-2 mb-6 text-slate-300"><li>Ronald Acuña Jr. (OF, Atlanta Braves)</li><li>Aaron Judge (OF, New York Yankees)</li><li>Josh Naylor (1B, Arizona Diamondbacks)</li><li>Luis Arraez (2B, San Diego Padres)</li><li>Christian Yelich (OF, Milwaukee Brewers)</li></ol><h3 class="text-xl font-bold text-slate-200 mt-6 mb-4">Key Table: Top 5 Recommendations Synopsis</h3><div class="overflow-x-auto"><table class="w-full text-sm text-left text-slate-400"><thead class="text-xs text-slate-300 uppercase bg-slate-700/50"><tr><th scope="col" class="px-4 py-3">Rank</th><th scope="col" class="px-4 py-3">Player (Team)</th><th scope="col" class="px-4 py-3">Opposing Pitcher (Team)</th><th scope="col" class="px-4 py-3">Active Streak</th><th scope="col" class="px-4 py-3">2025 BA / xBA</th><th scope="col" class="px-4 py-3">Composite Prob.</th></tr></thead><tbody><tr class="border-b border-slate-700"><td class="px-4 py-3 font-medium text-white">1</td><td class="px-4 py-3 font-medium text-white">Ronald Acuña Jr. (ATL)</td><td class="px-4 py-3">Paul Blackburn (NYM)</td><td class="px-4 py-3">8 Games</td><td class="px-4 py-3">.396 / .301</td><td class="px-4 py-3 font-bold text-lime-400">74%</td></tr><tr class="border-b border-slate-700"><td class="px-4 py-3 font-medium text-white">2</td><td class="px-4 py-3 font-medium text-white">Aaron Judge (NYY)</td><td class="px-4 py-3">Nick Lodolo (CIN)</td><td class="px-4 py-3">N/A</td><td class="px-4 py-3">.367 / .325*</td><td class="px-4 py-3 font-bold text-lime-400">71%</td></tr><tr class="border-b border-slate-700"><td class="px-4 py-3 font-medium text-white">3</td><td class="px-4 py-3 font-medium text-white">Josh Naylor (ARI)</td><td class="px-4 py-3">Shane Smith (CWS)</td><td class="px-4 py-3">11 Games</td><td class="px-4 py-3">.303 / .299</td><td class="px-4 py-3 font-bold text-lime-400">68% (Conditional)</td></tr><tr class="border-b border-slate-700"><td class="px-4 py-3 font-medium text-white">4</td><td class="px-4 py-3 font-medium text-white">Luis Arraez (SD)</td><td class="px-4 py-3">Mitchell Parker (WSH)</td><td class="px-4 py-3">9 Games</td><td class="px-4 py-3">.317 / N/A</td><td class="px-4 py-3 font-bold text-lime-400">67%</td></tr><tr><td class="px-4 py-3 font-medium text-white">5</td><td class="px-4 py-3 font-medium text-white">Christian Yelich (MIL)</td><td class="px-4 py-3">Chad Patrick (MIL)</td><td class="px-4 py-3">6 Games</td><td class="px-4 py-3">.385** / N/A</td><td class="px-4 py-3 font-bold text-lime-400">66%</td></tr></tbody></table></div><p class="text-xs text-slate-500 mt-2">*Note: Judge's xBA is from a separate source; his primary player card did not list it. Naylor's probability is conditional on health. Yelich's BA is from the last 30 days.</p>`
+            },
+        watchList: {
+                title: "VI. The Watch List & Cautionary Notes",
+                content: `<h4 class="text-xl font-bold text-lime-300 mb-3">Honorable Mentions</h4><p class="text-slate-400 leading-relaxed">Beyond the top five, several other players warrant consideration and should be monitored as game time approaches, particularly once official lineups are confirmed.<br><br>- <strong>Brendan Donovan (2B, St. Louis Cardinals):</strong> A high-contact hitter with a season-long batting average of.308, Donovan is a consistent threat to get a hit. He faces Chicago Cubs right-hander Ben Brown, against whom the Baseball Musings Neural Network gives him a strong <strong>70.0% hit probability</strong>. His profile is similar to Arraez's, relying on contact over power.<br>- <strong>Jeremy Peña (SS, Houston Astros):</strong> Peña ranks among the top ten hitters in MLB with a.326 batting average. His combination of contact ability and solid power makes him a viable BTS candidate on almost any given day. His opponent for June 23 was not listed in the available schedule data, but he is a player to check on once lineups are posted.</p><div class="mt-6"><h4 class="text-xl font-bold text-lime-300 mb-3">Ineligible Players to Note</h4><p class="text-slate-400 leading-relaxed">It is important to acknowledge strong candidates who are unavailable due to their teams having a scheduled off-day. This prevents wasted analysis on players who cannot be selected.<br><br>- <strong>Yandy Diaz (1B, Tampa Bay Rays):</strong> Diaz is one of the hottest hitters in baseball, riding a <strong>13-game hitting streak</strong> into the off-day. Over his last 7 games, he is batting.452 with two home runs. The Rays are not scheduled to play on June 23, making him ineligible.</p></div><div class="mt-6"><h4 class="text-xl font-bold text-lime-300 mb-3">Regression Candidates (Cautionary Tales)</h4><p class="text-slate-400 leading-relaxed">A key component of successful BTS selection is avoiding players who may appear to be good choices but whose performance is likely unsustainable. This often involves identifying hitters with a large, negative gap between their batting average (BA) and their expected batting average (xBA). A player significantly outperforming their xBA is likely benefiting from good luck on balls in play (a high BABIP) and is a candidate for negative regression, making them a risky choice for a contest that demands high probability. While no specific players on today's slate stand out as extreme cautionary tales among the elite options, this principle should always be applied as part of the daily evaluation process.</p></div>`
+        },
+        appendix: {
+            title: "VII. Appendix: Data Sources & Methodological Notes",
+            content: `<div class="space-y-6"><h4 class="text-xl font-bold text-lime-300 mb-3">Data Sources</h4><p class="text-slate-400 leading-relaxed">This report was compiled using data from the following industry-leading sources. All statistics are current through games of June 22, 2025, unless otherwise noted.<br><br>- <strong>Statcast (via Baseball Savant)</strong><br>- <strong>Baseball-Reference</strong><br>- <strong>FanGraphs</strong><br>- <strong>Baseball Musings</strong><br>- <strong>Official MLB Sources</strong><br>- <strong>Other Sports Information Providers (CBS Sports, FOX Sports, Statmuse, etc.)</strong></p><div><h4 class="text-xl font-bold text-lime-300 mb-3">Methodological Notes</h4><div class="text-slate-400 leading-relaxed space-y-4"><p>* <strong>Log5 Formula:</strong> The Log5 method is a probabilistic formula used to estimate the outcome of a matchup between two entities based on their individual success rates.[82, 83] For a batter-pitcher confrontation, the probability of a hit in a single at-bat ($P_{AB}$) is calculated as:<br>$$P_{AB} = \\frac{(H_{BA} \\times P_{BAA})}{(H_{BA} \\times P_{BAA}) + ((1 - H_{BA}) \\times (1 - P_{BAA}))}$$<br>Where $H_{BA}$ is the hitter's batting average and $P_{BAA}$ is the pitcher's batting average against. To estimate the probability of at least one hit in a game, this per-at-bat probability is extrapolated across an assumed number of plate appearances (typically four). The formula used is: $P_{Game} = 1 - (1 - P_{AB})^N$, where $N$ is the number of plate appearances. The 2025 MLB league-wide batting average of.245 is used as a contextual baseline.[55]</p><p>* <strong>Baseball Musings Neural Network (NN):</strong> The probability figures cited from Baseball Musings are the output of a proprietary neural network model.[13] This model incorporates a wide range of variables, including historical performance, pitcher-batter matchups, and park factors, to generate a holistic probability of a player achieving at least one hit in a game. It is used in this report as a valuable external validation tool that often captures nuances missed by simpler formulas like Log5.</p></div></div></div>`
+        },
+        players: {
+            acuna: {
+                rank: 1, name: "Ronald Acuña Jr.", team: "OF, Atlanta Braves", keyStrength: "Elite Performance vs. Vulnerable Pitcher",
+                image: `url(input_file_0.png)`, // Using the provided image
+                summary: `<p><strong>Verdict:</strong> Ronald Acuña Jr. is the unequivocal premier recommendation for June 23, 2025. The confluence of his own historic offensive season, an acute hot streak, elite underlying Statcast metrics, and an exceedingly favorable pitching matchup creates the highest-probability scenario on the board.</p><p class="mt-4"><strong>Risk Assessment:</strong> The primary risk is the venue. Citi Field is a documented pitcher's park that suppresses base hits. However, the sheer magnitude of the mismatch between Acuña's ability and Blackburn's vulnerability is significant enough to largely mitigate this environmental risk.</p>`,
+                fullAnalysis: `<div><h4 class="text-xl font-bold text-lime-300 mb-3">A. Core Performance & Overwhelming Momentum</h4><p class="text-slate-400 leading-relaxed space-y-4">The primary candidate for June 23, 2025, is Atlanta Braves outfielder Ronald Acuña Jr., who presents a rare and powerful convergence of elite baseline talent, an extraordinary period of peak performance, and a uniquely favorable opponent. His selection is underpinned by a statistical profile that is not merely strong but overwhelmingly dominant across nearly every relevant metric. For the 2025 season, Acuña has compiled a staggering slash line of $.396/.504/.698$, with an OPS of $1.202$ and an OPS+ of 231... Crucially, this performance has accelerated in recent weeks. Over his active eight-game hitting streak, he is batting an astonishing $.577$.</p></div><div><h4 class="text-xl font-bold text-lime-300 mb-3 mt-6">B. Statcast Validation: The Underlying Process</h4><p class="text-slate-400 leading-relaxed space-y-4">Acuña's key Statcast indicators are among the best in Major League Baseball: Average Exit Velocity (EV): $93.6$ mph, Hard-Hit Percentage: $57.7\\%$, and Barrel Percentage: $18.3\\%$. These process-based metrics translate directly into elite expected outcomes, including an Expected Batting Average (xBA) of.301 and an Expected Weighted On-Base Average (xwOBA) of.441.</p></div><div><h4 class="text-xl font-bold text-lime-300 mb-3 mt-6">C. The Matchup: Exploiting Paul Blackburn</h4><p class="text-slate-400 leading-relaxed space-y-4">The case for selecting Ronald Acuña Jr. is dramatically amplified by his opponent, New York Mets right-handed pitcher Paul Blackburn. His 2025 performance profile makes him one of the most attractive pitchers to target on the slate. His top-line statistics are alarming: a $6.92$ ERA and a $1.69$ WHIP. Opposing hitters have posted a staggering .327 batting average against (BAA) him this season.</p></div><div><h4 class="text-xl font-bold text-lime-300 mb-3 mt-6">D. Synthesis: BvP, Park, Weather, and Predictive Models</h4><p class="text-slate-400 leading-relaxed space-y-4">In their most recent meeting on June 18, Acuña hit a leadoff home run on Blackburn's first pitch of the game... The game will be played at Citi Field, which is historically a pitcher-friendly venue... The environmental conditions are forecast to be favorable for hitters... Baseball Musings Neural Network gives Ronald Acuña Jr. a 72.9% probability of recording at least one hit.</p></div>`,
+                probability: 74,
+                stats: { ba: 0.396, xba: 0.301, xwoba: '.441', barrelRate: '18.3%', hardHitRate: '57.7%', streak: "8 Games" },
+                matchup: { pitcher: "Paul Blackburn", pitcherERA: '6.92', pitcherBAA: '.327', pitcherKRate: '13.3%', bvp: "Leadoff HR on June 18, 2025" },
+                context: { venue: "Citi Field", parkFactor: "97 (wOBA)", weather: "97°F, Humid", wind: "6 mph SW" }
+            },
+            judge: {
+                rank: 2, name: "Aaron Judge", team: "OF, New York Yankees", keyStrength: "Extreme Platoon Advantage & Power",
+                image: 'none',
+                summary: `<p><strong>Verdict:</strong> Aaron Judge is an elite selection for June 23. The combination of his immense power, a significant platoon advantage against a left-handed pitcher, and playing in one of the league's best hitter's parks creates a scenario with an exceptionally high ceiling for offensive production.</p><p class="mt-4"><strong>Risk Assessment:</strong> The primary risk factor is the quality of the opposing pitcher. Nick Lodolo is a legitimate major league starter with a solid track record. However, the confluence of other factors in Judge's favor is strong enough to make this a calculated and highly recommended risk.</p>`,
+                fullAnalysis: `<div><h4 class="text-xl font-bold text-lime-300 mb-3">A. Core Performance & Platoon Dominance</h4><p>Judge’s case is founded on his own historic power, a profound platoon advantage, and a highly favorable ballpark environment. In 2025, he has posted a remarkable 1.388 OPS against southpaws, hitting nine of his 27 home runs in just 59 at-bats against them. Tonight, he faces Cincinnati Reds left-hander Nick Lodolo.</p></div><div><h4 class="text-xl font-bold text-lime-300 mb-3 mt-6">B. Statcast Validation: Unmatched Power</h4><p>Judge's Statcast profile is a testament to his status as the premier power hitter in the sport. Key 2025 Statcast metrics include: xwOBA: $.457$ (1st in MLB), Average Exit Velocity: $95.3$ mph (3rd in MLB), Barrel Percentage: $24.6\\%$ (1st in MLB), Hard-Hit Percentage: $55.3\\%$ (1st in MLB).</p></div><div><h4 class="text-xl font-bold text-lime-300 mb-3 mt-6">C. The Matchup: A Worthy but Vulnerable Adversary</h4><p>Great American Ball Park is renowned as one of the most hitter-friendly venues in baseball, particularly for home runs. The 3-year rolling park factor for home runs is 128, ranking 5th in MLB... The forecast for Cincinnati calls for a hot and sunny day, with a high of 94°F... these warm and humid conditions will further reduce air density and aid batted ball flight.</p></div>`,
+                probability: 71,
+                stats: { ba: 0.367, xba: 0.325, xwoba: '.457', barrelRate: '24.6%', hardHitRate: '55.3%', streak: "N/A" },
+                matchup: { pitcher: "Nick Lodolo", pitcherERA: '3.71', pitcherBAA: '.238', pitcherKRate: '25.0%', bvp: "No History" },
+                context: { venue: "Great American Ball Park", parkFactor: "128 (HR)", weather: "94°F, Sunny", wind: "N/A" }
+            },
+             naylor: {
+                rank: 3, name: "Josh Naylor", team: "1B, Arizona Diamondbacks", keyStrength: "Hot Streak vs. Regression Candidate",
+                image: 'none',
+                summary: `<p><strong>Verdict:</strong> Josh Naylor is a high-upside pick with a significant and clearly identifiable risk. The statistical case is strong: he is on a long hitting streak, his underlying metrics are solid, and he has a favorable platoon matchup against a pitcher due for regression.</p><p class="mt-4"><strong>Risk Assessment:</strong> The primary risk is Naylor's health. He could be a late scratch from the lineup, or he could play through the injuries at a diminished capacity. This is a pick that requires diligent monitoring of lineup news.</p>`,
+                fullAnalysis: `<div><h4 class="text-xl font-bold text-lime-300 mb-3">A. Core Performance & Recent Form</h4><p>For the 2025 season, he is batting .303... and is currently in the midst of an 11-game hitting streak, during which he has been one of the hottest hitters in baseball. However, the most critical piece of intelligence... is that he has been dealing with nagging shoulder and hand injuries. This recommendation must be viewed as conditional.</p></div><div><h4 class="text-xl font-bold text-lime-300 mb-3 mt-6">B. Statcast Validation & Batted Ball Profile</h4><p>Assuming full health, Naylor's underlying Statcast data supports his strong surface-level numbers. In 2025, he has produced a solid .354 xwOBA and a .299 xBA. The proximity of his xBA to his actual BA (.303) suggests that his performance has been earned through legitimate skill.</p></div><div><h4 class="text-xl font-bold text-lime-300 mb-3 mt-6">C. The Matchup: Favorable Pitcher and Park</h4><p>Naylor and the Diamondbacks are facing Chicago White Sox right-hander Shane Smith. Smith's season numbers include a respectable $2.85$ ERA, but his underlying metrics suggest he has been the beneficiary of some good fortune. His Fielder Independent Pitching (FIP) is a less impressive $3.53$, and his Expected FIP (xFIP) is a concerning $4.31$.</p></div>`,
+                probability: 68,
+                stats: { ba: .303, xba: .299, xwoba: '.354', barrelRate: 'N/A', hardHitRate: '43.7%', streak: "11 Games" },
+                matchup: { pitcher: "Shane Smith", pitcherERA: '2.85', pitcherBAA: '.245 (est)', pitcherKRate: 'N/A', bvp: "No History" },
+                context: { venue: "Rate Field", parkFactor: "Neutral", weather: "N/A", wind: "N/A" }
+            },
+            arraez: {
+                rank: 4, name: "Luis Arraez", team: "2B, San Diego Padres", keyStrength: "Elite Contact vs. Lefty Matchup",
+                image: 'none',
+                summary: `<p><strong>Verdict:</strong> Arraez is a data-driven contrarian pick. The Baseball Musings Neural Network model gives Arraez a 71.7% probability of getting a hit, suggesting the model heavily weights his unique bat-to-ball skills over the conventional platoon disadvantage.</p><p class="mt-4"><strong>Risk Assessment:</strong> The primary risk is the lefty-on-lefty matchup against a capable pitcher in Mitchell Parker. Parker has been a solid arm for the Nationals, and same-sided matchups are statistically more difficult for hitters.</p>`,
+                fullAnalysis: `<div><h4 class="text-xl font-bold text-lime-300 mb-3">A. Core Performance & Analysis</h4><p>Luis Arraez represents a different archetype of a high-probability hitter... his value is derived from an elite, outlier skill: his historic ability to make contact. He is the quintessential "get a hit" player. For the season, Arraez is batting.317 and is in the midst of a nine-game hitting streak. His value... is best understood through Statcast's bat tracking metrics. Arraez leads all of Major League Baseball with a 43.0% Squared-Up Rate. Tonight, he faces Washington Nationals left-hander Mitchell Parker. On the surface, a lefty-on-lefty matchup is a disadvantage. However, Arraez's unique skill set often transcends traditional platoon splits.</p></div>`,
+                probability: 67,
+                stats: { ba: .317, xba: null, xwoba: 'N/A', barrelRate: 'N/A', hardHitRate: 'N/A', streak: "9 Games" },
+                matchup: { pitcher: "Mitchell Parker", pitcherERA: 'N/A', pitcherBAA: 'N/A', pitcherKRate: 'N/A', bvp: "No History" },
+                context: { venue: "N/A", parkFactor: "N/A", weather: "N/A", wind: "N/A" }
+            },
+            yelich: {
+                rank: 5, name: "Christian Yelich", team: "OF, Milwaukee Brewers", keyStrength: "Riding the 'Hot Hand'",
+                image: 'none',
+                summary: `<p><strong>Verdict:</strong> This pick is an acknowledgment of extreme short-term variance. While a.545 average is obviously unsustainable, it provides a strong signal of a player in a deep offensive groove, making him a high-value pick for a single-day contest.</p><p class="mt-4"><strong>Risk Assessment:</strong> The main risk is regression. A player on such an extreme hot streak is, by definition, performing above their true talent level. There is always a chance that this is the day the streak ends and his performance reverts to the mean.</p>`,
+                fullAnalysis: `<div><h4 class="text-xl font-bold text-lime-300 mb-3">A. Core Performance & Analysis</h4><p>The selection of Christian Yelich is a clear case of identifying and leveraging an extreme short-term performance peak... his performance over the past week has been nothing short of extraordinary. In his last seven days (five games), Yelich is batting an incredible .545 (12-for-22)... He is currently on a six-game hitting streak. Tonight, Yelich and the Brewers face Pittsburgh Pirates right-hander Chad Patrick. Patrick has a respectable $3.50$ ERA on the season, but his underlying peripherals are not imposing.</p></div>`,
+                probability: 66,
+                stats: { ba: .385, xba: null, xwoba: 'N/A', barrelRate: 'N/A', hardHitRate: 'N/A', streak: "6 Games" },
+                matchup: { pitcher: "Chad Patrick", pitcherERA: '3.50', pitcherBAA: 'N/A', pitcherKRate: 'N/A', bvp: "No History" },
+                context: { venue: "N/A", parkFactor: "N/A", weather: "N/A", wind: "N/A" }
+            }
+        }
+    };
+    
+    let probabilityChart, baVsXbaChart, pitcherVulnerabilityChart;
+
+    const renderAccordion = (container, title, content, isOpen = false) => {
+        const accordionId = `accordion-${Math.random().toString(36).substr(2, 9)}`;
+        container.innerHTML = `
+            <div class="p-6 md:p-8">
+                <button id="btn-${accordionId}" class="flex justify-between items-center w-full text-left">
+                    <h2 class="text-2xl md:text-3xl font-bold text-slate-100">${title}</h2>
+                    <span class="transform transition-transform duration-300 text-lime-400 text-3xl">${isOpen ? '−' : '+'}</span>
+                </button>
+                <div id="content-${accordionId}" class="accordion-content ${isOpen ? 'show' : ''}"><div class="pt-6">${content}</div></div>
+            </div>`;
+        
+        const button = document.getElementById(`btn-${accordionId}`);
+        const contentEl = document.getElementById(`content-${accordionId}`);
+        if(isOpen) contentEl.style.maxHeight = contentEl.scrollHeight + "px";
+
+        button.addEventListener('click', () => {
+            const isVisible = contentEl.style.maxHeight !== '0px';
+            contentEl.style.maxHeight = isVisible ? '0px' : contentEl.scrollHeight + "px";
+            button.querySelector('span').textContent = isVisible ? '+' : '−';
+        });
+    };
+
+    const createProbabilityGauge = (probability) => {
+        const ctx = document.getElementById('probabilityChart').getContext('2d');
+        if (probabilityChart) probabilityChart.destroy();
+        probabilityChart = new Chart(ctx, {
+            type: 'doughnut', data: { datasets: [{ data: [probability, 100 - probability], backgroundColor: ['#a3e635', '#334155'], borderWidth: 0, circumference: 360 }] },
+            options: { responsive: true, maintainAspectRatio: false, cutout: '80%', plugins: { legend: { display: false }, tooltip: { enabled: false } } }
+        });
+        document.getElementById('probability-text').textContent = `${probability}%`;
+    };
+    
+    const createBaVsXbaChart = (ba, xba) => {
+        const ctx = document.getElementById('baVsXbaChart').getContext('2d');
+        if(baVsXbaChart) baVsXbaChart.destroy();
+        baVsXbaChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Batting Avg (BA)', 'Expected BA (xBA)'],
+                datasets: [{ data: [ba || 0, xba || 0], backgroundColor: ['#a3e635', 'rgba(163, 230, 53, 0.4)'], borderRadius: 4 }]
+            },
+            options: {
+                indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+                scales: {
+                    x: { beginAtZero: true, grid: { color: 'rgba(255, 255, 255, 0.1)' }, ticks: { color: '#94a3b8', callback: (v) => '.' + (v * 1000).toFixed(0) } },
+                    y: { grid: { display: false }, ticks: { font: { size: 12, weight: '600' }, color: '#cbd5e1' } }
+                },
+                plugins: { legend: { display: false } }
+            }
+        });
+    };
+    
+    const createPitcherVulnerabilityChart = (pitcherBAA) => {
+        const leagueAvgBAA = 0.245;
+        const ctx = document.getElementById('pitcherVulnerabilityChart').getContext('2d');
+        if (pitcherVulnerabilityChart) pitcherVulnerabilityChart.destroy();
+        
+        const data = pitcherBAA ? [parseFloat(pitcherBAA), leagueAvgBAA] : [0, leagueAvgBAA];
+        
+        pitcherVulnerabilityChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Pitcher BAA', 'League Avg BAA'],
+                datasets: [{ 
+                    data: data, 
+                    backgroundColor: ['#ef4444', '#6b7280'],
+                    borderRadius: 4 
+                }]
+            },
+            options: {
+                indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+                 scales: {
+                    x: { beginAtZero: true, grid: { color: 'rgba(255, 255, 255, 0.1)' }, ticks: { color: '#94a3b8', callback: (v) => '.' + (v * 1000).toFixed(0) } },
+                    y: { grid: { display: false }, ticks: { font: { size: 10, weight: '500' }, color: '#cbd5e1' } }
+                },
+                plugins: { legend: { display: false } }
+            }
+        });
+    }
+
+    const updatePlayerView = (playerKey) => {
+        const p = reportData.players[playerKey];
+        if (!p) return;
+        
+        document.getElementById('player-image-container').style.backgroundImage = p.image;
+        if(p.image === 'none') {
+            document.getElementById('player-image-container').style.backgroundColor = '#1e293b';
+            document.getElementById('player-image-name').textContent = p.name.split(' ').pop();
+        } else {
+            document.getElementById('player-image-name').textContent = '';
+        }
+        
+        document.getElementById('player-rank').textContent = `RANK #${p.rank}`;
+        document.getElementById('player-name').textContent = p.name;
+        document.getElementById('player-team').textContent = p.team;
+        document.getElementById('player-key-strength').innerHTML = `<span class="font-bold">Strength:</span> ${p.keyStrength}`;
+
+        // Sub-content
+        document.getElementById('player-summary').innerHTML = p.summary;
+        document.getElementById('player-full-analysis').innerHTML = p.fullAnalysis;
+
+        // Statcast
+        document.getElementById('hardhit-rate').textContent = p.stats.hardHitRate || 'N/A';
+        document.getElementById('barrel-rate').textContent = p.stats.barrelRate || 'N/A';
+        document.getElementById('xwoba').textContent = p.stats.xwoba || 'N/A';
+        
+        // Context Cards
+        document.getElementById('context-cards').innerHTML = `
+            <div class="flex items-start"><div class="mr-3 mt-1 flex-shrink-0 w-8 h-8 rounded-full bg-green-900/50 text-green-400 flex items-center justify-center text-sm font-bold">🏟️</div><div><p class="font-semibold text-slate-200">${p.context.venue}</p><p class="text-xs text-slate-500">Park Factor (Hits): ${p.context.parkFactor}</p></div></div>
+            <div class="flex items-start"><div class="mr-3 mt-1 flex-shrink-0 w-8 h-8 rounded-full bg-orange-900/50 text-orange-400 flex items-center justify-center text-sm font-bold">☀️</div><div><p class="font-semibold text-slate-200">${p.context.weather}</p><p class="text-xs text-slate-500">Wind: ${p.context.wind}</p></div></div>
+        `;
+        
+        // Hitter/Pitcher Tale of the Tape
+        const statItem = (label, value) => `<div class="flex justify-between items-baseline text-sm border-b border-slate-700 py-2"><dt class="text-slate-400">${label}</dt><dd class="font-bold text-lime-300 text-lg">${value || 'N/A'}</dd></div>`;
+        document.getElementById('hitter-stats').innerHTML = [
+            statItem('2025 Batting Avg', p.stats.ba),
+            statItem('2025 Expected BA', p.stats.xba),
+            statItem('Hitting Streak', p.stats.streak),
+            statItem('BvP vs. Pitcher', p.matchup.bvp)
+        ].join('');
+
+        document.getElementById('pitcher-name').textContent = p.matchup.pitcher;
+        document.getElementById('pitcher-stats').innerHTML = [
+            statItem('Pitcher ERA', p.matchup.pitcherERA),
+            statItem('Pitcher BAA', p.matchup.pitcherBAA),
+            statItem('Pitcher K%', p.matchup.pitcherKRate)
+        ].join('');
+
+
+        // Charts
+        createProbabilityGauge(p.probability);
+        createBaVsXbaChart(p.stats.ba, p.stats.xba);
+        createPitcherVulnerabilityChart(p.matchup.pitcherBAA);
+
+        document.querySelectorAll('#player-nav .nav-item').forEach(item => item.classList.toggle('active', item.dataset.player === playerKey));
+        // Set default sub-tab
+        document.querySelector('.sub-tab-button[data-tab="verdict"]').click();
+    };
+
+    const init = () => {
+        // Main Tab handling
+        const mainTabs = ['analysis', 'briefing'];
+        mainTabs.forEach(tab => {
+            document.getElementById(`main-tab-${tab}`).addEventListener('click', () => {
+                document.getElementById(`player-analysis-content`).classList.toggle('active', tab === 'analysis');
+                document.getElementById(`full-briefing-content`).classList.toggle('active', tab === 'briefing');
+                document.querySelectorAll('.main-tab-button').forEach(btn => btn.classList.remove('active'));
+                document.getElementById(`main-tab-${tab}`).classList.add('active');
+            });
+        });
+        document.getElementById('main-tab-analysis').click();
+        
+        // Sub Tab handling
+        const subTabsContainer = document.getElementById('player-dashboard-content').previousElementSibling;
+        subTabsContainer.addEventListener('click', e => {
+            if (e.target.classList.contains('sub-tab-button')) {
+                const tabName = e.target.dataset.tab;
+                document.querySelectorAll('.sub-tab-button').forEach(btn => btn.classList.remove('active'));
+                e.target.classList.add('active');
+                document.querySelectorAll('#player-dashboard-content .tab-content').forEach(content => content.classList.remove('active'));
+                document.getElementById(`${tabName}-content`).classList.add('active');
+            }
+        });
+
+        // Populate Left Nav
+        const playerNav = document.getElementById('player-nav');
+        Object.keys(reportData.players).forEach(key => {
+            const player = reportData.players[key];
+            const li = document.createElement('li');
+            li.innerHTML = `<button data-player="${key}" class="nav-item w-full text-left flex items-center p-3 rounded-lg hover:bg-slate-700 transition-all duration-200 border-l-4 border-transparent"><span class="mr-3 flex-shrink-0 w-6 h-6 rounded-full bg-slate-600 text-slate-300 flex items-center justify-center text-xs font-bold">${player.rank}</span><span class="flex-1 text-sm font-medium text-slate-200">${player.name}</span><span class="text-xs text-lime-400 font-bold">${player.probability}%</span></button>`;
+            playerNav.appendChild(li);
+        });
+        playerNav.addEventListener('click', (e) => {
+            const button = e.target.closest('.nav-item');
+            if (button && button.dataset.player) {
+                updatePlayerView(button.dataset.player);
+            }
+        });
+
+        // Populate Briefing section
+        renderAccordion(document.getElementById('executive-summary'), reportData.executiveSummary.title, reportData.executiveSummary.content, true);
+        document.getElementById('watch-list').innerHTML = `<h2 class="text-2xl md:text-3xl font-bold text-slate-100 mb-6">${reportData.watchList.title}</h2><div class="space-y-6">${reportData.watchList.content}</div>`;
+        renderAccordion(document.getElementById('appendix'), reportData.appendix.title, reportData.appendix.content);
+
+        // Initial view
+        updatePlayerView('acuna');
+    };
+
+    window.onload = init;
+</script>
+</body>
+</html>

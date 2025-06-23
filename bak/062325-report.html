@@ -10,12 +10,12 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Expletus+Sans:ital,wght@0,700;1,700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- Chosen Palette: Deep Space (Custom Neon) -->
-    <!-- Application Structure Plan: A single-page, long-form narrative structure that translates the report into a web-native experience. The design uses a top-down flow: Header (branding), Executive Summary (collapsible for quick access), a dynamically generated section for each of the Top 5 Player Analyses, a Watch List section, and finally a collapsible Appendix. This allows users to either get a quick overview or scroll through the entire deep-dive analysis seamlessly. Player sections feature a new graphics-first dashboard layout with the full text available in a collapsible section, enhancing visual appeal while retaining all data. -->
+    <!-- Application Structure Plan: A single-page, long-form narrative structure that translates the report into a web-native experience. The design uses a top-down flow: Header (branding), Executive Summary (collapsible for quick access), a dynamically generated section for each of the Top 5 Player Analyses, a Watch List section, and finally a collapsible Appendix. This allows users to either get a quick overview or scroll through the entire deep-dive analysis seamlessly. Player sections feature a two-column layout to present narrative text alongside key data visualizations, enhancing comprehension. -->
     <!-- Visualization & Content Choices: 
         1. Composite Probability (Goal: Inform) -> Chart.js Donut chart styled as a gauge provides an immediate, high-impact visual of the primary metric for each player.
         2. BA vs. xBA (Goal: Compare) -> A Chart.js Horizontal Bar chart offers a clear, direct comparison between performance and expectation.
-        3. Key Data Panels (Goal: Inform/Organize) -> Styled HTML divs are used to create infographic-style cards for key strengths and matchup factors.
-        4. Collapsible Sections (Goal: Organize/Interact) -> JavaScript-powered accordions for the Executive Summary, Appendix, and new "Deep Dive" player analysis manage information density, allowing users to focus on the core analysis while keeping detailed text accessible.
+        3. Key Data Table (Goal: Organize) -> A styled HTML table is used for the synopsis in the executive summary for dense, scannable data comparison.
+        4. Collapsible Sections (Goal: Organize/Interact) -> JavaScript-powered accordions for the Executive Summary and Appendix manage information density, allowing users to focus on the core analysis while keeping detailed text accessible.
     -->
     <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
     <style>
@@ -47,11 +47,6 @@
              background: rgba(30, 41, 59, 0.5);
              border: 1px solid #334155;
              backdrop-filter: blur(10px);
-        }
-        .infographic-panel {
-            background-color: rgba(15, 23, 42, 0.5);
-            border: 1px solid #1e293b;
-            box-shadow: 0 0 15px rgba(163, 230, 53, 0.05);
         }
         .accordion-content {
             max-height: 0;
@@ -171,12 +166,7 @@
                     team: "OF, Atlanta Braves",
                     title: "II. Premier Recommendation: Ronald Acuña Jr.",
                     probability: 74,
-                    stats: { ba: .396, xba: .301, streak: "8 Games", hardHit: "57.7%" },
-                    infographics: {
-                        keyStrength: "Elite Performance vs. Vulnerable Pitcher",
-                        matchup: "Opponent Paul Blackburn has a .327 BAA and 6.92 ERA, creating a statistically outlier event.",
-                        parkFactor: "Citi Field suppresses hits (97 wOBA), but hot/humid weather may mitigate this."
-                    },
+                    stats: { ba: .396, xba: .301 },
                     sections: {
                         "A. Core Performance & Overwhelming Momentum": `The primary candidate for June 23, 2025, is Atlanta Braves outfielder Ronald Acuña Jr., who presents a rare and powerful convergence of elite baseline talent, an extraordinary period of peak performance, and a uniquely favorable opponent. His selection is underpinned by a statistical profile that is not merely strong but overwhelmingly dominant across nearly every relevant metric.\n\nFor the 2025 season, Acuña has compiled a staggering slash line of $.396/.504/.698$, with an OPS of $1.202$ and an OPS+ of 231, indicating he has been 131% better than a league-average hitter after adjusting for park effects. This level of production places him at the zenith of the sport's offensive performers.\n\nCrucially, this performance is not a relic of a hot start to the season; his production has accelerated in recent weeks. An analysis of his performance over various timeframes reveals a player operating at the absolute height of his abilities:\n\n- **Last 30 Games:** $.391$ BA, $.504$ OBP, $.696$ SLG\n- **Last 15 Games:** $.451$ BA, $.576$ OBP, $.745$ SLG\n- **Last 7 Games:** $.429$ BA, $.600$ OBP, $.667$ SLG\n\nThis sustained excellence is further demonstrated by his active eight-game hitting streak. During this streak, he is batting an astonishing $.577$ (15-for-26) with four home runs. This combination of long-term season dominance and an acute short-term hot streak establishes an exceptionally high floor for his daily performance. The central analytical conclusion is that an MVP-caliber hitter, performing at a historic level, is scheduled to face one of the most vulnerable starting pitchers on the day's slate. This is not just a favorable matchup; it is a statistical outlier that maximizes the probability of success.`,
                         "B. Statcast Validation: The Underlying Process": `While traditional statistics illustrate the results of Acuña's performance, Statcast data illuminates the underlying process, confirming that his success is a direct result of superior contact quality rather than fortune. An examination of his batted ball events reveals a hitter who consistently produces elite metrics that are the foundation of sustainable production.\n\nIn 2025, Acuña's key Statcast indicators are among the best in Major League Baseball:\n\n- **Average Exit Velocity (EV):** $93.6$ mph. This is significantly above the MLB average of 88.5 mph and places him in the upper echelon of hitters.\n- **Hard-Hit Percentage:** $57.7\\%$. This measures the percentage of batted balls with an exit velocity of 95 mph or higher. Acuña's rate is in the 98th percentile of the league, demonstrating his consistent ability to strike the ball with authority. His career high of 57.0% in 2020 underscores that this is a repeatable, elite skill.\n- **Barrel Percentage:** $18.3\\%$. A "barrel" is a batted ball with the optimal combination of exit velocity and launch angle, leading to the highest probability of extra-base hits and home runs. Acuña's rate is in the 99th percentile, confirming he not only hits the ball hard but also at ideal trajectories.\n\nThese process-based metrics translate directly into elite expected outcomes, which strip out the effects of defense and luck. His **Expected Batting Average (xBA) of.301** and **Expected Weighted On-Base Average (xwOBA) of.441** are both in the 95th percentile or higher. While his actual batting average of.396 is significantly higher than his xBA, suggesting some positive luck on balls in play, the xBA itself remains at an elite level. This indicates that even with expected statistical regression, his baseline performance is that of a top-tier hitter. The high quality of contact provides confidence that even a statistically "unlucky" day for Acuña is highly likely to involve multiple hard-hit balls, thereby increasing the probability of at least one finding a hole for a base hit.`,
@@ -191,12 +181,7 @@
                     team: "OF, New York Yankees",
                     title: "III. Secondary Recommendation: Aaron Judge",
                     probability: 71,
-                    stats: { ba: .367, xba: .325, streak: "N/A", hardHit: "55.3%" },
-                    infographics: {
-                        keyStrength: "Extreme Platoon Advantage & Power",
-                        matchup: "Judge's 1.388 OPS vs. left-handed pitching is a profound advantage against the lefty Nick Lodolo.",
-                        parkFactor: "Great American Ball Park is a top-5 venue for home runs, amplifying Judge's power."
-                    },
+                    stats: { ba: .367, xba: .325 },
                     sections: {
                         "A. Core Performance & Platoon Dominance": `The second-ranked selection for this slate is New York Yankees outfielder Aaron Judge. While Acuña’s case is built on a combination of his own excellence and his opponent’s weakness, Judge’s case is founded on his own historic power, a profound platoon advantage, and a highly favorable ballpark environment. Judge is in the midst of another MVP-caliber season, leading Major League Baseball in batting average ($.367$), on-base percentage ($.468$), slugging percentage ($.727$), and OPS ($1.195$).\n\nThe critical factor in this matchup is Judge’s profound dominance against left-handed pitching. In 2025, he has posted a remarkable **1.388 OPS** against southpaws, hitting nine of his 27 home runs in just 59 at-bats against them. Tonight, he faces Cincinnati Reds left-hander Nick Lodolo. This presents a classic power-versus-platoon scenario where Judge's established ability to punish left-handed pitching is the central thesis. The analysis here focuses on the powerful synergy created when this extreme platoon advantage is combined with the hitter-friendly confines of Great American Ball Park. This elevates the probability of any given hit, as many of those hits are likely to be for extra bases, which inherently satisfy the contest's requirement.`,
                         "B. Statcast Validation: Unmatched Power": `Aaron Judge's Statcast profile is a testament to his status as the premier power hitter in the sport. His player page on Baseball Savant is saturated with red, indicating performance in the 98th to 100th percentile across nearly every meaningful category of power and contact quality.\n\nKey 2025 Statcast metrics for Judge include:\n\n- **xwOBA:** $.457$ (1st in MLB)\n- **Average Exit Velocity:** $95.3$ mph (3rd in MLB)\n- **Barrel Percentage:** $24.6\\%$ (1st in MLB)\n- **Hard-Hit Percentage:** $55.3\\%$ (1st in MLB)\n\nThese metrics provide empirical evidence that Judge is not just hitting for power, but is producing a quality of contact that is unmatched by any other player. His batting average on balls in play (BABIP) of.467 is historically high, but it is substantially supported by his unique ability to hit the ball harder than anyone else and force defensive miscues. Statcast analysis reveals that fielders are positioned deeper against Judge than any other hitter, yet he still leads the league in batting average on ground balls because he hits them with such high velocity that infielders have less time to react. This combination of raw power and its tangible effect on opposing defenses confirms that his high batting average is not merely a fluke but a direct consequence of his elite skills.`,
@@ -210,12 +195,7 @@
                     team: "1B, Arizona Diamondbacks",
                     title: "IV. Secondary Recommendation: Josh Naylor",
                     probability: 68,
-                    stats: { ba: .303, xba: .299, streak: "11 Games", hardHit: "43.7%" },
-                    infographics: {
-                        keyStrength: "Conditional Pick: Hot Streak vs. Regression Candidate",
-                        matchup: "Faces Shane Smith, whose 4.31 xFIP suggests his 2.85 ERA is due for negative regression.",
-                        parkFactor: "Primary risk is health; nagging injuries make this pick conditional on lineup confirmation."
-                    },
+                    stats: { ba: .303, xba: .299 },
                     sections: {
                         "A. Core Performance & Recent Form": `Arizona Diamondbacks first baseman Josh Naylor presents a compelling, albeit more complex, case for selection. On the surface, his statistical profile is excellent. For the 2025 season, he is batting $.303$ with a $.358$ OBP and a $.465$ SLG, resulting in an impressive $.823$ OPS and a 128 OPS+. He is currently in the midst of an **11-game hitting streak**, during which he has been one of the hottest hitters in baseball. Over this streak, he is batting $.409$.\n\nHowever, the most critical piece of intelligence regarding Naylor is qualitative and serves as a significant caveat to his quantitative excellence. Recent reports indicate that he has been dealing with nagging shoulder and hand injuries. He was even removed for a pinch-hitter in the sixth inning of a recent game due to these issues. This information fundamentally changes the risk profile of this selection. For a hitter, even minor ailments in the hands, wrists, or shoulders can have a profound impact on swing mechanics, bat speed, and the ability to make consistent, solid contact. This makes his stellar recent performance data potentially less reliable as a predictor of immediate future success.\n\nTherefore, this recommendation must be viewed as conditional. If Naylor is confirmed to be in the starting lineup and there are no pre-game reports of lingering issues, he represents a very strong choice. However, the presence of this injury news elevates him into a higher-risk, higher-reward category compared to the top two selections.`,
                         "B. Statcast Validation & Batted Ball Profile": `Assuming full health, Naylor's underlying Statcast data supports his strong surface-level numbers. In 2025, he has produced a solid **.354 xwOBA** and a **.299 xBA**. The proximity of his xBA to his actual BA (.303) suggests that his performance has been earned through legitimate skill and is not the product of significant luck. His Hard Hit percentage of $43.7\\%$ is also well above the league average, confirming his ability to generate quality contact.\n\nAs a left-handed batter, Naylor will hold the platoon advantage against the opposing right-handed pitcher, Shane Smith. This is a crucial tactical advantage. Throughout his career, Naylor has demonstrated the ability to hit for both average and power, and his batted ball profile typically features a healthy mix of line drives and fly balls, which are conducive to securing base hits.`,
@@ -229,12 +209,7 @@
                     team: "2B, San Diego Padres",
                     title: "V. High-Value & Contrarian Picks",
                     probability: 67,
-                    stats: { ba: .317, xba: null, streak: "9 Games", hardHit: "43.0% Squared-Up Rate" },
-                    infographics: {
-                        keyStrength: "Elite Contact vs. Lefty Matchup",
-                        matchup: "Elite bat-to-ball skills (43% Squared-Up Rate) may transcend the traditional L/L disadvantage.",
-                        parkFactor: "Baseball Musings NN gives a high 71.7% probability, trusting the skill over the matchup context."
-                    },
+                    stats: { ba: .317, xba: null },
                     sections: {
                         "4. Luis Arraez (2B, San Diego Padres)": `Luis Arraez represents a different archetype of a high-probability hitter. While selections like Judge and Acuña rely on overwhelming power and favorable matchups, Arraez's value is derived from an elite, outlier skill: his historic ability to make contact. He is the quintessential "get a hit" player, whose approach is perfectly suited to the demands of the Beat the Streak contest.\n\nFor the season, Arraez is batting.317 and is in the midst of a nine-game hitting streak. His value, however, is best understood through Statcast's bat tracking metrics. Arraez leads all of Major League Baseball with a **43.0% Squared-Up Rate**. This metric measures how efficiently a batter transfers bat speed into exit velocity, essentially quantifying how often a player hits the ball on the "sweet spot." His ability to consistently square up the baseball is the foundation of his high batting averages. This is coupled with an exceptionally low strikeout rate, meaning he almost always puts the ball in play, giving himself the maximum number of opportunities for a batted ball to become a hit.\n\nTonight, he faces Washington Nationals left-hander Mitchell Parker. On the surface, a lefty-on-lefty matchup is a disadvantage. However, Arraez's unique skill set often transcends traditional platoon splits. This is reflected in the Baseball Musings Neural Network model, which gives Arraez a **71.7% probability of getting a hit**. This is one of the highest probabilities on the entire slate and suggests the model heavily weights his unique bat-to-ball skills over the conventional platoon disadvantage. This makes Arraez a data-driven contrarian pick, trusting the underlying process metrics over the surface-level context.\n\n**Risk Assessment:** The primary risk is the lefty-on-lefty matchup against a capable pitcher in Mitchell Parker. Parker has been a solid arm for the Nationals, and same-sided matchups are statistically more difficult for hitters.`
                     }
@@ -245,12 +220,7 @@
                     team: "OF, Milwaukee Brewers",
                     title: null, // No new title for the second part of section V
                     probability: 66,
-                    stats: { ba: .385, xba: null, streak: "6 Games", hardHit: ".545 BA (Last 7 Days)" },
-                    infographics: {
-                        keyStrength: "Riding the 'Hot Hand'",
-                        matchup: "Faces Chad Patrick, a respectable but not overpowering pitcher.",
-                        parkFactor: "Selection is based on extreme short-term performance (.545 BA last week), acknowledging regression risk."
-                    },
+                    stats: { ba: .385, xba: null },
                      sections: {
                         "5. Christian Yelich (OF, Milwaukee Brewers)": `The selection of Christian Yelich is a clear case of identifying and leveraging an extreme short-term performance peak, commonly known as "riding the hot hand." While his season-long numbers are solid, his performance over the past week has been nothing short of extraordinary.\n\nIn his last seven days (five games), Yelich is batting an incredible **.545** (12-for-22) with five extra-base hits (four doubles, one home run) and 11 RBI. He is currently on a six-game hitting streak. This is not just a hot streak; it is a period of absolute dominance that suggests he is seeing the ball exceptionally well.\n\nTonight, Yelich and the Brewers face Pittsburgh Pirates right-hander Chad Patrick. Patrick has a respectable $3.50$ ERA on the season, but his underlying peripherals are not imposing. His K-BB% of $15\\%$ is average, and he has shown a tendency to curb regression by increasing his strikeout rate in recent starts. Nonetheless, he does not represent an insurmountable obstacle for a hitter of Yelich's caliber, especially one who is performing at such a high level. This pick is an acknowledgment of extreme short-term variance. While a.545 average is obviously unsustainable, it provides a strong signal of a player in a deep offensive groove, making him a high-value pick for a single-day contest.\n\n**Risk Assessment:** The main risk is regression. A player on such an extreme hot streak is, by definition, performing above their true talent level. There is always a chance that this is the day the streak ends and his performance reverts to the mean.`
                     }
@@ -265,7 +235,7 @@
             appendix: {
                 title: "VII. Appendix: Data Sources & Methodological Notes",
                 dataSources: `This report was compiled using data from the following industry-leading sources. All statistics are current through games of June 22, 2025, unless otherwise noted.\n\n- **Statcast (via Baseball Savant)**\n- **Baseball-Reference**\n- **FanGraphs**\n- **Baseball Musings**\n- **Official MLB Sources**\n- **Other Sports Information Providers (CBS Sports, FOX Sports, Statmuse, etc.)**`,
-                methodologicalNotes: `* **Log5 Formula:** The Log5 method is a probabilistic formula used to estimate the outcome of a matchup between two entities based on their individual success rates.[82, 83] For a batter-pitcher confrontation, the probability of a hit in a single at-bat ($P_{AB}$) is calculated as:\n    $$P_{AB} = \\frac{(H_{BA} \\times P_{BAA})}{(H_{BA} \\times P_{BAA}) + ((1 - H_{BA}) \\times (1 - P_{BAA}))}$$\n    Where $H_{BA}$ is the hitter's batting average and $P_{BAA}$ is the pitcher's batting average against. To estimate the probability of at least one hit in a game, this per-at-bat probability is extrapolated across an assumed number of plate appearances (typically four). The formula used is: $P_{Game} = 1 - (1 - P_{AB})^N$, where $N$ is the number of plate appearances. The 2025 MLB league-wide batting average of.245 is used as a contextual baseline.[55]\n\n* **Baseball Musings Neural Network (NN):** The probability figures cited from Baseball Musings are the output of a proprietary neural network model.[13] This model incorporates a wide range of variables, including historical performance, pitcher-batter matchups, and park factors, to generate a holistic probability of a player achieving at least one hit in a game. It is used in this report as a valuable external validation tool that often captures nuances missed by simpler formulas like Log5.`
+                methodologicalNotes: `* **Log5 Formula:** The Log5 method is a probabilistic formula used to estimate the outcome of a matchup between two entities based on their individual success rates. For a batter-pitcher confrontation, the probability of a hit in a single at-bat ($P_{AB}$) is calculated as:\n    $$P_{AB} = \\frac{(H_{BA} \\times P_{BAA})}{(H_{BA} \\times P_{BAA}) + ((1 - H_{BA}) \\times (1 - P_{BAA}))}$$\n    Where $H_{BA}$ is the hitter's batting average and $P_{BAA}$ is the pitcher's batting average against. To estimate the probability of at least one hit in a game, this per-at-bat probability is extrapolated across an assumed number of plate appearances (typically four). The formula used is: $P_{Game} = 1 - (1 - P_{AB})^N$, where $N$ is the number of plate appearances. The 2025 MLB league-wide batting average of.245 is used as a contextual baseline.\n\n* **Baseball Musings Neural Network (NN):** The probability figures cited from Baseball Musings are the output of a proprietary neural network model. This model incorporates a wide range of variables, including historical performance, pitcher-batter matchups, and park factors, to generate a holistic probability of a player achieving at least one hit in a game. It is used in this report as a valuable external validation tool that often captures nuances missed by simpler formulas like Log5.`
             }
         };
 
@@ -363,8 +333,8 @@
             });
         };
 
-        const renderAccordion = (container, title, content, isOpen = false, customId = '') => {
-            const accordionId = customId || title.replace(/\s+/g, '-').toLowerCase();
+        const renderAccordion = (container, title, content, isOpen = false) => {
+            const accordionId = title.replace(/\s+/g, '-').toLowerCase();
             container.innerHTML = `
                 <div class="p-6 md:p-8">
                     <button id="accordion-button-${accordionId}" class="flex justify-between items-center w-full text-left">
@@ -401,7 +371,6 @@
         };
         
         const formatText = (text) => {
-             if (!text) return '';
             return text.replace(/\n\n/g, '</p><p class="mb-4">').replace(/\n- /g, '<br>- ').replace(/\n\* /g, '<br>* ');
         };
 
@@ -429,58 +398,52 @@
                     sectionHTML += `<h2 class="text-3xl md:text-4xl font-bold text-slate-100 mb-8 mt-12 text-center">${currentSectionTitle}</h2>`;
                 }
 
-                const fullAnalysisContent = Object.entries(player.sections).map(([subtitle, content]) => `
-                    <div class="mb-8">
-                        <h4 class="text-xl font-bold text-lime-300 mb-3">${subtitle}</h4>
-                        <div class="text-slate-400 leading-relaxed space-y-4">
-                            <p>${formatText(content)}</p>
-                        </div>
-                    </div>
-                `).join('');
-
                 sectionHTML += `
                     <div class="report-card rounded-2xl p-6 md:p-8 mb-12">
-                        <div class="text-center mb-8">
-                             <p class="text-lime-400 font-bold text-sm">RANK #${player.rank}</p>
-                             <h3 class="text-4xl font-extrabold tracking-tight text-white">${player.name}</h3>
-                             <p class="text-slate-400 text-lg">${player.team}</p>
-                        </div>
-
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                             <div class="infographic-panel rounded-lg p-6 flex flex-col justify-center items-center text-center md:col-span-2 lg:col-span-1">
-                                <h4 class="text-sm font-semibold uppercase text-slate-400 tracking-wider">Composite Hit Probability</h4>
-                                <div class="relative h-40 w-40 mx-auto mt-2 chart-container">
-                                    <canvas id="prob-${player.rank}"></canvas>
-                                    <div id="prob-text-${player.rank}" class="absolute inset-0 flex items-center justify-center text-4xl font-extrabold text-white"></div>
+                        <div class="grid grid-cols-1 lg:grid-cols-5 gap-8">
+                            <div class="lg:col-span-3">
+                                ${Object.entries(player.sections).map(([subtitle, content]) => `
+                                    <div class="mb-8">
+                                        <h4 class="text-xl font-bold text-lime-300 mb-3">${subtitle}</h4>
+                                        <div class="text-slate-400 leading-relaxed space-y-4">
+                                            <p>${formatText(content)}</p>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                            <div class="lg:col-span-2 lg:sticky top-8 self-start">
+                                <div class="bg-slate-800/50 rounded-lg p-6 space-y-6">
+                                    <div>
+                                        <p class="text-lime-400 font-bold text-sm">RANK #${player.rank}</p>
+                                        <h3 class="text-3xl font-extrabold tracking-tight text-white">${player.name}</h3>
+                                        <p class="text-slate-400">${player.team}</p>
+                                    </div>
+                                    <div class="text-center">
+                                        <h4 class="text-sm font-semibold uppercase text-slate-400 tracking-wider">Composite Hit Probability</h4>
+                                        <div class="relative h-40 w-40 mx-auto mt-2 chart-container">
+                                            <canvas id="prob-${player.rank}"></canvas>
+                                            <div id="prob-text-${player.rank}" class="absolute inset-0 flex items-center justify-center text-4xl font-extrabold text-white"></div>
+                                        </div>
+                                    </div>
+                                    ${player.stats.ba && player.stats.xba ? `
+                                    <div class="text-center">
+                                        <h4 class="text-sm font-semibold uppercase text-slate-400 tracking-wider mb-2">Performance vs. Expectation</h4>
+                                        <div class="chart-container h-32 max-h-[150px]">
+                                            <canvas id="baxba-${player.rank}"></canvas>
+                                        </div>
+                                    </div>
+                                    ` : ''}
                                 </div>
                             </div>
-                            <div class="infographic-panel rounded-lg p-6">
-                                <h4 class="text-sm font-semibold uppercase text-slate-400 tracking-wider mb-3">Core Stats</h4>
-                                <dl class="space-y-4 text-sm">
-                                    <div class="flex justify-between items-baseline"><dt class="text-slate-300">Hitting Streak</dt><dd class="font-bold text-lime-300 text-xl">${player.stats.streak}</dd></div>
-                                    <div class="flex justify-between items-baseline"><dt class="text-slate-300">Hard Hit %</dt><dd class="font-bold text-lime-300 text-xl">${player.stats.hardHit}</dd></div>
-                                    <div class="flex justify-between items-baseline"><dt class="text-slate-300">BA / xBA</dt><dd class="font-bold text-lime-300 text-xl">.${String(player.stats.ba).split('.')[1]} / .${player.stats.xba ? String(player.stats.xba).split('.')[1] : '---'}</dd></div>
-                                </dl>
-                            </div>
-                             <div class="infographic-panel rounded-lg p-6">
-                                <h4 class="text-sm font-semibold uppercase text-slate-400 tracking-wider mb-3">Key Strength</h4>
-                                <p class="font-semibold text-lg text-slate-100 mb-2">${player.infographics.keyStrength}</p>
-                                <p class="text-sm text-slate-400">${player.infographics.matchup}</p>
-                            </div>
                         </div>
-
-                        <div id="accordion-container-player-${player.rank}" class="report-card rounded-lg border-t border-slate-700"></div>
                     </div>
                 `;
                 mainContainer.insertAdjacentHTML('beforeend', sectionHTML);
-                
-                const playerAccordionContainer = document.getElementById(`accordion-container-player-${player.rank}`);
-                renderAccordion(playerAccordionContainer, 'Deep Dive Analysis', fullAnalysisContent, false, `player-${player.rank}`);
             });
             
             const watchListContainer = document.getElementById('watch-list');
             watchListContainer.innerHTML = `
-                <div>
+                <div class="p-6 md:p-8">
                     <h2 class="text-2xl md:text-3xl font-bold text-slate-100 mb-6">${reportData.watchList.title}</h2>
                     <div class="space-y-6">
                         <div>
@@ -518,6 +481,9 @@
 
             reportData.players.forEach(player => {
                 createProbabilityGauge(`prob-${player.rank}`, player.probability);
+                if (player.stats.ba && player.stats.xba) {
+                    createBaVsXbaChart(`baxba-${player.rank}`, player.stats.ba, player.stats.xba);
+                }
             });
         });
     </script>
