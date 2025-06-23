@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STREAKSENSE Infographic - June 23, 2025</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Expletus+Sans:ital,wght@0,700;1,700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a;
+        }
+        .font-expletus-sans {
+            font-family: 'Expletus Sans', sans-serif;
+        }
+        .neon-text {
+            color: #f0fdf4;
+            text-shadow:
+                0 0 5px rgba(220, 252, 231, 0.7),
+                0 0 10px rgba(163, 230, 53, 0.6),
+                0 0 20px rgba(132, 204, 22, 0.4),
+                0 0 40px rgba(101, 163, 13, 0.3),
+                0 0 80px rgba(77, 124, 15, 0.2);
+        }
+        .chart-container {
+            position: relative; 
+            width: 100%; 
+            max-width: 600px; 
+            margin-left: auto; 
+            margin-right: auto; 
+            height: 250px;
+            max-height: 40vh;
+        }
+         @media (min-width: 768px) { 
+            .chart-container { 
+                height: 300px; 
+            } 
+        }
+        .player-card {
+             background: rgba(30, 41, 59, 0.5);
+             border: 1px solid #334155;
+             backdrop-filter: blur(10px);
+             transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .player-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(163, 230, 53, 0.1);
+        }
+    </style>
+</head>
+<body class="text-slate-300 antialiased">
+
+    <div class="container mx-auto p-4 md:p-8">
+        
+        <header class="text-center mb-12">
+            <h1 class="font-expletus-sans neon-text text-5xl md:text-6xl font-bold uppercase tracking-wider italic">STREAKSENSE</h1>
+            <p class="text-slate-400 mt-2 text-lg italic">The Beat the Streak Analytics Hub</p>
+            <p class="max-w-3xl mx-auto text-sm text-slate-500 mt-6">
+                This intelligence briefing visualizes a multi-layered analysis of the MLB slate to identify the players with the highest probability of recording a base hit. Selections are based on a synthesis of core performance, advanced Statcast metrics, pitcher vulnerabilities, and predictive modeling for June 23, 2025.
+            </p>
+        </header>
+
+        <main id="infographic-content" class="space-y-10">
+        </main>
+
+        <footer class="text-center mt-16">
+            <p class="text-xs text-slate-600">
+                Analysis based on data from Statcast, Baseball-Reference, FanGraphs, and Baseball Musings. All data current through June 22, 2025.
+                <br>Always confirm players are in the final starting lineup on MLB.com.
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        const playerData = [
+            {
+                rank: 1,
+                name: "Ronald Acuña Jr.",
+                team: "OF, Atlanta Braves",
+                probability: 74,
+                stats: { ba: 0.396, xba: 0.301, streak: 8, hardHit: 57.7 },
+                matchup: {
+                    pitcher: "Paul Blackburn (NYM)",
+                    analysis: "Acuña's historic season converges with a uniquely vulnerable pitcher. Blackburn's .327 BAA and low strikeout rate create a statistically outlier event, maximizing the probability of success.",
+                    icon: '💥'
+                },
+            },
+            {
+                rank: 2,
+                name: "Aaron Judge",
+                team: "OF, New York Yankees",
+                probability: 71,
+                stats: { ba: 0.367, xba: 0.325, streak: 'N/A', hardHit: 55.3 },
+                matchup: {
+                    pitcher: "Nick Lodolo (CIN)",
+                    analysis: "A classic power-versus-platoon scenario. Judge's extreme dominance against left-handed pitching, combined with the hitter-friendly Great American Ball Park, creates an exceptionally high ceiling.",
+                    icon: '🚀'
+                },
+            },
+            {
+                rank: 3,
+                name: "Josh Naylor",
+                team: "1B, Arizona Diamondbacks",
+                probability: 68,
+                stats: { ba: 0.303, xba: 0.299, streak: 11, hardHit: 43.7 },
+                matchup: {
+                    pitcher: "Shane Smith (CWS)",
+                    analysis: "A high-upside pick on a long hitting streak facing a pitcher due for regression. The pick is conditional on pre-game reports confirming his health after recent nagging injuries.",
+                    icon: '⚠️'
+                },
+            },
+            {
+                rank: 4,
+                name: "Luis Arraez",
+                team: "2B, San Diego Padres",
+                probability: 67,
+                stats: { ba: 0.317, xba: 'N/A', streak: 9, squaredUp: 43.0 },
+                matchup: {
+                    pitcher: "Mitchell Parker (WSH)",
+                    analysis: "The quintessential high-floor pick. Arraez's historic bat-to-ball skills (league-best 43% Squared-Up Rate) often transcend traditional platoon disadvantages, making him a data-driven choice.",
+                    icon: '🎯'
+                },
+            },
+            {
+                rank: 5,
+                name: "Christian Yelich",
+                team: "OF, Milwaukee Brewers",
+                probability: 66,
+                stats: { ba: 0.385, xba: 'N/A', streak: 6, recentBA: 0.545 },
+                matchup: {
+                    pitcher: "Chad Patrick (PIT)",
+                    analysis: "A pick based on 'riding the hot hand.' Yelich's incredible .545 average over the last week signals a player in a deep offensive groove, providing high value for a single-day contest.",
+                    icon: '🔥'
+                },
+            },
+        ];
+
+        const chartTooltipConfig = (label_prefix = '') => ({
+            plugins: {
+                tooltip: {
+                    enabled: true,
+                    backgroundColor: 'rgba(15, 23, 42, 0.8)',
+                    titleFont: { size: 14, weight: 'bold' },
+                    bodyFont: { size: 12 },
+                    padding: 10,
+                    cornerRadius: 6,
+                    displayColors: false,
+                    callbacks: {
+                        title: function(tooltipItems) {
+                            const item = tooltipItems[0];
+                            let label = item.chart.data.labels[item.dataIndex];
+                            if (Array.isArray(label)) {
+                              return label.join(' ');
+                            }
+                            return label;
+                        },
+                         label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            if (context.parsed.x !== null) {
+                                label += `${label_prefix}${context.parsed.x}`;
+                            }
+                            return label;
+                        }
+                    }
+                }
+            }
+        });
+        
+        const createProbabilityGauge = (canvasId, probability) => {
+            const ctx = document.getElementById(canvasId).getContext('2d');
+            const probabilityText = document.getElementById(`prob-text-${canvasId.split('-')[1]}`);
+            
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    datasets: [{
+                        data: [probability, 100 - probability],
+                        backgroundColor: ['#a3e635', '#334155'],
+                        borderColor: ['#a3e635', '#334155'],
+                        borderWidth: 1,
+                        circumference: 270,
+                        rotation: 225
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '80%',
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { enabled: false }
+                    }
+                }
+            });
+            probabilityText.textContent = `${probability}%`;
+        };
+        
+        const createBaVsXbaChart = (canvasId, ba, xba) => {
+             const ctx = document.getElementById(canvasId).getContext('2d');
+             new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Batting Avg (BA)', 'Expected BA (xBA)'],
+                    datasets: [{
+                        label: 'Value',
+                        data: [ba || 0, xba || 0],
+                        backgroundColor: ['#a3e635', 'rgba(163, 230, 53, 0.4)'],
+                        borderColor: ['#d9f99d', '#a3e635'],
+                        borderWidth: 1,
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                            ticks: { font: { size: 10 }, color: '#94a3b8',
+                                callback: function(value) {
+                                    return '.' + (value * 1000).toFixed(0);
+                                }
+                             }
+                        },
+                        y: {
+                            grid: { display: false },
+                            ticks: { font: { size: 12, weight: '600' }, color: '#cbd5e1' }
+                        }
+                    },
+                    ...chartTooltipConfig('.')
+                }
+            });
+        };
+
+        const renderPlayerCard = (player) => {
+            const container = document.getElementById('infographic-content');
+            const cardHTML = `
+                <div class="player-card rounded-2xl p-6 md:p-8" id="player-${player.rank}">
+                    <div class="grid grid-cols-1 md:grid-cols-5 gap-6 md:gap-8">
+                        
+                        <div class="md:col-span-2 flex flex-col justify-between">
+                             <div>
+                                <p class="text-lime-400 font-bold text-sm">RANK #${player.rank}</p>
+                                <h2 class="text-3xl font-extrabold tracking-tight text-white">${player.name}</h2>
+                                <p class="text-slate-400">${player.team}</p>
+                             </div>
+                             <div class="mt-6">
+                                <h4 class="text-sm font-semibold uppercase text-slate-500 tracking-wider mb-2">Key Matchup Insight</h4>
+                                <div class="flex items-start">
+                                    <div class="text-3xl mr-4">${player.matchup.icon}</div>
+                                    <div>
+                                        <p class="font-semibold text-slate-200">${player.matchup.pitcher}</p>
+                                        <p class="text-sm text-slate-400 leading-relaxed">${player.matchup.analysis}</p>
+                                    </div>
+                                </div>
+                             </div>
+                        </div>
+
+                        <div class="md:col-span-3 grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            
+                            <div class="bg-slate-800/50 rounded-lg p-4 text-center flex flex-col justify-center">
+                                <h3 class="text-sm font-semibold uppercase text-slate-400 tracking-wider">Composite Hit Probability</h3>
+                                <div class="relative h-32 w-32 mx-auto mt-2">
+                                    <canvas id="prob-${player.rank}"></canvas>
+                                    <div id="prob-text-${player.rank}" class="absolute inset-0 flex items-center justify-center text-3xl font-extrabold text-white"></div>
+                                </div>
+                            </div>
+                            
+                             <div class="bg-slate-800/50 rounded-lg p-4">
+                                <h3 class="text-sm font-semibold uppercase text-slate-400 tracking-wider mb-2">Core Stats</h3>
+                                <dl class="space-y-3 text-sm">
+                                    <div class="flex justify-between items-baseline"><dt class="text-slate-400">Hitting Streak</dt><dd class="font-bold text-lime-400 text-base">${player.stats.streak} Games</dd></div>
+                                    <div class="flex justify-between items-baseline"><dt class="text-slate-400">${player.rank === 4 ? 'Squared-Up %' : 'Hard-Hit %'}</dt><dd class="font-bold text-lime-400 text-base">${player.rank === 4 ? player.stats.squaredUp : player.stats.hardHit}%</dd></div>
+                                    <div class="flex justify-between items-baseline"><dt class="text-slate-400">${player.rank === 5 ? 'Recent BA (7d)' : 'BA (Season)'}</dt><dd class="font-bold text-lime-400 text-base">.${(player.rank === 5 ? player.stats.recentBA : player.stats.ba).toFixed(3).substring(1)}</dd></div>
+                                </dl>
+                            </div>
+                            
+                            <div class="bg-slate-800/50 rounded-lg p-4 sm:col-span-2">
+                                <h3 class="text-sm font-semibold uppercase text-slate-400 tracking-wider mb-2">Performance vs. Expectation</h3>
+                                <div class="chart-container h-32 max-h-[150px]">
+                                    <canvas id="baxba-${player.rank}"></canvas>
+                                </div>
+                                <p class="text-xs text-slate-500 mt-2 text-center">A comparison of actual Batting Average (BA) against the statistically expected Batting Average (xBA), which accounts for contact quality.</p>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            `;
+            container.innerHTML += cardHTML;
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            playerData.forEach(player => {
+                renderPlayerCard(player);
+            });
+            
+            playerData.forEach(player => {
+                createProbabilityGauge(`prob-${player.rank}`, player.probability);
+                if (player.stats.ba && player.stats.xba) {
+                    createBaVsXbaChart(`baxba-${player.rank}`, player.stats.ba, player.stats.xba);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
