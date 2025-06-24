@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beat the Streak: Interactive Analysis - June 24, 2025</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Expletus+Sans:ital,wght@0,700;1,700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .font-expletus-sans {
+            font-family: 'Expletus Sans', sans-serif;
+        }
+        .neon-text {
+            color: #fff;
+            text-shadow:
+                0 0 5px rgba(163, 230, 53, 0.7),
+                0 0 10px rgba(163, 230, 53, 0.7),
+                0 0 20px rgba(37, 99, 235, 0.5),
+                0 0 40px rgba(37, 99, 235, 0.5);
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 250px;
+            max-height: 40vh;
+        }
+        .tab-button {
+            transition: all 0.2s ease-in-out;
+            border-bottom: 2px solid transparent;
+        }
+        .tab-button.active {
+            border-bottom-color: #84cc16;
+            color: #f0f6fc;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 220px;
+            background-color: #161b22;
+            color: #c9d1d9;
+            text-align: center;
+            border-radius: 6px;
+            padding: 8px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -110px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            border: 1px solid #30363d;
+            font-size: 0.75rem;
+            line-height: 1.4;
+        }
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-300 antialiased">
+
+    <div id="app" class="flex flex-col md:flex-row min-h-screen">
+        
+        <nav class="w-full md:w-80 bg-slate-800 border-b md:border-r border-slate-700 p-4 md:p-6 flex-shrink-0">
+            <div class="mb-6">
+                <h1 class="font-expletus-sans neon-text text-2xl font-bold uppercase tracking-wider italic">STREAKSENSE</h1>
+                <p class="text-sm text-slate-400">BTS Analysis for June 24, 2025</p>
+            </div>
+            
+            <p class="text-xs text-slate-500 mb-2 uppercase font-semibold">Top Recommendations</p>
+            <ul id="player-nav" class="space-y-2">
+            </ul>
+            
+            <p class="text-xs text-slate-500 mt-6 mb-2 uppercase font-semibold">Watch List</p>
+            <ul id="watchlist-nav" class="space-y-2">
+            </ul>
+
+            <div class="mt-8">
+                <p class="text-xs text-slate-500 mb-2 uppercase font-semibold">Daily Overview</p>
+                <audio controls class="w-full h-10">
+                    <source src="062425-audio.mp3" type="audio/mpeg">
+                    Your browser does not support the audio element.
+                </audio>
+            </div>
+
+            <div class="mt-8 p-3 bg-slate-700/50 rounded-lg text-xs text-slate-400">
+                <p><span class="font-bold text-slate-300">Important:</span> Always confirm players are in the final starting lineup on MLB.com before making your selection.</p>
+            </div>
+        </nav>
+
+        <main class="flex-1 p-4 md:p-8 lg:p-12 overflow-y-auto">
+            <div id="player-card" class="max-w-7xl mx-auto">
+                
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-6">
+                    <div>
+                        <h2 id="player-name" class="text-4xl font-extrabold tracking-tight text-slate-100"></h2>
+                        <p id="player-team" class="text-lg text-slate-400"></p>
+                    </div>
+                    <div id="player-key-strength" class="mt-3 sm:mt-0 text-right text-sm font-semibold text-lime-400 bg-lime-900/50 rounded-full px-4 py-2"></div>
+                </div>
+
+                <div class="bg-slate-800 rounded-2xl shadow-lg shadow-black/20 border border-slate-700 mb-8">
+                    <div id="tabs" class="border-b border-slate-700 px-6 flex space-x-6">
+                        <button data-tab="verdict" class="tab-button py-3 text-sm font-semibold text-slate-400 hover:text-white">Verdict</button>
+                        <button data-tab="full-analysis" class="tab-button py-3 text-sm font-semibold text-slate-400 hover:text-white">Full Analysis</button>
+                        <button data-tab="statcast-dive" class="tab-button py-3 text-sm font-semibold text-slate-400 hover:text-white">Statcast Deep Dive</button>
+                    </div>
+                    <div class="p-6">
+                        <div id="verdict-content" class="tab-content">
+                            <p id="player-summary" class="text-slate-300 leading-relaxed"></p>
+                        </div>
+                        <div id="full-analysis-content" class="tab-content">
+                            <p id="player-full-analysis" class="text-slate-300 leading-relaxed text-sm"></p>
+                        </div>
+                        <div id="statcast-dive-content" class="tab-content">
+                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <h4 class="text-lg font-bold text-slate-100 mb-2">Performance vs. Expectation</h4>
+                                    <div class="chart-container h-48 max-h-[200px]">
+                                        <canvas id="baVsXbaChart"></canvas>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-2 gap-4 text-center">
+                                    <div class="bg-slate-700/50 p-4 rounded-lg">
+                                        <p class="text-xs text-slate-400">Barrel %</p>
+                                        <p id="barrel-rate" class="text-2xl font-bold text-lime-400"></p>
+                                    </div>
+                                     <div class="bg-slate-700/50 p-4 rounded-lg">
+                                        <p class="text-xs text-slate-400">Hard-Hit %</p>
+                                        <p id="hardhit-rate" class="text-2xl font-bold text-lime-400"></p>
+                                    </div>
+                                     <div class="bg-slate-700/50 p-4 rounded-lg col-span-2">
+                                        <p class="text-xs text-slate-400">Expected wOBA</p>
+                                        <p id="xwoba" class="text-2xl font-bold text-lime-400"></p>
+                                    </div>
+                                </div>
+                             </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    
+                    <div class="lg:col-span-1 space-y-8">
+                        <div class="bg-slate-800 p-6 rounded-2xl shadow-lg shadow-black/20 border border-slate-700">
+                            <h3 class="text-lg font-bold text-slate-100 mb-2 flex items-center justify-between">
+                                <span>Hit Probability</span>
+                                <span class="tooltip">
+                                    <span class="text-slate-500 text-sm cursor-help">ⓘ</span>
+                                    <span class="tooltiptext">Derived from a weighted model using Log5 principles and neural network outputs to adjust for park, weather, and matchup factors.</span>
+                                </span>
+                            </h3>
+                            <div class="relative h-48 w-48 mx-auto">
+                                <canvas id="probabilityChart"></canvas>
+                                <div id="probability-text" class="absolute inset-0 flex items-center justify-center text-4xl font-extrabold text-slate-100"></div>
+                            </div>
+                        </div>
+
+                         <div class="bg-slate-800 p-6 rounded-2xl shadow-lg shadow-black/20 border border-slate-700">
+                            <h3 class="text-lg font-bold text-slate-100 mb-4">Contextual Factors</h3>
+                             <div id="context-cards" class="space-y-3"></div>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-2 space-y-8">
+                        <div class="bg-slate-800 p-6 rounded-2xl shadow-lg shadow-black/20 border border-slate-700">
+                            <h3 class="text-lg font-bold text-slate-100 mb-1">Matchup Analysis: Tale of the Tape</h3>
+                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+                                <div class="space-y-2">
+                                    <h4 class="font-bold text-slate-200">Hitter vs. Pitcher Strengths</h4>
+                                    <div class="chart-container h-56 max-h-[240px]">
+                                        <canvas id="matchupRadarChart"></canvas>
+                                    </div>
+                                     <div id="bvp-stats" class="text-xs"></div>
+                                </div>
+                                <div class="space-y-2">
+                                     <h4 class="font-bold text-slate-200">Pitcher Arsenal Vulnerability</h4>
+                                    <div class="chart-container h-56 max-h-[240px]">
+                                        <canvas id="pitcherVulnerabilityChart"></canvas>
+                                    </div>
+                                    <div class="grid grid-cols-3 gap-2 text-center text-xs">
+                                        <div class="bg-slate-700/50 p-2 rounded">
+                                            <p class="text-slate-400">ERA</p><p id="pitcher-era" class="font-bold text-lime-400"></p>
+                                        </div>
+                                        <div class="bg-slate-700/50 p-2 rounded">
+                                            <p class="text-slate-400">WHIP</p><p id="pitcher-whip" class="font-bold text-lime-400"></p>
+                                        </div>
+                                        <div class="bg-slate-700/50 p-2 rounded">
+                                            <p class="text-slate-400">xERA</p><p id="pitcher-xera" class="font-bold text-lime-400"></p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const playerData = {
+            ohtani: {
+                name: "Shohei Ohtani",
+                team: "DH, Los Angeles Dodgers",
+                keyStrength: "Elite Hitter in Premier Hitting Environment",
+                summary: "The selection of Shohei Ohtani is predicated on the single most favorable convergence of factors available on the June 24 slate. It combines an elite hitter demonstrating exceptional contact quality, a struggling opposing starting pitcher with a poor track record against this specific opponent, a favorable direct historical matchup, and the amplifying effect of the most hitter-friendly ballpark in modern baseball.",
+                fullAnalysis: "Ohtani's baseline performance establishes him as one of the most formidable offensive players in the league. His 2025 Statcast metrics are extraordinary, featuring a.422 weighted on-base average (wOBA) and a.432 expected weighted on-base average (xwOBA), indicating that his superb results are fully supported by his quality of contact. His power metrics are similarly dominant, with a 21.3% Barrel rate and a major-league-leading 62.0% Hard-Hit rate. He faces Colorado's Germán Márquez, a pitcher in the midst of a profoundly difficult season (6.11 ERA, 1.64 WHIP), who was unable to complete the first inning in his last start against the Dodgers. The game is at Coors Field, which increases run scoring by 12% compared to an average ballpark, amplifying the potential for any ball in play to become a hit. While his strikeout rate is a risk, the overwhelming positive factors make him the top choice.",
+                probability: 83,
+                stats: { ba: 0.291, xba: 0.292, xwoba: '.432', barrelRate: '21.3%', hardHitRate: '62.0%', streak: "N/A" },
+                matchup: {
+                    pitcher: "Germán Márquez",
+                    pitcherERA: '6.11', pitcherWHIP: '1.64', pitcherXERA: 'N/A',
+                    pitcherArsenal: { 'vs Fastball': '.---', 'vs Breaking': '.---', 'vs Offspeed': '.---' },
+                    bvp: "3-for-8, 1 HR",
+                    pitcherWeakness: "Struggles vs. Dodgers (7 runs in 0.2 IP), high ERA/WHIP.",
+                    hitterRadar: [95, 99, 70], pitcherRadar: [40, 30, 50] 
+                },
+                context: {
+                    venue: "Coors Field",
+                    parkFactor: "112 (Runs)",
+                    weather: "85°F, Clear", wind: "5 mph Out to CF",
+                    lineup: "2nd",
+                }
+            },
+            diaz: {
+                name: "Yandy Diaz",
+                team: "1B, Tampa Bay Rays",
+                keyStrength: "Hottest Hitter vs. Regressing Pitcher",
+                summary: "This recommendation is centered on identifying a player at the absolute peak of his performance. Yandy Diaz is currently on the longest active hitting streak in MLB, a run supported by exceptional plate discipline and contact ability. He faces a starting pitcher in Kris Bubic who, despite a strong overall season ERA, is showing clear and significant signs of regression in his most recent outings.",
+                fullAnalysis: "Diaz enters this contest on a 13-game hitting streak, the longest active streak in the majors. During this stretch, he is batting an exceptional.464. This is not a streak built on luck but on consistent, high-quality contact. The opposing pitcher, Kris Bubic, has an elite 2.12 season ERA, but this conceals a concerning recent trend. In his last two starts, Bubic has been highly vulnerable, allowing a combined eight earned runs on 15 hits over just 9.2 innings pitched. This pick targets Bubic at a potential inflection point where his performance is regressing toward his underlying metrics. The combination of Diaz's torrid streak and the clear evidence of Bubic's recent struggles creates a compelling, data-driven case that the hitter has the advantage.",
+                probability: 80,
+                stats: { ba: 0.282, xba: '---', xwoba: '---', barrelRate: '---', hardHitRate: '---', streak: "13 Games (.464 BA)" },
+                matchup: {
+                    pitcher: "Kris Bubic",
+                    pitcherERA: '2.12', pitcherWHIP: '1.12', pitcherXERA: '3.25',
+                    pitcherArsenal: { 'vs Fastball': '.---', 'vs Breaking': '.---', 'vs Offspeed': '.---' },
+                    bvp: "N/A - First Meeting",
+                    pitcherWeakness: "Recent regression: 8 ER in last 9.2 IP.",
+                    hitterRadar: [95, 75, 98], pitcherRadar: [80, 70, 75]
+                },
+                context: {
+                    venue: "Kauffman Stadium",
+                    parkFactor: "98 (wOBA)",
+                    weather: "80°F, Clear", wind: "3 mph In from LF",
+                    lineup: "1st",
+                }
+            },
+            guerrero: {
+                name: "Vladimir Guerrero Jr.",
+                team: "1B, Toronto Blue Jays",
+                keyStrength: "Elite xBA vs. Hittable Lefty",
+                summary: "Vladimir Guerrero Jr. stands out as a premier candidate for positive statistical regression. His elite quality-of-contact metrics far outpace his surface-level batting average, suggesting he is 'due' for a surge in results. This matchup pits him against a very hittable left-handed pitcher, Logan Allen, whose primary weakness aligns perfectly with Guerrero's strength.",
+                fullAnalysis: "The core of the analytical argument for Guerrero lies in the significant gap between his performance and his expected outcomes. While his batting average is a solid.279, his expected batting average (xBA) is an elite.325. This is because he consistently produces high-quality contact (54.6% Hard-Hit rate, 15.1% Barrel rate). He faces Logan Allen, a left-hander with a pedestrian 4.21 ERA whose fastball is a significant liability; opponents are hitting.339 against the pitch this season. The powerful statistical indicators of Guerrero's impending positive regression, combined with the specific, exploitable weakness of the opposing pitcher, outweigh the concerns of a small, recent cold spell (1-for-10).",
+                probability: 80,
+                stats: { ba: 0.279, xba: 0.325, xwoba: '.415', barrelRate: '15.1%', hardHitRate: '54.6%', streak: "1-for-10 last 3 games" },
+                matchup: {
+                    pitcher: "Logan Allen",
+                    pitcherERA: '4.21', pitcherWHIP: '1.34', pitcherXERA: 'N/A',
+                    pitcherArsenal: { 'vs Fastball':.339, 'vs Slider': '.---', 'vs Changeup': '.---' },
+                    bvp: "N/A - First Meeting",
+                    pitcherWeakness: "Vulnerable fastball (.339 BAA against).",
+                    hitterRadar: [85, 92, 80], pitcherRadar: [60, 65, 60]
+                },
+                context: {
+                    venue: "Progressive Field",
+                    parkFactor: "100 (Neutral)",
+                    weather: "79°F, Clear", wind: "6 mph In from LF",
+                    lineup: "3rd",
+                }
+            },
+             witt: {
+                name: "Bobby Witt Jr.",
+                team: "SS, Kansas City Royals",
+                keyStrength: "Hot Hitter vs. Slumping Pitcher",
+                summary: "This selection features an elite, high-contact, multi-talented hitter who is in excellent form, facing a starting pitcher who is in the midst of a severe and extended slump. The analysis prioritizes the powerful recent performance trends of both the batter and the pitcher over their season-long statistics.",
+                fullAnalysis: "Bobby Witt Jr. is one of the most consistent hitters in baseball, entering the game on a 7-game hitting streak, during which he is batting.393. This is not an isolated hot streak; he previously compiled a 22-game hitting streak earlier this season. He faces Taj Bradley, who is experiencing a significant downturn. Over his last three starts, Bradley has been hit extremely hard, allowing a staggering 19 runs on 16 hits in only 9.1 innings pitched. A slump of this magnitude often points to underlying issues, making a pitcher highly vulnerable. An aggressive and talented hitter like Witt is perfectly positioned to capitalize on these mistakes.",
+                probability: 78,
+                stats: { ba: 0.286, xba: '---', xwoba: '---', barrelRate: '---', hardHitRate: '---', streak: "7 Games (.393 BA)" },
+                matchup: {
+                    pitcher: "Taj Bradley",
+                    pitcherERA: '4.95', pitcherWHIP: '1.35', pitcherXERA: 'N/A',
+                    pitcherArsenal: { 'vs Fastball': '.---', 'vs Breaking': '.---', 'vs Offspeed': '.---' },
+                    bvp: "0-for-2, 1 K",
+                    pitcherWeakness: "Severe slump: 19 runs in last 9.1 IP.",
+                    hitterRadar: [90, 88, 85], pitcherRadar: [45, 40, 65]
+                },
+                context: {
+                    venue: "Kauffman Stadium",
+                    parkFactor: "98 (wOBA)",
+                    weather: "80°F, Clear", wind: "3 mph In from LF",
+                    lineup: "2nd",
+                }
+            },
+            naylor: {
+                name: "Josh Naylor",
+                team: "1B, Arizona Diamondbacks",
+                keyStrength: "Hot Hitter vs. Bullpen Game",
+                summary: "This selection leverages a strategic opportunity, targeting a hot, left-handed power hitter who is scheduled to face an 'opener' followed by what is statistically one of the weaker bullpens in Major League Baseball. This scenario increases the probability that Naylor will face a favorable right-handed reliever or a struggling middle-inning arm in at least one of his plate appearances.",
+                fullAnalysis: "Josh Naylor is performing at an elite level, entering the day on a 12-game hitting streak, during which he is batting.404. His season-long.302 batting average paces the Arizona Diamondbacks. The Chicago White Sox have named Jordan Leasure (4.23 ERA) as their 'opener' for what will be a bullpen game. This guarantees that the lineup will face the White Sox bullpen for the vast majority of the contest. Given the White Sox's poor record, their bullpen lacks depth, meaning Naylor is highly likely to receive at least two or three plate appearances against relievers with elevated ERAs, control issues, or significant platoon splits. The probability of him getting a hit is therefore not tied to a single starting pitcher but is distributed across several, likely weaker, opposing pitchers.",
+                probability: 78,
+                stats: { ba: 0.302, xba: '---', xwoba: '---', barrelRate: '---', hardHitRate: '---', streak: "12 Games (.404 BA)" },
+                matchup: {
+                    pitcher: "Jordan Leasure (Opener)",
+                    pitcherERA: '4.23', pitcherWHIP: '1.52', pitcherXERA: 'N/A',
+                    pitcherArsenal: { 'vs Fastball': '.---', 'vs Breaking': '.---', 'vs Offspeed': '.---' },
+                    bvp: "N/A - First Meeting",
+                    pitcherWeakness: "Opener for a statistically weak bullpen.",
+                    hitterRadar: [92, 85, 90], pitcherRadar: [60, 60, 60]
+                },
+                context: {
+                    venue: "Guaranteed Rate Field",
+                    parkFactor: "102 (Hitter)",
+                    weather: "82°F, Cloudy", wind: "8 mph In from RF",
+                    lineup: "4th",
+                }
+            },
+            judge: { name: "Aaron Judge", probability: 79 },
+            soto: { name: "Juan Soto", probability: 78 }
+        };
+
+        let probabilityChart, baVsXbaChart, matchupRadarChart, pitcherVulnerabilityChart;
+
+        const chartTooltipConfig = {
+            enabled: true, backgroundColor: 'rgba(0,0,0,0.8)', titleFont: { size: 14, weight: 'bold' },
+            bodyFont: { size: 12 }, padding: 10, cornerRadius: 4, displayColors: false,
+        };
+        
+        const createProbabilityGauge = (probability) => {
+            const ctx = document.getElementById('probabilityChart').getContext('2d');
+            if (probabilityChart) probabilityChart.destroy();
+            probabilityChart = new Chart(ctx, {
+                type: 'doughnut', data: { datasets: [{ data: [probability, 100 - probability], backgroundColor: ['#84cc16', '#334155'], borderWidth: 0, circumference: 270, rotation: 225 }] },
+                options: { responsive: true, maintainAspectRatio: false, cutout: '75%', plugins: { legend: { display: false }, tooltip: { enabled: false } } }
+            });
+            document.getElementById('probability-text').textContent = `${probability}%`;
+        };
+
+        const createHorizontalBarChart = (canvasId, data, labels, dataLabel) => {
+            const ctx = document.getElementById(canvasId).getContext('2d');
+            if (canvasId === 'baVsXbaChart' && baVsXbaChart) baVsXbaChart.destroy();
+            if (canvasId === 'pitcherVulnerabilityChart' && pitcherVulnerabilityChart) pitcherVulnerabilityChart.destroy();
+            
+            const chart = new Chart(ctx, {
+                type: 'bar',
+                data: { labels: labels, datasets: [{ label: dataLabel, data: data, backgroundColor: ['#a3e635', '#bef264', '#cdeb9f'], borderRadius: 4 }] },
+                options: {
+                    indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+                    scales: { x: { beginAtZero: true, grid: { color: 'rgba(255, 255, 255, 0.1)' }, ticks: { font: { size: 10 }, color: '#94a3b8' } }, y: { grid: { display: false }, ticks: { font: { size: 12, weight: '500' }, color: '#cbd5e1' } } },
+                    plugins: { legend: { display: false }, tooltip: chartTooltipConfig }
+                }
+            });
+
+            if (canvasId === 'baVsXbaChart') baVsXbaChart = chart;
+            if (canvasId === 'pitcherVulnerabilityChart') pitcherVulnerabilityChart = chart;
+        };
+        
+        const createMatchupRadarChart = (hitterData, pitcherData, pitcherName) => {
+            const ctx = document.getElementById('matchupRadarChart').getContext('2d');
+            if (matchupRadarChart) matchupRadarChart.destroy();
+            matchupRadarChart = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['Contact/Skill', 'Power/Hard Hit', 'Discipline/Avoid K'],
+                    datasets: [
+                        { label: 'Hitter Strength', data: hitterData, backgroundColor: 'rgba(132, 204, 22, 0.2)', borderColor: 'rgba(132, 204, 22, 1)', pointBackgroundColor: 'rgba(132, 204, 22, 1)', pointBorderColor: '#fff', borderWidth: 2 },
+                        { label: `${pitcherName}'s Profile`, data: pitcherData, backgroundColor: 'rgba(225, 29, 72, 0.2)', borderColor: 'rgba(225, 29, 72, 1)', pointBackgroundColor: 'rgba(225, 29, 72, 1)', pointBorderColor: '#fff', borderWidth: 2 }
+                    ]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    scales: { r: { angleLines: { color: 'rgba(255,255,255,0.1)' }, grid: { color: 'rgba(255,255,255,0.1)' }, pointLabels: { font: { size: 10, weight: '500' }, color: '#cbd5e1' }, ticks: { display: false, min: 0, max: 100 } } },
+                    plugins: { legend: { position: 'bottom', labels: { font: { size: 10 }, color: '#94a3b8' } }, tooltip: chartTooltipConfig }
+                }
+            });
+        };
+
+        const updatePlayerView = (playerKey) => {
+            const data = playerData[playerKey];
+            if (!data) return;
+
+            document.getElementById('player-name').textContent = data.name;
+            document.getElementById('player-team').textContent = data.team;
+            document.getElementById('player-key-strength').textContent = data.keyStrength;
+            document.getElementById('player-summary').textContent = data.summary;
+            document.getElementById('player-full-analysis').textContent = data.fullAnalysis;
+
+            // Statcast Dive Content
+            document.getElementById('barrel-rate').textContent = data.stats.barrelRate;
+            document.getElementById('hardhit-rate').textContent = data.stats.hardHitRate;
+            document.getElementById('xwoba').textContent = data.stats.xwoba;
+            
+            // Contextual Factors
+            const contextContainer = document.getElementById('context-cards');
+            contextContainer.innerHTML = `
+                <div class="flex items-start"><div class="mr-3 mt-1 flex-shrink-0 w-8 h-8 rounded-full bg-green-900/50 text-green-400 flex items-center justify-center text-sm font-bold">🏟️</div><div><p class="font-semibold text-slate-200">${data.context.venue}</p><p class="text-xs text-slate-500">Park Factor: ${data.context.parkFactor}</p></div></div>
+                <div class="flex items-start"><div class="mr-3 mt-1 flex-shrink-0 w-8 h-8 rounded-full bg-orange-900/50 text-orange-400 flex items-center justify-center text-sm font-bold">☀️</div><div><p class="font-semibold text-slate-200">Weather: ${data.context.weather}</p><p class="text-xs text-slate-500">Wind: ${data.context.wind}</p></div></div>
+                <div class="flex items-start"><div class="mr-3 mt-1 flex-shrink-0 w-8 h-8 rounded-full bg-blue-900/50 text-blue-400 flex items-center justify-center text-sm font-bold">#${data.context.lineup}</div><div><p class="font-semibold text-slate-200">Lineup Position: ${data.context.lineup}</p><p class="text-xs text-slate-500">Maximizes plate appearances.</p></div></div>
+            `;
+
+            // BvP and Pitcher stats
+            document.getElementById('bvp-stats').innerHTML = `<p class="text-slate-400">BvP: <span class="font-bold text-lime-400">${data.matchup.bvp}</span></p><p class="text-slate-400">Recent Streak: <span class="font-bold text-lime-400">${data.stats.streak}</span></p>`;
+            document.getElementById('pitcher-era').textContent = data.matchup.pitcherERA;
+            document.getElementById('pitcher-whip').textContent = data.matchup.pitcherWHIP;
+            document.getElementById('pitcher-xera').textContent = data.matchup.pitcherXERA;
+
+            // Charts
+            createProbabilityGauge(data.probability);
+            createHorizontalBarChart('baVsXbaChart', [data.stats.ba, data.stats.xba], ['Batting Avg (BA)', 'Expected BA (xBA)'], 'Batting Average');
+            createMatchupRadarChart(data.matchup.hitterRadar, data.matchup.pitcherRadar, data.matchup.pitcher);
+            createHorizontalBarChart('pitcherVulnerabilityChart', Object.values(data.matchup.pitcherArsenal), Object.keys(data.matchup.pitcherArsenal), 'Opponent BA');
+
+
+            document.querySelectorAll('#player-nav .nav-item').forEach(item => {
+                item.classList.remove('bg-slate-700');
+                if (item.dataset.player === playerKey) {
+                    item.classList.add('bg-slate-700');
+                }
+            });
+        };
+        
+        const init = () => {
+            const tabsContainer = document.getElementById('tabs');
+            tabsContainer.addEventListener('click', e => {
+                if(e.target.classList.contains('tab-button')) {
+                    const tabName = e.target.dataset.tab;
+                    document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+                    e.target.classList.add('active');
+                    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+                    document.getElementById(`${tabName}-content`).classList.add('active');
+                }
+            });
+            // Set default tab
+            tabsContainer.querySelector('[data-tab="verdict"]').click();
+
+
+            const playerNav = document.getElementById('player-nav');
+            const watchlistNav = document.getElementById('watchlist-nav');
+            const topPicks = ['ohtani', 'diaz', 'guerrero', 'witt', 'naylor'];
+            const watchlist = ['judge', 'soto'];
+
+            topPicks.forEach((key, index) => {
+                const player = playerData[key];
+                const li = document.createElement('li');
+                li.innerHTML = `<button data-player="${key}" class="nav-item w-full text-left flex items-center p-3 rounded-lg hover:bg-slate-700/80 transition-colors duration-200"><span class="rank-badge mr-3 flex-shrink-0 w-6 h-6 rounded-full bg-slate-600 text-slate-300 flex items-center justify-center text-xs font-bold">${index + 1}</span><span class="flex-1 text-sm font-medium text-slate-200">${player.name}</span><span class="text-xs text-lime-400 font-bold">${player.probability}%</span></button>`;
+                playerNav.appendChild(li);
+            });
+            
+            watchlist.forEach((key) => {
+                 const player = playerData[key];
+                 const li = document.createElement('li');
+                 li.innerHTML = `<div class="w-full text-left flex items-center px-3 py-2 rounded-lg"><span class="mr-3 flex-shrink-0 w-6 h-6 rounded-full bg-slate-700 text-slate-500 flex items-center justify-center text-sm">●</span><span class="flex-1 text-sm font-medium text-slate-400">${player.name}</span><span class="text-xs text-slate-400 font-bold">${player.probability}%</span></div>`;
+                 watchlistNav.appendChild(li);
+            });
+
+            playerNav.addEventListener('click', (e) => {
+                const button = e.target.closest('.nav-item');
+                if (button && button.dataset.player) {
+                    updatePlayerView(button.dataset.player);
+                }
+            });
+
+            updatePlayerView('ohtani');
+        };
+
+        window.onload = init;
+    </script>
+</body>
+</html>

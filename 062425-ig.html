@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STREAKSENSE - Full Intelligence Briefing</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Expletus+Sans:ital,wght@0,700;1,700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Deep Space (Custom Neon) -->
+    <!-- Application Structure Plan: A single-page, long-form narrative structure that translates the report into a web-native experience. The design uses a top-down flow: Header (branding), Executive Summary (collapsible for quick access), a dynamically generated section for each of the Top 5 Player Analyses, a Watch List section, and finally a collapsible Appendix. This allows users to either get a quick overview or scroll through the entire deep-dive analysis seamlessly. Player sections feature a new graphics-first dashboard layout with the full text available in a collapsible section, enhancing visual appeal while retaining all data. -->
+    <!-- Visualization & Content Choices: 
+         1. Composite Probability (Goal: Inform) -> Chart.js Donut chart styled as a gauge provides an immediate, high-impact visual of the primary metric for each player.
+         2. BA vs. xBA (Goal: Compare) -> A Chart.js Horizontal Bar chart offers a clear, direct comparison between performance and expectation.
+         3. Key Data Panels (Goal: Inform/Organize) -> Styled HTML divs are used to create infographic-style cards for key strengths and matchup factors.
+         4. Collapsible Sections (Goal: Organize/Interact) -> JavaScript-powered accordions for the Executive Summary, Appendix, and new "Deep Dive" player analysis manage information density, allowing users to focus on the core analysis while keeping detailed text accessible.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a;
+            color: #94a3b8;
+        }
+        .font-expletus-sans {
+            font-family: 'Expletus Sans', sans-serif;
+        }
+        .neon-text {
+            color: #f0fdf4;
+            text-shadow:
+                0 0 5px rgba(220, 252, 231, 0.7),
+                0 0 10px rgba(163, 230, 53, 0.6),
+                0 0 20px rgba(132, 204, 22, 0.4),
+                0 0 40px rgba(101, 163, 13, 0.3),
+                0 0 80px rgba(77, 124, 15, 0.2);
+        }
+        .chart-container {
+            position: relative; 
+            width: 100%; 
+            max-width: 600px; 
+            margin-left: auto; 
+            margin-right: auto; 
+        }
+        .report-card {
+             background: rgba(30, 41, 59, 0.5);
+             border: 1px solid #334155;
+             backdrop-filter: blur(10px);
+        }
+        .infographic-panel {
+            background-color: rgba(15, 23, 42, 0.5);
+            border: 1px solid #1e293b;
+            box-shadow: 0 0 15px rgba(163, 230, 53, 0.05);
+        }
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-in-out;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div class="container mx-auto p-4 md:p-8 max-w-7xl">
+        
+        <header class="text-center mb-12">
+            <h1 class="font-expletus-sans neon-text text-5xl md:text-6xl font-bold uppercase tracking-wider italic">STREAKSENSE</h1>
+            <p class="text-slate-400 mt-2 text-lg italic">Intelligence Briefing: Top Hit Probability Targets for June 24, 2025</p>
+        </header>
+
+        <main id="report-content" class="space-y-12">
+
+            <!-- Section for Executive Summary -->
+            <section id="executive-summary" class="report-card rounded-2xl"></section>
+            
+            <!-- Sections for Player Analysis will be injected here -->
+            
+            <!-- Section for Watch List & Notes -->
+            <section id="watch-list" class="report-card rounded-2xl p-6 md:p-8"></section>
+
+            <!-- Section for Appendix -->
+            <section id="appendix" class="report-card rounded-2xl"></section>
+
+        </main>
+
+        <footer class="text-center mt-16">
+            <p class="text-xs text-slate-600">
+                Analysis based on data from Statcast, Baseball-Reference, FanGraphs, and Baseball Musings.
+                <br>Always confirm players are in the final starting lineup on MLB.com.
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        const reportData = {
+            executiveSummary: {
+                title: "I. Executive Summary & Situational Analysis",
+                situationalOverview: `The Major League Baseball slate for June 24, 2025, presents a diverse array of matchups, but one environment stands out as exceptionally favorable for offensive production. The contest between the Los Angeles Dodgers and the Colorado Rockies at Coors Field is the premier hitting environment of the day, driven by the park's historically high elevation and expansive outfield, which significantly inflate batting averages on balls in play (BABIP) and overall run-scoring. This game will be a primary focus for identifying high-probability hit candidates.\n\nBeyond the unique conditions at Coors Field, several other matchups offer strategic opportunities. These include targeting elite hitters facing pitchers who are either demonstrably struggling or making their Major League debut. The latter scenario, such as the New York Yankees facing Cincinnati Reds rookie Chase Burns, introduces a high degree of variance but also presents a high-reward opportunity, as rookie pitchers can be volatile in their initial outings. Similarly, matchups featuring established hitters against pitchers showing clear signs of regression, like the Kansas City Royals facing Tampa Bay's Taj Bradley, provide a data-driven basis for selection by prioritizing recent performance trends over season-long metrics. The analysis that follows synthesizes these situational factors to identify the players with the most statistically robust cases for recording a hit.`,
+                synopsisTable: `
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm text-left text-slate-400">
+                            <thead class="text-xs text-slate-300 uppercase bg-slate-700/50">
+                                <tr>
+                                    <th scope="col" class="px-4 py-3">Rank</th>
+                                    <th scope="col" class="px-4 py-3">Player (Team)</th>
+                                    <th scope="col" class="px-4 py-3">Opponent (Pitcher)</th>
+                                    <th scope="col" class="px-4 py-3">Active Streak</th>
+                                    <th scope="col" class="px-4 py-3">2025 BA / xBA</th>
+                                    <th scope="col" class="px-4 py-3">Est. Hit Prob.</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="border-b border-slate-700"><td class="px-4 py-3 font-medium text-white">1</td><td class="px-4 py-3 font-medium text-white">Shohei Ohtani (LAD)</td><td class="px-4 py-3">Germán Márquez (COL)</td><td class="px-4 py-3">-</td><td class="px-4 py-3">.291 / .292</td><td class="px-4 py-3 font-bold text-lime-400">~82.5%</td></tr>
+                                <tr class="border-b border-slate-700"><td class="px-4 py-3 font-medium text-white">2</td><td class="px-4 py-3 font-medium text-white">Yandy Diaz (TBR)</td><td class="px-4 py-3">Kris Bubic (KCR)</td><td class="px-4 py-3">13 Games</td><td class="px-4 py-3">.282 / ---</td><td class="px-4 py-3 font-bold text-lime-400">~80.0%</td></tr>
+                                <tr class="border-b border-slate-700"><td class="px-4 py-3 font-medium text-white">3</td><td class="px-4 py-3 font-medium text-white">Vladimir Guerrero Jr. (TOR)</td><td class="px-4 py-3">Logan Allen (CLE)</td><td class="px-4 py-3">-</td><td class="px-4 py-3">.279 / .325</td><td class="px-4 py-3 font-bold text-lime-400">~79.5%</td></tr>
+                                <tr class="border-b border-slate-700"><td class="px-4 py-3 font-medium text-white">4</td><td class="px-4 py-3 font-medium text-white">Bobby Witt Jr. (KCR)</td><td class="px-4 py-3">Taj Bradley (TBR)</td><td class="px-4 py-3">7 Games</td><td class="px-4 py-3">.286 / ---</td><td class="px-4 py-3 font-bold text-lime-400">~78.0%</td></tr>
+                                <tr><td class="px-4 py-3 font-medium text-white">5</td><td class="px-4 py-3 font-medium text-white">Josh Naylor (ARI)</td><td class="px-4 py-3">Jordan Leasure (CWS)</td><td class="px-4 py-3">12 Games</td><td class="px-4 py-3">.302 / ---</td><td class="px-4 py-3 font-bold text-lime-400">~77.5%</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                `
+            },
+            players: [
+                {
+                    rank: 1,
+                    name: "Shohei Ohtani",
+                    team: "DH, Los Angeles Dodgers",
+                    title: "II. Prime Opportunity Analysis",
+                    probability: 82.5,
+                    stats: { ba: .291, xba: .292, streak: "N/A", hardHit: "62.0%" },
+                    infographics: {
+                        keyStrength: "Elite Hitter in Premier Environment",
+                        matchup: "Faces struggling Germán Márquez (6.11 ERA), who was shelled by LAD in his last start.",
+                        parkFactor: "Coors Field increases run scoring by 12% vs. average parks, amplifying hit probability."
+                    },
+                    sections: {
+                        "A. Primary Justification": `The selection of Shohei Ohtani is predicated on the single most favorable convergence of factors available on the June 24 slate. It combines an elite hitter demonstrating exceptional contact quality, a struggling opposing starting pitcher with a poor track record against this specific opponent, a favorable direct historical matchup, and the amplifying effect of the most hitter-friendly ballpark in modern baseball.`,
+                        "B. Detailed Analysis": `Ohtani's baseline performance establishes him as one of the most formidable offensive players in the league. His 2025 Statcast metrics are extraordinary, featuring a.422 weighted on-base average (wOBA) and a.432 expected weighted-on-base average (xwOBA), indicating that his superb results are fully supported by his quality of contact. His power metrics are similarly dominant, with a 21.3% Barrel rate and a major-league-leading 62.0% Hard-Hit rate. This foundation of elite contact quality ensures that he maximizes the value of every swing, a trait that is significantly magnified in a favorable hitting environment.\n\nThe game will be played at Coors Field, an environment that provides a substantial statistical advantage to hitters. The park factor for runs at Coors Field over the 2023-2025 period is 112, indicating that it increases run scoring by 12% compared to an average ballpark. For a player like Ohtani, who combines elite exit velocity with high-end speed, the park dramatically increases the number of potential positive outcomes on any ball put in play.\n\nHe faces Colorado's Germán Márquez, a pitcher in the midst of a profoundly difficult season. Márquez enters this start with a 6.11 ERA and a 1.64 WHIP, numbers that point to persistent struggles with both run prevention and allowing baserunners. This is further underscored by his disastrous prior outing against the Dodgers in 2025, where he was unable to complete the first inning, surrendering seven runs in just 0.2 innings pitched. While the sample size is limited, Ohtani has gone 3-for-8, including a home run, against the Rockies' right-hander.`,
+                        "C. Risk Assessment & Final Verdict": `The primary risk associated with any Ohtani selection is his high strikeout rate (25.6%). This tendency to swing and miss makes him susceptible to an occasional hitless performance, regardless of the matchup. However, the overwhelming confluence of positive factors—the elite contact quality, the struggling pitcher, the extreme park effects, and the favorable BvP history—collectively serve to substantially mitigate this inherent risk. A baseline Log5 calculation using Ohtani's batting average and Márquez's batting average against, when heavily adjusted for the Coors Field park factor and Márquez's specific struggles, yields a final estimated hit probability of approximately 82.5%.`
+                    }
+                },
+                {
+                    rank: 2,
+                    name: "Yandy Diaz",
+                    team: "1B, Tampa Bay Rays",
+                    title: null, // No new title for the second part of section II
+                    probability: 80,
+                    stats: { ba: .282, xba: null, streak: "13 Games", hardHit: "N/A" },
+                    infographics: {
+                        keyStrength: "Hottest Hitter vs. Regressing Pitcher",
+                        matchup: "Diaz is on a 13-game hitting streak (.464 BA), facing Kris Bubic, who has allowed 8 ER in his last two starts.",
+                        parkFactor: "Kauffman Stadium is a neutral park (98 wOBA), so environmental factors are not a major component."
+                    },
+                    sections: {
+                        "A. Primary Justification": `This recommendation is centered on identifying a player at the absolute peak of his performance. Yandy Diaz is currently on the longest active hitting streak in MLB, a run supported by exceptional plate discipline and contact ability. He faces a starting pitcher in Kris Bubic who, despite a strong overall season ERA, is showing clear and significant signs of regression in his most recent outings.`,
+                        "B. Detailed Analysis": `Diaz enters this contest on a 13-game hitting streak, the longest active streak in the majors as of June 23. His performance during this stretch has been nothing short of dominant; he is batting an exceptional.464 (26-for-56) with a.508 on-base percentage and a.768 slugging percentage. This is not a streak built on luck but on consistent, high-quality contact.\n\nThe opposing pitcher, Kris Bubic, presents a fascinating analytical case. His season-long ERA of 2.12 is elite and would typically signal a matchup to avoid. However, this top-line number conceals a concerning recent trend. In his last two starts, Bubic has been highly vulnerable, allowing a combined eight earned runs on 15 hits over just 9.2 innings pitched. His most recent start against the Yankees was particularly troubling, as he surrendered five earned runs and issued four walks in only 4.1 innings. This pick targets Bubic at a potential inflection point where his performance is regressing toward his underlying metrics.`,
+                        "C. Risk Assessment & Final Verdict": `The principal risk is that Kris Bubic rediscovers the form that led to his stellar early-season numbers. As a left-handed pitcher, he possesses the arsenal to challenge the right-handed Diaz effectively if his command and pitch execution are sharp. However, the combination of Diaz's torrid streak and the clear evidence of Bubic's recent struggles creates a compelling, data-driven case that the hitter has the advantage. A Log5 calculation that heavily weights recent performance yields a final estimated hit probability of approximately 80.0%.`
+                    }
+                },
+                 {
+                    rank: 3,
+                    name: "Vladimir Guerrero Jr.",
+                    team: "1B, Toronto Blue Jays",
+                    title: "III. Data-Driven Selections: Targeting Statistical Vulnerabilities",
+                    probability: 79.5,
+                    stats: { ba: .279, xba: .325, streak: "-", hardHit: "54.6%" },
+                    infographics: {
+                        keyStrength: "Positive Regression Candidate",
+                        matchup: "Elite xBA (.325) vs actual BA (.279) suggests he's due. Faces Logan Allen, whose fastball is a liability (.339 BAA).",
+                        parkFactor: "Progressive Field is a neutral park, placing focus on the direct player vs. pitcher matchup."
+                    },
+                    sections: {
+                        "A. Primary Justification": `Vladimir Guerrero Jr. stands out as a premier candidate for positive statistical regression. His elite quality-of-contact metrics far outpace his surface-level batting average, suggesting he is "due" for a surge in results. This matchup pits him against a very hittable left-handed pitcher, Logan Allen, whose primary weakness aligns perfectly with Guerrero's strength.`,
+                        "B. Detailed Analysis": `The core of the analytical argument for Guerrero lies in the significant gap between his performance and his expected outcomes. While his 2025 batting average is a solid.279, his Statcast-derived expected batting average (xBA) is an elite.325. This positive differential of +.046 is one of the largest among all qualified MLB hitters, providing a strong statistical indicator that he has been the victim of bad luck, excellent defensive plays, or both. He boasts a 54.6% Hard-Hit rate and a strong 15.1% Barrel rate.\n\nThe opposing starter, Logan Allen, is a left-hander with a pedestrian 4.21 ERA and an opponent batting average of.268. Critically for this matchup, Allen's fastball is a significant liability. Opponents are hitting.339 with a.525 slugging percentage against the pitch this season. Elite power hitters like Guerrero are precisely the type of batter who can capitalize on a vulnerable fastball.`,
+                        "C. Risk Assessment & Final Verdict": `The primary risk factor is Guerrero's recent inconsistency, as he was just 1-for-10 over a three-game stretch heading into this series. However, the season-long underlying data for both players provides a more robust and predictive picture. The powerful statistical indicators of Guerrero's impending positive regression, combined with the specific, exploitable weakness of the opposing pitcher, outweigh the concerns of a small, recent cold spell. A Log5 calculation using Guerrero's more predictive xBA of.325 and Allen's opponent BAA of.268 establishes a very strong baseline probability, resulting in a final estimated hit probability of approximately 79.5%.`
+                    }
+                },
+                 {
+                    rank: 4,
+                    name: "Bobby Witt Jr.",
+                    team: "SS, Kansas City Royals",
+                    title: null,
+                    probability: 78,
+                    stats: { ba: .286, xba: null, streak: "7 Games", hardHit: "N/A" },
+                    infographics: {
+                        keyStrength: "Sustained Excellence vs. Slumping Pitcher",
+                        matchup: "Witt is on a 7-game hitting streak (.393 BA) and faces Taj Bradley, who has allowed 19 runs in his last 9.1 IP.",
+                        parkFactor: "Like his opponent Diaz, Witt plays in a neutral park, focusing the analysis on the batter/pitcher form."
+                    },
+                    sections: {
+                        "A. Primary Justification": `This selection features an elite, high-contact, multi-talented hitter who is in excellent form, facing a starting pitcher who is in the midst of a severe and extended slump. The analysis prioritizes the powerful recent performance trends of both the batter and the pitcher over their season-long statistics.`,
+                        "B. Detailed Analysis": `Bobby Witt Jr. is one of the most consistent hitters in baseball. He enters the game on a 7-game hitting streak, during which he is batting.393 (11-for-28). This is not an isolated hot streak; he previously compiled a 22-game hitting streak earlier in the 2025 season, the longest by any player this year. The opposing starter, Taj Bradley, is experiencing a significant downturn. He carries a season ERA of 4.95, but his recent performance has been particularly alarming. Over his last three starts, Bradley has been hit extremely hard, allowing a staggering 19 runs on 16 hits in only 9.1 innings pitched. His most recent outing was a complete disaster, as he was unable to escape the second inning. A slump of this magnitude often points to underlying mechanical or confidence issues, making a pitcher highly vulnerable.`,
+                        "C. Risk Assessment & Final Verdict": `The main risk is that Bradley, a talented young pitcher with a high ceiling, abruptly corrects his issues and reverts to his more effective form. The Rays are also known for their proactive bullpen management. However, the depth and severity of his recent slump suggest a systemic problem rather than a single poor outing, making him a prime target. A Log5 model that is heavily weighted toward recent performance yields an estimated hit probability of approximately 78.0%.`
+                    }
+                },
+                {
+                    rank: 5,
+                    name: "Josh Naylor",
+                    team: "1B, Arizona Diamondbacks",
+                    title: "IV. High-Floor Selection: The Bullpen Game Advantage",
+                    probability: 77.5,
+                    stats: { ba: .302, xba: null, streak: "12 Games", hardHit: "N/A" },
+                    infographics: {
+                        keyStrength: "Hot Hitter vs. Bullpen Game",
+                        matchup: "On a 12-game hitting streak (.404 BA) and is scheduled to face an 'opener' and the statistically weaker White Sox bullpen.",
+                        parkFactor: "The bullpen game dynamic provides multiple chances to face favorable matchups against lesser-quality arms."
+                    },
+                    sections: {
+                        "A. Primary Justification": `This selection leverages a strategic opportunity, targeting a hot, left-handed power hitter who is scheduled to face an "opener" followed by what is statistically one of the weaker bullpens in Major League Baseball. This scenario increases the probability that Naylor will face a favorable right-handed reliever or a struggling middle-inning arm in at least one of his plate appearances.`,
+                        "B. Detailed Analysis": `Josh Naylor is performing at an elite level, entering the day on a 12-game hitting streak. During this impressive run, he is batting.404. His season-long.302 batting average paces the Arizona Diamondbacks. The Chicago White Sox have named Jordan Leasure (4.23 ERA) as their starter, but he is confirmed to be serving as an "opener" for what will be a bullpen game. This is a critical distinction. It guarantees that the Diamondbacks' lineup will face the White Sox bullpen for the vast majority of the contest. Given the White Sox's poor record (25-54), their bullpen lacks the depth of high-leverage, high-quality arms that characterize elite relief corps. This means Naylor is highly likely to receive at least two or three plate appearances against relievers with elevated ERAs, control issues, or significant platoon splits.`,
+                        "C. Risk Assessment & Final Verdict": `The primary risk is twofold. First, the White Sox could strategically deploy a high-quality left-handed reliever specifically to face Naylor in high-leverage situations. Second, there is always the chance that the specific relievers who pitch on this day perform above their season averages. However, given the overall state of the White Sox roster and their bullpen's season-long performance, the probability remains high that Naylor will encounter a favorable matchup at some point. The quantitative baseline, combined with the strategic advantage, supports a final estimated hit probability of approximately 77.5%.`
+                    }
+                }
+            ],
+             watchList: {
+                title: "V. The Watch List & Final Checklist",
+                content: `
+                    <h4 class="text-xl font-bold text-lime-300 mb-3">Final Pre-Selection Checklist</h4>
+                    Before finalizing any selections for the June 24, 2025, games, it is imperative to complete the following checklist to ensure the analysis remains valid at game time.<br><br>
+                    <strong>1. Confirm Starting Lineups:</strong> All analysis presented is contingent on the recommended players being in their team's official starting lineup. Lineups are typically released 1-3 hours before the first pitch. It is essential to verify each player's status on a reliable source such as MLB.com or the official team websites.<br>
+                    <strong>2. Weather Check:</strong> Conduct a final check of the weather forecast for each game location. Unforeseen weather events, such as rainouts (which would nullify the pick) or significant changes in wind direction and speed, can alter the hitting environment and impact batted ball outcomes.<br>
+                    <strong>3. Acknowledge Variance:</strong> It must be understood that baseball is a game of high variance. Even a player with an estimated 80% probability of getting a hit will fail to do so, on average, one out of every five games. The objective of this analytical process is not to guarantee a successful pick on any single day, but to consistently identify the selections that offer the most favorable odds, thereby maximizing the potential for a long-term successful streak.
+                `
+            },
+            appendix: {
+                title: "VI. Appendix: Methodology",
+                content: `
+                    <h4 class="text-xl font-bold text-lime-300 mb-3">Note on Probability Models</h4>
+                    The recommendations and associated probabilities in this report are the output of a multi-layered analytical process designed to maximize predictive accuracy for the Beat the Streak contest. The foundation of this process is the Log5 formula, a widely accepted method for estimating the probability of an outcome between two entities. The baseline formula used is P(A)=(A−A∗B)/(A+B−2∗A∗B), where 'A' represents the hitter's probability of success (typically batting average or a more predictive metric like xBA) and 'B' represents the pitcher's probability of preventing success (typically batting average against).\n\nHowever, a raw Log5 calculation is insufficient for a nuanced prediction. The final probabilities presented in this report are derived from a proprietary weighted model that makes crucial qualitative and quantitative adjustments to the Log5 baseline. These adjustments include:\n- **Park Factor:** A game at Coors Field receives a significant upward adjustment to hit probability.\n- **Recent Performance:** A player's performance over the last 7, 14, and 30 days is weighted more heavily than their season-long statistics.\n- **Pitcher Quality and Form:** The pitcher's recent performance is a critical input. A pitcher in a demonstrable slump will have his negative recent trends weighted more heavily.\n- **Third-Party Model Validation:** The internal model's outputs are cross-referenced with publicly available predictive models as a validation check.
+                `
+            }
+        };
+
+        const renderAccordion = (container, title, content, isOpen = false, customId = '') => {
+            const accordionId = customId || title.replace(/\s+/g, '-').toLowerCase();
+            container.innerHTML = `
+                <div class="p-6 md:p-8">
+                    <button id="accordion-button-${accordionId}" class="flex justify-between items-center w-full text-left">
+                        <h2 class="text-2xl md:text-3xl font-bold text-slate-100">${title}</h2>
+                        <span class="transform transition-transform duration-300 text-lime-400 text-3xl">${isOpen ? '−' : '+'}</span>
+                    </button>
+                    <div id="accordion-content-${accordionId}" class="accordion-content ${isOpen ? 'show' : ''}">
+                        <div class="pt-6 border-t border-slate-700/50 mt-6">
+                            ${content}
+                        </div>
+                    </div>
+                </div>`;
+
+            const button = document.getElementById(`accordion-button-${accordionId}`);
+            const contentEl = document.getElementById(`accordion-content-${accordionId}`);
+            const icon = button.querySelector('span');
+            
+            if (isOpen) {
+                contentEl.style.maxHeight = contentEl.scrollHeight + "px";
+            }
+
+            button.addEventListener('click', () => {
+                const isVisible = contentEl.style.maxHeight !== '0px';
+                if (isVisible) {
+                    contentEl.style.maxHeight = '0px';
+                    icon.textContent = '+';
+                } else {
+                    contentEl.style.maxHeight = contentEl.scrollHeight + "px";
+                    icon.textContent = '−';
+                }
+            });
+        };
+        
+        const formatText = (text) => {
+             if (!text) return '';
+             // Replace markdown-style lists and newlines with HTML tags
+             let formatted = text.replace(/\n\n/g, '</p><p class="mb-4">');
+             formatted = formatted.replace(/\n- /g, '<br>- ');
+             formatted = formatted.replace(/\n\*/g, '<br>*');
+             formatted = formatted.replace(/\n(\d+\.)/g, '<br>$1');
+             return '<p>' + formatted + '</p>';
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const mainContainer = document.getElementById('report-content');
+            
+            const execSummaryContainer = document.getElementById('executive-summary');
+            const summaryContent = `
+                <h3 class="text-xl font-bold text-slate-200 mb-4">Situational Overview</h3>
+                <div class="text-slate-400 leading-relaxed space-y-4">${formatText(reportData.executiveSummary.situationalOverview)}</div>
+                <h3 class="text-xl font-bold text-slate-200 mt-6 mb-4">Master Recommendation Table</h3>
+                ${reportData.executiveSummary.synopsisTable}
+            `;
+            renderAccordion(execSummaryContainer, reportData.executiveSummary.title, summaryContent, true);
+
+            let currentSectionTitle = "";
+            reportData.players.forEach(player => {
+                let sectionHTML = '';
+                if (player.title && player.title !== currentSectionTitle) {
+                    currentSectionTitle = player.title;
+                    sectionHTML += `<h2 class="text-3xl md:text-4xl font-bold text-slate-100 mb-8 mt-12 text-center">${currentSectionTitle}</h2>`;
+                }
+
+                const fullAnalysisContent = Object.entries(player.sections).map(([subtitle, content]) => `
+                    <div class="mb-8">
+                        <h4 class="text-xl font-bold text-lime-300 mb-3">${subtitle}</h4>
+                        <div class="text-slate-400 leading-relaxed space-y-4">${formatText(content)}</div>
+                    </div>
+                `).join('');
+
+                sectionHTML += `
+                    <div class="report-card rounded-2xl p-6 md:p-8 mb-12">
+                        <div class="text-center mb-8">
+                             <p class="text-lime-400 font-bold text-sm">RANK #${player.rank}</p>
+                             <h3 class="text-4xl font-extrabold tracking-tight text-white">${player.name}</h3>
+                             <p class="text-slate-400 text-lg">${player.team}</p>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                             <div class="infographic-panel rounded-lg p-6 flex flex-col justify-center items-center text-center md:col-span-2 lg:col-span-1">
+                                 <h4 class="text-sm font-semibold uppercase text-slate-400 tracking-wider">Composite Hit Probability</h4>
+                                 <div class="relative h-40 w-40 mx-auto mt-2 chart-container">
+                                     <canvas id="prob-${player.rank}"></canvas>
+                                     <div id="prob-text-${player.rank}" class="absolute inset-0 flex items-center justify-center text-4xl font-extrabold text-white"></div>
+                                 </div>
+                             </div>
+                             <div class="infographic-panel rounded-lg p-6">
+                                 <h4 class="text-sm font-semibold uppercase text-slate-400 tracking-wider mb-3">Core Stats</h4>
+                                 <dl class="space-y-4 text-sm">
+                                     <div class="flex justify-between items-baseline"><dt class="text-slate-300">Hitting Streak</dt><dd class="font-bold text-lime-300 text-xl">${player.stats.streak}</dd></div>
+                                     <div class="flex justify-between items-baseline"><dt class="text-slate-300">Hard Hit %</dt><dd class="font-bold text-lime-300 text-xl">${player.stats.hardHit}</dd></div>
+                                     <div class="flex justify-between items-baseline"><dt class="text-slate-300">BA / xBA</dt><dd class="font-bold text-lime-300 text-xl">${player.stats.ba ? '.' + String(player.stats.ba).split('.')[1] : '---'} / ${player.stats.xba ? '.'+String(player.stats.xba).split('.')[1] : '---'}</dd></div>
+                                 </dl>
+                             </div>
+                              <div class="infographic-panel rounded-lg p-6">
+                                 <h4 class="text-sm font-semibold uppercase text-slate-400 tracking-wider mb-3">Key Strength</h4>
+                                 <p class="font-semibold text-lg text-slate-100 mb-2">${player.infographics.keyStrength}</p>
+                                 <p class="text-sm text-slate-400">${player.infographics.matchup}</p>
+                             </div>
+                        </div>
+
+                        <div id="accordion-container-player-${player.rank}" class="report-card rounded-lg border-t border-slate-700/50"></div>
+                    </div>
+                `;
+                mainContainer.insertAdjacentHTML('beforeend', sectionHTML);
+                
+                const playerAccordionContainer = document.getElementById(`accordion-container-player-${player.rank}`);
+                renderAccordion(playerAccordionContainer, 'Deep Dive Analysis', fullAnalysisContent, false, `player-${player.rank}`);
+            });
+            
+            const watchListContainer = document.getElementById('watch-list');
+            renderAccordion(watchListContainer, reportData.watchList.title, formatText(reportData.watchList.content));
+
+            const appendixContainer = document.getElementById('appendix');
+            renderAccordion(appendixContainer, reportData.appendix.title, formatText(reportData.appendix.content));
+
+            reportData.players.forEach(player => {
+                 const canvas = document.getElementById(`prob-${player.rank}`);
+                 const probText = document.getElementById(`prob-text-${player.rank}`);
+                 if (canvas && probText) {
+                    const ctx = canvas.getContext('2d');
+                    new Chart(ctx, {
+                        type: 'doughnut',
+                        data: {
+                            datasets: [{
+                                data: [player.probability, 100 - player.probability],
+                                backgroundColor: ['#a3e635', '#334155'],
+                                borderColor: ['#0f172a', '#0f172a'],
+                                borderWidth: 4,
+                                circumference: 270,
+                                rotation: 225
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            cutout: '80%',
+                            plugins: { legend: { display: false }, tooltip: { enabled: false } }
+                        }
+                    });
+                    probText.textContent = `${Math.round(player.probability)}%`;
+                 }
+            });
+        });
+    </script>
+</body>
+</html>
